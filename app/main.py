@@ -21,7 +21,7 @@ async def lifespan(_: FastAPI):
     logging.getLogger(settings.LOG_NAME).info("Application startup complete.")
     yield
     # on_shutdown
-    logging.getLogger(settings.LOG_NAME).info("Finished server process.")
+    logging.getLogger(settings.LOG_NAME).info("Waiting for application shutdown.")
 
 app = FastAPI(
     title = "QRApp Backend",
