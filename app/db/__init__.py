@@ -27,6 +27,4 @@ class Database:
             tables=tables,
         )
 
-MySQL = Database(
-    url=f"sqlite:///./{settings.MYSQL_DATABASE}.db"
-)
+MySQL = Database(str(settings.MYSQL_DATABASE_URI))

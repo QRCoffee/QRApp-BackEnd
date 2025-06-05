@@ -1,14 +1,13 @@
-from fastapi import Header,Depends
 from typing import Optional
+from fastapi import Depends
 from app.common.exceptions import UnauthorizedException
-from app.core.security import JWTSecurity
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer(auto_error=False)
 
 def login_required(
-    Authorization: Optional[str] = Header(None),
-    _ = Depends(JWTSecurity)  
-):
-    if Authorization is None or not Authorization.startswith("Bearer "):
-        raise UnauthorizedException(
-            error = "Invalid or missing token",
-        )
-    return Authorization.removeprefix("Bearer ")
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+) -> str:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise UnauthorizedException("Invalid or missing token")
+    return credentials.credentials

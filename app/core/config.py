@@ -1,8 +1,12 @@
-import logging
 import os
-from typing import Annotated, Any, Literal
-
-from pydantic import BeforeValidator, HttpUrl, computed_field, model_validator
+from typing import Literal
+from loguru import logger
+from pydantic import (
+    HttpUrl, 
+    computed_field, 
+    model_validator,
+)
+from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
 
@@ -13,63 +17,79 @@ class Settings(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
     )
-    @staticmethod
-    def _parse_cors(v: Any) -> list[str] | str:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",")]
-        elif isinstance(v, list | str):
-            return v
-        raise ValueError(v)
     # Application
     APP_NAME: str = "QRApp Backend"
     APP_VERSION: str = "0.1.0"
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def APP_HOST(self) -> str:
-        if self.ENVIRONMENT == "localhost":
-            return "127.0.0.1"
-        return "0.0.0.0"
-    # Enviroment - Secret
-    ENVIRONMENT: Literal["localhost", "production"] = "localhost"
+
     # Secret
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     JWT_ACCESS_KEY: str | None = None 
     JWT_REFRESH_KEY: str | None = None
-    BACKEND_CORS_ORIGINS: Annotated[
-        list[HttpUrl] | str, 
-        BeforeValidator(_parse_cors)
-    ] = []
     # FrontEnd
     FRONTEND_HOST:HttpUrl = "http://localhost:5173"
     # Database
     MYSQL_HOST:str = "127.0.0.1"
-    MYSQL_PORT:str = "3306"
+    MYSQL_PORT:int = 3306
     MYSQL_USERNAME:str | None = None
     MYSQL_PASSWORD:str | None = None
     MYSQL_DATABASE:str = "QRApp"
+    # Session
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+    REDIS_DATABASE:int = 0
+    REDIS_USERNAME: str | None = None
+    REDIS_PASSWORD: str | None = None
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def MYSQL_DATABASE_URI(self) -> MultiHostUrl:
+        return MultiHostUrl.build(
+            scheme="mysql+pymysql",
+            username=self.MYSQL_USERNAME,
+            password=self.MYSQL_PASSWORD,
+            host=self.MYSQL_HOST,
+            port=self.MYSQL_PORT,
+            path=str(self.MYSQL_DATABASE)
+        )
     
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def all_cors_origins(self) -> list[str]:
-        return [str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS] + [
-            self.FRONTEND_HOST
-        ]
+    def REDIS_DATABASE_URI(self) -> MultiHostUrl:
+        return MultiHostUrl.build(
+            scheme="redis",
+            username=self.REDIS_USERNAME,
+            password=self.REDIS_PASSWORD,
+            host=self.REDIS_HOST,
+            port=self.REDIS_PORT,
+            path=str(self.REDIS_DATABASE)
+        )
     # Logging
-    LOG_NAME: str = "QRApp"
     LOG_FILE: str | None = None
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
     
     @model_validator(mode="after")
     def config_logging(self) -> Self:
+        logger.remove()
         # Config 
-        handlers: list[Any] = [logging.StreamHandler()]
-        if self.LOG_FILE:
-            os.makedirs(os.path.dirname(self.LOG_FILE),exist_ok=True)
-            handlers.append(logging.FileHandler(self.LOG_FILE, encoding='utf-8'))
-        logging.basicConfig(
+        logger.add(
+            sink=lambda msg: print(msg, end=""),
+            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+                   "<level>{level: <8}</level> | "
+                   "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
+                   "<level>{message}</level>",
+            colorize=True,
             level=self.LOG_LEVEL,
-            format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-            handlers=handlers
         )
+        if self.LOG_FILE:
+            os.makedirs(os.path.dirname(self.LOG_FILE), exist_ok=True)
+            logger.add(
+                self.LOG_FILE,
+                format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+                level=self.LOG_LEVEL,
+                encoding="utf-8",
+                rotation="10 MB",  # tuỳ chọn: xoay file log sau mỗi 10MB
+                retention="7 days",  # giữ log trong 7 ngày
+                compression="zip"  # nén file cũ
+            )
         return self
 settings = Settings()

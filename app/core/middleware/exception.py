@@ -1,3 +1,4 @@
+from loguru import logger
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -6,10 +7,11 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
         try:
             return await call_next(request)
         except Exception as e:
+            logger.error(e)
             return JSONResponse(
                 status_code=500,
                 content = {
-                    "message":str(e),
                     "error":e.__class__.__name__,
+                    "message":"Server is temporarily unavailable",
                 }
             )

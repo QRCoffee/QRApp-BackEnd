@@ -1,7 +1,7 @@
 from fastapi import Request
 from fastapi import APIRouter
-from app.api.router.auth import apiRouter as authRouter
 from app.common.exceptions import NotFoundException
+from app.api.router.auth import apiRouter as authRouter
 apiRouter = APIRouter()
 apiRouter.include_router(authRouter)
 # Handle Undefined API
@@ -11,7 +11,4 @@ apiRouter.include_router(authRouter)
     include_in_schema=False,
 )
 async def catch_all(path: str, request: Request):
-    raise NotFoundException(content={
-        "message":f"{request.method} {request.url.path} is undefined",
-        "error":None,
-    })
+    raise NotFoundException(f"{request.method} {request.url.path} is undefined")

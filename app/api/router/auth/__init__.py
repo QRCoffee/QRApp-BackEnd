@@ -1,12 +1,17 @@
 from sqlmodel import Session
 from fastapi import APIRouter,Depends
 from app.db import MySQL
+from app.models import User
+from pydantic import BaseModel
 from app.api.dependency import login_required
-from app.common.responses import CreatedResponse,SuccessResponse
+from app.common.responses import APIResponse
 from app.common.exceptions import ConflictException,UnauthorizedException
 from app.schema.user import SignUp,SignIn
 from app.service import UserService
 
+class TestResponse(BaseModel):
+    message: str
+    data:str = "123"
 apiRouter = APIRouter(
     tags = ["Auth"],
 )
@@ -15,21 +20,27 @@ apiRouter = APIRouter(
     path = "/sign-up",
     name  = "Sign Up",
     status_code=201,
+    response_model=APIResponse[User],
+    response_model_exclude={
+        "data": {
+            "password",
+        }
+    },
     dependencies=[
         Depends(login_required)
-    ]
+    ],
 )
 def sign_up(data:SignUp,db: Session = Depends(MySQL.get_db)):
-    user_table = UserService(db)
-    if user_table.find_by(
+    user_service = UserService(db)
+    if user_service.find_by(
         by = "username",
         value = data.username,
     ):
-        raise ConflictException(
-            error="username has been used"
-        )
-    return CreatedResponse(
-        data = user_table.create(data)
+        raise ConflictException("username has been used")
+    data = user_service.create(data)
+    return APIResponse(
+        message="registregister successfully",
+        data=data,
     )
 
 @apiRouter.post(
@@ -44,9 +55,7 @@ def sign_in(data:SignIn,db: Session = Depends(MySQL.get_db)):
         value = data.username,
     )
     if not user or user._password != data.password:
-        raise UnauthorizedException(
-            error = "Invalid Credentials"
-        )
+        raise UnauthorizedException("Invalid Credentials")
     return SuccessResponse(
         data = {
             "access_token":"123",
