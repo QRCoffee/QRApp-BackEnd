@@ -17,7 +17,5 @@ RUN uv sync --frozen --no-cache && \
 USER appuser
 # Expose
 EXPOSE 8000
-# DEBUG
-RUN ls
 # Run the application.
 CMD ["./.venv/bin/uvicorn", "app.main:app","--log-level","warning","--host", "0.0.0.0","--port", "8000","--workers","2"]
