@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 from app.db import MySQL
 from app.models import User
 from fastapi import FastAPI,Request
@@ -18,10 +18,10 @@ async def lifespan(_: FastAPI):
             User.__table__,
         ]
     )
-    logging.getLogger(settings.LOG_NAME).info("Application startup complete.")
+    logger.info("Application startup complete.")
     yield
     # on_shutdown
-    logging.getLogger(settings.LOG_NAME).info("Waiting for application shutdown.")
+    logger.info("Waiting for application shutdown.")
 
 app = FastAPI(
     title = "QRApp Backend",
