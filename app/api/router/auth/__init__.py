@@ -42,25 +42,3 @@ def sign_up(data:SignUp,db: Session = Depends(MySQL.get_db)):
         message="registregister successfully",
         data=data,
     )
-
-@apiRouter.post(
-    path = "/sign-in",
-    name  = "Sign In",
-    status_code=200,
-)
-def sign_in(data:SignIn,db: Session = Depends(MySQL.get_db)):
-    user_table = UserService(db)
-    user = user_table.find_by(
-        by = "username",
-        value = data.username,
-    )
-    if not user or user._password != data.password:
-        raise UnauthorizedException("Invalid Credentials")
-    return SuccessResponse(
-        data = {
-            "access_token":"123",
-            "refresh_token":"456",
-        }
-    )
-    
-        
