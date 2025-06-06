@@ -2,17 +2,13 @@ from sqlmodel import Session
 from fastapi import APIRouter,Depends
 from app.db import MySQL
 from app.models import User
-from pydantic import BaseModel
 from app.api.dependency import login_required
 from app.common.responses import APIResponse
 from app.common.exceptions import ConflictException,UnauthorizedException
-from app.schema.user import SignUp,SignIn
+from app.schema.user import SignUp,SignIn,SignOut
 from app.service import UserService
 from app.core.security import ACCESS_JWT,REFRESH_JWT
 
-class TestResponse(BaseModel):
-    message: str
-    data:str = "123"
 apiRouter = APIRouter(
     tags = ["Auth"],
 )
@@ -61,8 +57,16 @@ def sign_in(data:SignIn,db: Session = Depends(MySQL.get_db)):
         message="Login successful",
         data={
             "access_token":ACCESS_JWT.encode(user),
-            "refresh_token":REFRESH_JWT.encode(user)
+            "refresh_token":REFRESH_JWT.encode(user,session=True)
         }
     )
-    
-    
+
+@apiRouter.post(
+    path = "/sign-out",
+    name  = "Sign Out",
+    status_code=204,
+)
+def sign_out(data:SignOut,payload = Depends(login_required)):
+    if REFRESH_JWT.decode(data.refresh_token).get("id") != payload.get("id"):
+        raise UnauthorizedException("Hmm! Who are you?")
+    return True
