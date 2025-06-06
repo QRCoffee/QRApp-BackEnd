@@ -46,6 +46,8 @@ class RedisClient:
             value = value,
             ex = ttl,
         )
+        return True
+    
 MySQL = Database(str(settings.MYSQL_DATABASE_URI))
 Redis = RedisClient(
     host = settings.REDIS_HOST,

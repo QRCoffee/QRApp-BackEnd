@@ -7,7 +7,6 @@ from .base import Base
 class User(Base,table=True):
     username: str = Field(nullable=False,unique=True)
     password: str = Field(nullable=False)
-    email: str = Field(default=None,nullable=True,unique=True)
     phone: str = Field(default=None,nullable=True)
 
     def verify_password(self,password:str) -> bool:
