@@ -64,7 +64,7 @@ class Settings(BaseSettings):
             path=str(self.REDIS_DATABASE)
         )
     # Logging
-    LOG_FILE: str | None = None
+    LOG_FILE: str = "./logs/app.log"
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
     
     @model_validator(mode="after")
@@ -80,16 +80,15 @@ class Settings(BaseSettings):
             colorize=True,
             level=self.LOG_LEVEL,
         )
-        if self.LOG_FILE:
-            os.makedirs(os.path.dirname(self.LOG_FILE), exist_ok=True)
-            logger.add(
-                self.LOG_FILE,
-                format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-                level=self.LOG_LEVEL,
-                encoding="utf-8",
-                rotation="10 MB",  # tuỳ chọn: xoay file log sau mỗi 10MB
-                retention="7 days",  # giữ log trong 7 ngày
-                compression="zip"  # nén file cũ
-            )
+        os.makedirs(os.path.dirname(self.LOG_FILE), exist_ok=True)
+        logger.add(
+            self.LOG_FILE,
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
+            level=self.LOG_LEVEL,
+            encoding="utf-8",
+            rotation="50 MB",  # Option: Rotate (reset) log file after reaching 50 MB
+            retention="7 days",  # Keep rotated log files (including zipped) for 7 days
+            compression="zip"  # Compress old log files into zip format
+        )
         return self
 settings = Settings()
