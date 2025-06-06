@@ -22,9 +22,10 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
 
     # Secret
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    JWT_ACCESS_KEY: str | None = None 
-    JWT_REFRESH_KEY: str | None = None
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    ACCESS_KEY: str
+    REFRESH_KEY: str
     # FrontEnd
     FRONTEND_HOST:HttpUrl = "http://localhost:5173"
     # Database
