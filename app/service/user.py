@@ -1,6 +1,8 @@
 import bcrypt
-from app.schema.user import UserCreate,UserUpdate
+
 from app.models import User
+from app.schema.user import UserCreate, UserUpdate
+
 from .base import Service
 
 

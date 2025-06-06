@@ -1,7 +1,7 @@
-from loguru import logger
 import time
-from app.core.config import settings
+
 from fastapi import Request
+from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 
 

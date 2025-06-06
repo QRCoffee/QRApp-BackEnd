@@ -1,5 +1,6 @@
+from typing import Generic, TypeVar
+
 from pydantic import BaseModel
-from typing import TypeVar,Generic
 
 Object = TypeVar("T")
 class APIResponse(BaseModel,Generic[Object]):

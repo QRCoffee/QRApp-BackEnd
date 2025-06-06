@@ -1,11 +1,8 @@
 import os
 from typing import Literal
+
 from loguru import logger
-from pydantic import (
-    HttpUrl, 
-    computed_field, 
-    model_validator,
-)
+from pydantic import HttpUrl, computed_field, model_validator
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self

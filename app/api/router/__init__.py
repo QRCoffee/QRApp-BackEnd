@@ -1,7 +1,8 @@
-from fastapi import Request
-from fastapi import APIRouter
-from app.common.exceptions import NotFoundException
+from fastapi import APIRouter, Request
+
 from app.api.router.auth import apiRouter as authRouter
+from app.common.exceptions import NotFoundException
+
 apiRouter = APIRouter()
 apiRouter.include_router(authRouter)
 # Handle Undefined API

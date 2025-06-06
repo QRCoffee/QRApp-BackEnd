@@ -1,9 +1,13 @@
-import jwt
-from pydantic import BaseModel
-from app.core.config import settings
 import datetime
+
+import jwt
 from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
+
+from app.core.config import settings
 from app.db import Redis
+
+
 class JWTSecurity:
     def __init__(self,secret_key:str,algorithm:str = "HS256",expires_delta:datetime.timedelta | None = None):
         self.algorithm = algorithm

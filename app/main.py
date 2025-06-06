@@ -1,14 +1,16 @@
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from loguru import logger
+
+from app.api.router import apiRouter
+from app.common.exceptions import APIException
+from app.core.middleware import ExceptionMiddleware, LoggingMiddleware
 from app.db import MySQL
 from app.models import User
-from fastapi import FastAPI,Request
-from fastapi.responses import JSONResponse
-from app.core.config import settings
-from app.api.router import apiRouter
-from app.core.middleware import LoggingMiddleware,ExceptionMiddleware
-from contextlib import asynccontextmanager
-from app.common.exceptions import APIException
-from fastapi.exceptions import RequestValidationError
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):    

@@ -1,8 +1,10 @@
-import redis
 from typing import Generator, List
-from app.core.config import settings
+
+import redis
 from sqlalchemy.sql.schema import Table
 from sqlmodel import Session, SQLModel, create_engine
+
+from app.core.config import settings
 
 
 class Database:

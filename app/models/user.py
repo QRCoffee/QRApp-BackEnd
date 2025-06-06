@@ -1,6 +1,9 @@
 import bcrypt
-from .base import Base
 from sqlmodel import Field
+
+from .base import Base
+
+
 class User(Base,table=True):
     username: str = Field(nullable=False,unique=True)
     password: str = Field(nullable=False)
