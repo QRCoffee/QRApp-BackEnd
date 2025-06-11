@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends
-from sqlmodel import Session
 
 from app.api.dependency import login_required
 from app.common.exceptions import ConflictException, UnauthorizedException
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
-from app.db import MySQL
+from app.db import Redis
 from app.models import User
-from app.schema.user import SignIn, SignOut, SignUp
-from app.service import UserService
+from app.schema.auth import SignIn,SignUp,Session,SignOut
+from app.service import userService
 
 apiRouter = APIRouter(
     tags = ["Auth"],
@@ -28,46 +27,48 @@ apiRouter = APIRouter(
         Depends(login_required)
     ],
 )
-def sign_up(data:SignUp,db: Session = Depends(MySQL.get_db)):
-    user_service = UserService(db)
-    if user_service.find_by(
-        by = "username",
-        value = data.username,
-    ):
-        raise ConflictException("username has been used")
-    data = user_service.create(data)
+async def sign_up(data:SignUp,payload = Depends(login_required)):
+    if payload.get("role") != "Manager":
+        raise UnauthorizedException("không đủ quyền")
+    if await userService.find_by(by="username", value=data.username):
+        raise ConflictException("username đã tồn tại")
+    user = await userService.create(data)
     return APIResponse(
-        message="registregister successfully",
-        data=data,
+        message="đăng kí thành công",
+        data=user,
     )
 
 @apiRouter.post(
     path = "/sign-in",
     name  = "Sign In",
     status_code=200,
+    response_model=APIResponse[Session],
 )
-def sign_in(data:SignIn,db: Session = Depends(MySQL.get_db)):
-    user_service = UserService(db)
-    user = user_service.find_by(
-        by = "username",
-        value = data.username,
-    )
+async def sign_in(data:SignIn):
+    user = await userService.find_by(by="username", value=data.username)
     if not user or not user.verify_password(data.password):
-        raise UnauthorizedException("invalid credentials")
+        raise UnauthorizedException("sai thông tin đăng nhập")
     return APIResponse(
-        message="Login successful",
-        data={
-            "access_token":ACCESS_JWT.encode(user),
-            "refresh_token":REFRESH_JWT.encode(user,session=True)
-        }
+        message = "đăng nhập thành công",
+        data = Session(
+            access_token=ACCESS_JWT.encode(user),
+            refresh_token=REFRESH_JWT.encode(user,session=True)
+        )
     )
 
 @apiRouter.post(
     path = "/sign-out",
     name  = "Sign Out",
-    status_code=204,
+    status_code=200,
 )
-def sign_out(data:SignOut,payload = Depends(login_required)):
-    if REFRESH_JWT.decode(data.refresh_token).get("id") != payload.get("id"):
-        raise UnauthorizedException("Hmm! Who are you?")
-    return True
+async def sign_in(data:SignOut, payload = Depends(login_required)):
+    user_id = payload.get("_id")
+    if Redis.get(user_id) != data.refresh_token:
+        raise UnauthorizedException(
+            message="đăng xuất thất bại"
+        )
+    Redis.delete(user_id)
+    return APIResponse(
+        message="đăng xuất thành công",
+        data = None,
+    )    

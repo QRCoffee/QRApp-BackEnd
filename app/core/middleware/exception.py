@@ -14,6 +14,6 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
                 status_code=500,
                 content = {
                     "error":e.__class__.__name__,
-                    "message":"Server is temporarily unavailable",
+                    "message": str(e),
                 }
             )

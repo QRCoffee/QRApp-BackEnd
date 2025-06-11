@@ -1,3 +1,3 @@
-from .user import UserService
+from .user import userService
 
-__all__ = ["UserService"]
+__all__ = ["userService"]

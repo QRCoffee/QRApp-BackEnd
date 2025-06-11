@@ -1,25 +1,30 @@
 from contextlib import asynccontextmanager
-
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request,WebSocket,WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
-
+from app.service import userService
 from app.api.router import apiRouter
 from app.common.exceptions import APIException
 from app.core.middleware import ExceptionMiddleware, LoggingMiddleware
-from app.db import MySQL
-from app.models import User
+from app.db import Mongo
+from app.socket import manager
+from app.core.config import settings
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):    
     # on_startup
-    MySQL.initiate(
-        tables=[
-            User.__table__,
-        ]
-    )
+    await Mongo.initialize()
+    if not await userService.find_by(
+        "username",
+        "admin"
+    ):
+        await userService.create({
+            "username":settings.ADMIN_USERNAME,
+            "password":settings.ADMIN_PASSWORD,
+            "role":"Manager"
+        })
     logger.info("Application startup complete.")
     yield
     # on_shutdown
@@ -35,6 +40,15 @@ app.add_middleware(LoggingMiddleware)
 app.add_middleware(ExceptionMiddleware)
 # Endpoint
 app.include_router(apiRouter)
+# WebSocket
+@app.websocket("/ws")
+async def websocket(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()  # giữ kết nối
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 # Handle Exception
 @app.exception_handler(APIException)
 async def exception_handler(_: Request, exc: APIException):
