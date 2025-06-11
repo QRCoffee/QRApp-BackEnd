@@ -16,51 +16,22 @@ class Settings(BaseSettings):
     )
     # Application
     APP_NAME: str = "QRApp Backend"
-    APP_VERSION: str = "0.1.0"
-
+    APP_VERSION: str = "1.0.0"
     # Secret
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
-    ACCESS_KEY: str
-    REFRESH_KEY: str
+    ACCESS_KEY: str = "1"
+    REFRESH_KEY: str = "1"
     # FrontEnd
     FRONTEND_HOST:HttpUrl = "http://localhost:5173"
     # Database
-    MONGO_HOST:str = "127.0.0.1"
-    MONGO_PORT:int = 27017
-    MONGO_USERNAME:str | None = None
-    MONGO_PASSWORD:str | None = None
+    MONGO_URL: str | None = None
     MONGO_DATABASE:str = "QRApp"
     # Session
-    REDIS_HOST: str = "127.0.0.1"
-    REDIS_PORT: int = 6379
-    REDIS_DATABASE:int = 0
-    REDIS_USERNAME: str | None = None
-    REDIS_PASSWORD: str | None = None
-
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def MONGO_URL(self) -> MultiHostUrl:
-        return MultiHostUrl.build(
-            scheme="mongodb",
-            username=self.MONGO_USERNAME,
-            password=self.MONGO_PASSWORD,
-            host=self.MONGO_HOST,
-            port=self.MONGO_PORT,
-            path=str(self.MONGO_DATABASE)
-        )
-    
-    @computed_field  # type: ignore[prop-decorator]
-    @property
-    def REDIS_DATABASE_URI(self) -> MultiHostUrl:
-        return MultiHostUrl.build(
-            scheme="redis",
-            username=self.REDIS_USERNAME,
-            password=self.REDIS_PASSWORD,
-            host=self.REDIS_HOST,
-            port=self.REDIS_PORT,
-            path=str(self.REDIS_DATABASE)
-        )
+    REDIS_URL: str | None = None
+    # ADMIN ACOUNT
+    ADMIN_USERNAME:str = "admin"
+    ADMIN_PASSWORD:str = "admin"
     # Logging
     LOG_FILE: str = "./logs/app.log"
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"

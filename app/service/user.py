@@ -5,6 +5,9 @@ from .base import Service
 
 
 class UserService(Service[User, UserCreate, UserUpdate]):
-    pass
+    def __init__(self):
+        super().__init__(User)
 
-__all__ = ["UserService"]
+userService = UserService()
+
+__all__ = ["userService"]

@@ -5,15 +5,8 @@ from app.core.config import settings
 
 
 class RedisClient:
-    def __init__(self,host:str,port:int,db:int,username:str,password:str,**kwargs):
-        self.client = redis.Redis(
-            host=host,
-            port=port,
-            db=db,
-            username=username,
-            password=password,
-            **kwargs,
-        )
+    def __init__(self,url,**kwargs):
+        self.client = redis.Redis.from_url(url,**kwargs)
     def set(self,key,value,ttl) -> bool:
         self.client.set(
             name = key,
@@ -21,12 +14,9 @@ class RedisClient:
             ex = ttl,
         )
         return True
-    
-Redis = RedisClient(
-    host = settings.REDIS_HOST,
-    port = settings.REDIS_PORT,
-    db = settings.REDIS_DATABASE,
-    username= settings.REDIS_USERNAME,
-    password=settings.REDIS_PASSWORD,
-    decode_responses=True,
-)
+    def get(self,key):
+        return self.client.get(key)
+    def delete(self,key):
+        self.client.delete(key)
+        
+Redis = RedisClient(settings.REDIS_URL,decode_responses=True)

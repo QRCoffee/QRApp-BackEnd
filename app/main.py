@@ -1,20 +1,29 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
-
+from app.service import userService
 from app.api.router import apiRouter
 from app.common.exceptions import APIException
 from app.core.middleware import ExceptionMiddleware, LoggingMiddleware
 from app.db import Mongo
+from app.core.config import settings
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):    
     # on_startup
     await Mongo.initialize()
+    if not await userService.find_by(
+        "username",
+        "admin"
+    ):
+        await userService.create({
+            "username":settings.ADMIN_USERNAME,
+            "password":settings.ADMIN_PASSWORD,
+            "role":"Manager"
+        })
     logger.info("Application startup complete.")
     yield
     # on_shutdown

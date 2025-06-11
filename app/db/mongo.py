@@ -24,4 +24,4 @@ class MongoDB:
         return self
 
 
-Mongo = MongoDB(f"mongodb+srv://nhathuyd4hp:admin.nhathuyd4hp@qrapp.p6y4b66.mongodb.net/{settings.MONGO_DATABASE}?retryWrites=true&w=majority")
+Mongo = MongoDB(settings.MONGO_URL)
