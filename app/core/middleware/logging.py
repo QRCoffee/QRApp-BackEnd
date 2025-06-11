@@ -14,10 +14,12 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         method = request.method
         path = request.url.path
         host = request.client.host
+        user_agent = request.headers.get("user-agent","unknown")
+        # ---- Extract information of response
         status_code = response.status_code
-        # --- Log
         logger.info({
             "host": host,
+            "user-agent":user_agent,
             "method": method,
             "path": path,
             "duration": duration,

@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
 from app.core.config import settings
-from app.db import Redis
+from app.db.redis import Redis
 
 
 class JWTSecurity:

@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends
-from sqlmodel import Session
 
 from app.api.dependency import login_required
 from app.common.exceptions import ConflictException, UnauthorizedException
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
-from app.db import MySQL
+from app.db import Redis
 from app.models import User
 from app.schema.user import SignIn, SignOut, SignUp
-from app.service import UserService
+from app.service.base import Service
 
 apiRouter = APIRouter(
     tags = ["Auth"],
@@ -24,50 +23,41 @@ apiRouter = APIRouter(
             "password",
         }
     },
-    dependencies=[
-        Depends(login_required)
-    ],
+    # dependencies=[
+    #     Depends(login_required)
+    # ],
 )
-def sign_up(data:SignUp,db: Session = Depends(MySQL.get_db)):
-    user_service = UserService(db)
-    if user_service.find_by(
-        by = "username",
-        value = data.username,
-    ):
+async def sign_up(data:SignUp):
+    user_service = Service[User, SignUp, SignUp](User)
+    if await user_service.find_by(by="username", value=data.username):
         raise ConflictException("username has been used")
-    data = user_service.create(data)
+    user = await user_service.create(data)
     return APIResponse(
-        message="registregister successfully",
-        data=data,
+        message="register successfully",
+        data=user,
     )
 
 @apiRouter.post(
     path = "/sign-in",
     name  = "Sign In",
-    status_code=200,
-)
-def sign_in(data:SignIn,db: Session = Depends(MySQL.get_db)):
-    user_service = UserService(db)
-    user = user_service.find_by(
-        by = "username",
-        value = data.username,
-    )
-    if not user or not user.verify_password(data.password):
-        raise UnauthorizedException("invalid credentials")
-    return APIResponse(
-        message="Login successful",
-        data={
-            "access_token":ACCESS_JWT.encode(user),
-            "refresh_token":REFRESH_JWT.encode(user,session=True)
+    status_code=201,
+    response_model=APIResponse[User],
+    response_model_exclude={
+        "data": {
+            "password",
         }
+    },
+    dependencies=[
+        Depends(login_required)
+    ],
+)
+async def sign_up(data:SignIn):
+    user_service = Service[User, SignUp, SignUp](User)
+    if await user_service.find_by(by="username", value=data.username):
+        raise ConflictException("username has been used")
+    user = await user_service.create(data)
+    return APIResponse(
+        message="register successfully",
+        data=user,
     )
 
-@apiRouter.post(
-    path = "/sign-out",
-    name  = "Sign Out",
-    status_code=204,
-)
-def sign_out(data:SignOut,payload = Depends(login_required)):
-    if REFRESH_JWT.decode(data.refresh_token).get("id") != payload.get("id"):
-        raise UnauthorizedException("Hmm! Who are you?")
-    return True

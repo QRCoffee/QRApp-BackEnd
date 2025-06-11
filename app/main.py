@@ -8,18 +8,13 @@ from loguru import logger
 from app.api.router import apiRouter
 from app.common.exceptions import APIException
 from app.core.middleware import ExceptionMiddleware, LoggingMiddleware
-from app.db import MySQL
-from app.models import User
+from app.db import Mongo
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):    
     # on_startup
-    MySQL.initiate(
-        tables=[
-            User.__table__,
-        ]
-    )
+    await Mongo.initialize()
     logger.info("Application startup complete.")
     yield
     # on_shutdown

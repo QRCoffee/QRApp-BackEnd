@@ -1,60 +1,49 @@
-from typing import Any, Generic, List, Optional, TypeVar, Union
+from typing import Any, Generic, List, Optional, Type, TypeVar, Union
 
+from beanie import Document
 from pydantic import BaseModel
-from sqlmodel import Session, SQLModel, select
 
-ModelType = TypeVar("ModelType", bound=SQLModel)
+ModelType = TypeVar("ModelType", bound=Document)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: type[ModelType], db: Session):
-        self.db = db
+    def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    def find_by(
-        self,
-        by: str = "id",
-        value: Any | None = None,
-    ) -> Optional[ModelType]:
-        query = select(self.model).where(getattr(self.model, by) == value)
-        return self.db.exec(query).first()
+    async def find_by(self, by: str = "id", value: Any = None) -> Optional[ModelType]:
+        if by == "id":
+            return await self.model.get(value)
+        return await self.model.find_one({by: value})
 
-    def find_all(self) -> List[ModelType]:
-        query = select(self.model)
-        return self.db.exec(query).all()
+    async def find_all(self) -> List[ModelType]:
+        return await self.model.find_all().to_list()
 
-    def create(self, data: Union[dict, CreateSchemaType]) -> ModelType:
+    async def create(self, data: Union[dict, CreateSchemaType]) -> ModelType:
         if isinstance(data, BaseModel):
             data = data.model_dump()
-        validated_data = self.model.model_validate(data)
-        db_item = self.model(**validated_data.model_dump())
-        self.db.add(db_item)
-        self.db.commit()
-        self.db.refresh(db_item)
-        return db_item
+        doc = self.model(**data)
+        await doc.insert()
+        return doc
 
-    def update(self, id: int, data: Union[dict, UpdateSchemaType]) -> Optional[ModelType]:
-        db_item = self.find_by(value=id)
+    async def update(self, id: Any, data: Union[dict, UpdateSchemaType]) -> Optional[ModelType]:
+        db_item = await self.model.get(id)
         if not db_item:
             return None
-        
+
         if isinstance(data, BaseModel):
-            data = data.model_dump()
+            data = data.model_dump(exclude_unset=True)
 
         for key, value in data.items():
             setattr(db_item, key, value)
-        
-        self.db.add(db_item)
-        self.db.commit()
-        self.db.refresh(db_item)
+
+        await db_item.save()
         return db_item
 
-    def delete(self, id: int) -> bool:
-        db_item = self.find_by(value=id)
+    async def delete(self, id: Any) -> bool:
+        db_item = await self.model.get(id)
         if not db_item:
             return False
-        
-        self.db.delete(db_item)
-        self.db.commit()
+
+        await db_item.delete()
         return True

@@ -26,11 +26,11 @@ class Settings(BaseSettings):
     # FrontEnd
     FRONTEND_HOST:HttpUrl = "http://localhost:5173"
     # Database
-    MYSQL_HOST:str = "127.0.0.1"
-    MYSQL_PORT:int = 3306
-    MYSQL_USERNAME:str | None = None
-    MYSQL_PASSWORD:str | None = None
-    MYSQL_DATABASE:str = "QRApp"
+    MONGO_HOST:str = "127.0.0.1"
+    MONGO_PORT:int = 27017
+    MONGO_USERNAME:str | None = None
+    MONGO_PASSWORD:str | None = None
+    MONGO_DATABASE:str = "QRApp"
     # Session
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
@@ -40,14 +40,14 @@ class Settings(BaseSettings):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def MYSQL_DATABASE_URI(self) -> MultiHostUrl:
+    def MONGO_URL(self) -> MultiHostUrl:
         return MultiHostUrl.build(
-            scheme="mysql+pymysql",
-            username=self.MYSQL_USERNAME,
-            password=self.MYSQL_PASSWORD,
-            host=self.MYSQL_HOST,
-            port=self.MYSQL_PORT,
-            path=str(self.MYSQL_DATABASE)
+            scheme="mongodb",
+            username=self.MONGO_USERNAME,
+            password=self.MONGO_PASSWORD,
+            host=self.MONGO_HOST,
+            port=self.MONGO_PORT,
+            path=str(self.MONGO_DATABASE)
         )
     
     @computed_field  # type: ignore[prop-decorator]
