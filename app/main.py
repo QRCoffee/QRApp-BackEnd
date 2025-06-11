@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request,WebSocket,WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
@@ -8,6 +8,7 @@ from app.api.router import apiRouter
 from app.common.exceptions import APIException
 from app.core.middleware import ExceptionMiddleware, LoggingMiddleware
 from app.db import Mongo
+from app.socket import manager
 from app.core.config import settings
 
 
@@ -39,6 +40,15 @@ app.add_middleware(LoggingMiddleware)
 app.add_middleware(ExceptionMiddleware)
 # Endpoint
 app.include_router(apiRouter)
+# WebSocket
+@app.websocket("/ws")
+async def websocket(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()  # giữ kết nối
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 # Handle Exception
 @app.exception_handler(APIException)
 async def exception_handler(_: Request, exc: APIException):
