@@ -27,7 +27,6 @@ async def sign_up(data:SignUp, _ = Depends(permissions([UserRole.ADMIN]))):
         )
     user = await userService.create(data)
     return APIResponse(
-        message = APIMessage.SUCCESS,
         data=user
     )
 
@@ -46,7 +45,6 @@ async def sign_in(data:SignIn):
             message=APIMessage.INVALID_CREDENTIALS,
         )
     return APIResponse(
-        message = APIMessage.SUCCESS,
         data = Session(
             access_token=ACCESS_JWT.encode(user),
             refresh_token=REFRESH_JWT.encode(user,session=True)
@@ -68,6 +66,4 @@ async def sign_out(data:SignOut, payload = Depends(permissions())):
             message="đăng xuất thất bại"
         )
     SessionManager.delete(user_id)
-    return APIResponse(
-        message=APIMessage.SUCCESS,
-    )
+    return APIResponse()
