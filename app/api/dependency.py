@@ -46,7 +46,5 @@ def permissions(roles: Optional[List[UserRole]] = None) -> Callable:
                 error=APIError.PERMISSION_DENIED,
                 message=APIMessage.PERMISSION_DENIED,
             )
-        payload.pop("password")
-        payload.pop("exp")
         return payload
     return _permissions
