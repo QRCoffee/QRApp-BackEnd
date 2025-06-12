@@ -8,13 +8,14 @@ from app.schema.user import UserResponse
 from app.service import restaurantService,userService
 AdminRouter = APIRouter(
     tags=["Restaurant: Admin"],
+    prefix="/restaurants",
     dependencies=[
         Depends(permissions([UserRole.ADMIN]))
     ],
 )
 
 @AdminRouter.get(
-    path = "/", 
+    path = "", 
     name="List of restaurants"
 )
 async def get_restaurants():
@@ -24,7 +25,7 @@ async def get_restaurants():
     )
 
 @AdminRouter.post(
-    path = "/", 
+    path = "", 
     name="New Restaurants",
     response_model=APIResponse,
 )
@@ -34,8 +35,8 @@ async def add_restaurants(data: RestaurantCreate):
         data = restaurant
     )
 
-@AdminRouter.put(
-    path = "/",
+@AdminRouter.post(
+    path = "/assign",
     name = "Assign restaurant",
     response_model=APIResponse[UserResponse],
 )
