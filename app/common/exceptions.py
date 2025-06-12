@@ -1,5 +1,5 @@
 from typing import Any
-
+from app.common.enum import APIError
 from fastapi import HTTPException, status
 
 
@@ -11,18 +11,18 @@ class APIException(HTTPException):
         }
         super().__init__(status_code, detail, headers)
 
-class UnauthorizedException(APIException):
-    def __init__(self, message = None, error = "Unauthorized", headers=None):
+class HTTP_401_UNAUTHORZIED(APIException):
+    def __init__(self, message = None, error = APIError.UNAUTHORIZED, headers=None):
         super().__init__(status.HTTP_401_UNAUTHORIZED, message, error, headers)
 
-class ForbiddenException(APIException):
-    def __init__(self, message = None, error = "Forbidden", headers=None):
+class HTTP_403_FORBIDDEN(APIException):
+    def __init__(self, message = None, error = APIError.PERMISSION_DENIED, headers=None):
         super().__init__(status.HTTP_403_FORBIDDEN, message, error, headers)
 
-class NotFoundException(APIException):
+class HTTP_404_NOT_FOUND(APIException):
     def __init__(self, message = None, error = "Not Found", headers=None):
         super().__init__(status.HTTP_404_NOT_FOUND, message, error, headers)
 
-class ConflictException(APIException):
+class HTTP_409_CONFLICT(APIException):
     def __init__(self, message = None, error = "Conflict", headers=None):
         super().__init__(status.HTTP_409_CONFLICT, message, error, headers)

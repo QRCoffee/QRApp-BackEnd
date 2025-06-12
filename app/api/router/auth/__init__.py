@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends
-
-from app.api.dependency import login_required
-from app.common.exceptions import ConflictException, UnauthorizedException
+from app.common.enum import UserRole,APIMessage,APIError
+from app.api.dependency import permissions
+from app.common.exceptions import HTTP_409_CONFLICT, HTTP_401_UNAUTHORZIED
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
-from app.db import Redis
-from app.models import User
+from app.db import Redis as SessionManager
 from app.schema.auth import SignIn,SignUp,Session,SignOut
 from app.service import userService
 
@@ -17,25 +16,19 @@ apiRouter = APIRouter(
     path = "/sign-up",
     name  = "Sign Up",
     status_code=201,
-    response_model=APIResponse[User],
-    response_model_exclude={
-        "data": {
-            "password",
-        }
-    },
-    dependencies=[
-        Depends(login_required)
-    ],
+    response_model=APIResponse,
+    response_model_exclude={"data":{"password"}}
 )
-async def sign_up(data:SignUp,payload = Depends(login_required)):
-    if payload.get("role") != "Manager":
-        raise UnauthorizedException("không đủ quyền")
+async def sign_up(data:SignUp, _ = Depends(permissions([UserRole.ADMIN]))):
     if await userService.find_by(by="username", value=data.username):
-        raise ConflictException("username đã tồn tại")
+        raise HTTP_409_CONFLICT(
+            error= APIError.CONFLICT,
+            message=APIMessage.USERNAME_CONFLIC,
+        )
     user = await userService.create(data)
     return APIResponse(
-        message="đăng kí thành công",
-        data=user,
+        message = APIMessage.SUCCESS,
+        data=user
     )
 
 @apiRouter.post(
@@ -43,13 +36,17 @@ async def sign_up(data:SignUp,payload = Depends(login_required)):
     name  = "Sign In",
     status_code=200,
     response_model=APIResponse[Session],
+    response_model_exclude_unset=True,
 )
 async def sign_in(data:SignIn):
     user = await userService.find_by(by="username", value=data.username)
     if not user or not user.verify_password(data.password):
-        raise UnauthorizedException("sai thông tin đăng nhập")
+        raise HTTP_401_UNAUTHORZIED(
+            error= APIError.INVALID_CREDENTIALS,
+            message=APIMessage.INVALID_CREDENTIALS,
+        )
     return APIResponse(
-        message = "đăng nhập thành công",
+        message = APIMessage.SUCCESS,
         data = Session(
             access_token=ACCESS_JWT.encode(user),
             refresh_token=REFRESH_JWT.encode(user,session=True)
@@ -60,15 +57,17 @@ async def sign_in(data:SignIn):
     path = "/sign-out",
     name  = "Sign Out",
     status_code=200,
+    response_model=APIResponse,
+    response_model_exclude_unset=True,
 )
-async def sign_in(data:SignOut, payload = Depends(login_required)):
+async def sign_out(data:SignOut, payload = Depends(permissions())):
     user_id = payload.get("_id")
-    if Redis.get(user_id) != data.refresh_token:
-        raise UnauthorizedException(
+    if SessionManager.get(user_id) != data.refresh_token:
+        raise HTTP_401_UNAUTHORZIED(
+            error= APIError.SESSION_INVALID,
             message="đăng xuất thất bại"
         )
-    Redis.delete(user_id)
+    SessionManager.delete(user_id)
     return APIResponse(
-        message="đăng xuất thành công",
-        data = None,
-    )    
+        message=APIMessage.SUCCESS,
+    )

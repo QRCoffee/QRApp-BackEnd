@@ -24,5 +24,6 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             "path": path,
             "duration": duration,
             "status_code": status_code,
+            "error": None,
         })
         return response
