@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 from app.common.enum import APIError,APIMessage
 from pydantic import ValidationError
+from fastapi.exceptions import ResponseValidationError
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
@@ -17,6 +18,12 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
             duration = time.time() - start_time
             # Xác định loại lỗi & mã phản hồi
             if isinstance(e, ValidationError):
+                status_code = 422
+                error = APIError.VALIDATION_ERROR
+                message = [
+                    f"{error['msg']} {error['loc']}" for error in e.errors()
+                ]
+            if isinstance(e,ResponseValidationError):
                 status_code = 422
                 error = APIError.VALIDATION_ERROR
                 message = [

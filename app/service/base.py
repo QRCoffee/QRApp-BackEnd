@@ -16,8 +16,17 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             return await self.model.get(value,fetch_links=True)
         return await self.model.find_one({by: value},fetch_links=True)
 
-    async def find_all(self) -> List[ModelType]:
-        return await self.model.find_all().to_list()
+    async def find_all(
+        self,
+        skip: int | None = None,
+        limit: int | None = None,
+    ) -> List[ModelType]:
+        return await self.model.find(
+            {},
+            skip= skip,
+            limit = limit,
+            fetch_links=True
+        ).to_list()
 
     async def create(self, data: Union[dict, CreateSchemaType]) -> ModelType:
         if isinstance(data, BaseModel):

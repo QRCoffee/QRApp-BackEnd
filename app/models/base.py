@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from beanie import Document, Insert, Replace, before_event
-from pydantic import Field
-
+from beanie import Document, Insert, Replace, before_event,PydanticObjectId
+from pydantic import Field,ConfigDict
+from typing import Optional
 
 class Base(Document):
+    id: Optional[PydanticObjectId] = Field(default=None, alias="_id")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     
@@ -16,3 +17,7 @@ class Base(Document):
     @before_event(Replace)
     def update_timestamp(self):
         self.updated_at = datetime.now()
+
+    def model_dump(self, *args, **kwargs) -> dict:
+        kwargs.setdefault("by_alias", True)
+        return super().model_dump(*args, **kwargs)

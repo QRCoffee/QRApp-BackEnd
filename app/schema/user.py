@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Literal,Optional
 from pydantic import Field
 from app.common.enum import UserRole
+from app.schema.restaurant import Restaurant
 from app.schema import BaseResponse
 
 class Auth(BaseModel):
@@ -38,4 +39,5 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseResponse):
     username: str
-    role: UserRole 
+    role: UserRole
+    restaurant: Optional[Restaurant] = None
