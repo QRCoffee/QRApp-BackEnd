@@ -2,7 +2,7 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from app.core.config import settings
-from app.models import User
+from app.models import User,Restaurant
 
 
 class MongoDB:
@@ -19,7 +19,7 @@ class MongoDB:
     async def initialize(self):
         await init_beanie(
             database=self.database,
-            document_models=[User]
+            document_models=[User,Restaurant]
         )
         return self
 

@@ -12,7 +12,7 @@ apiRouter = APIRouter(
     response_model=APIResponse,
     response_model_exclude={"data":{"password"}}
 )
-async def sign_up(payload = Depends(permissions())):
+async def profile(payload = Depends(permissions())):
     return APIResponse(
         data=payload
     )

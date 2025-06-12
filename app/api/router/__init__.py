@@ -2,12 +2,14 @@ from fastapi import APIRouter, Request
 
 from app.api.router.auth import apiRouter as authRouter
 from app.api.router.user import apiRouter as userRouter
+from app.api.router.restaurant import apiRouter as restaurantRouter
 from app.common.exceptions import HTTP_404_NOT_FOUND
 from app.common.enum import APIError
 
 apiRouter = APIRouter()
 apiRouter.include_router(authRouter)
 apiRouter.include_router(userRouter)
+apiRouter.include_router(restaurantRouter)
 # Handle Undefined API
 @apiRouter.api_route(
     path = "/{path:path}",
