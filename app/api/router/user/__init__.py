@@ -1,5 +1,6 @@
 from fastapi import APIRouter,Depends
 from app.common.responses import APIResponse
+from app.schema.user import UserResponse
 from app.api.dependency import permissions
 apiRouter = APIRouter(
     tags = ["User"],
@@ -9,8 +10,7 @@ apiRouter = APIRouter(
     path = "/me",
     name  = "Self",
     status_code=200,
-    response_model=APIResponse,
-    response_model_exclude={"data":{"password"}}
+    response_model=APIResponse[UserResponse],
 )
 async def profile(payload = Depends(permissions())):
     return APIResponse(

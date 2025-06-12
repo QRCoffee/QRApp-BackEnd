@@ -8,4 +8,4 @@ class Restaurant(Base):
     name: str = Field(nullable=False)  
     address: str = Field(nullable=False)
     phone: Optional[str] = Field(default=None)
-    owner: Link[User] = Field(nullable=False) 
+    owner: Link[User] = Field(nullable=False)

@@ -5,6 +5,7 @@ from app.common.exceptions import HTTP_409_CONFLICT, HTTP_401_UNAUTHORZIED
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.db import Redis as SessionManager
+from app.schema.user import UserResponse
 from app.schema.auth import SignIn,SignUp,Session,SignOut
 from app.service import userService
 
@@ -16,8 +17,7 @@ apiRouter = APIRouter(
     path = "/sign-up",
     name  = "Sign Up",
     status_code=201,
-    response_model=APIResponse,
-    response_model_exclude={"data":{"password"}}
+    response_model=APIResponse[UserResponse],
 )
 async def sign_up(data:SignUp, _ = Depends(permissions([UserRole.ADMIN]))):
     if await userService.find_by(by="username", value=data.username):
@@ -35,7 +35,6 @@ async def sign_up(data:SignUp, _ = Depends(permissions([UserRole.ADMIN]))):
     name  = "Sign In",
     status_code=200,
     response_model=APIResponse[Session],
-    response_model_exclude_unset=True,
 )
 async def sign_in(data:SignIn):
     user = await userService.find_by(by="username", value=data.username)
