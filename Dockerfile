@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # Cài các thư viện hệ thống cần thiết
-RUN apk add --no-cache build-base libffi-dev openssl-dev curl
+RUN apk add --no-cache build-base curl libffi-dev openssl-dev
 
 # Cài `uv`
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/

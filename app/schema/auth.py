@@ -1,9 +1,11 @@
 from pydantic import BaseModel
-
+from typing import Optional
+from app.common.enum import UserRole
 
 class SignUp(BaseModel):
     username: str
     password: str
+    role: str = UserRole.STAFF
 
 class SignIn(BaseModel):
     username: str

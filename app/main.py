@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request,WebSocket,WebSocketDisconnect
+from fastapi import FastAPI, Request,WebSocket,WebSocketDisconnect,status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
@@ -8,6 +8,8 @@ from app.api.router import apiRouter
 from app.common.exceptions import APIException
 from app.core.middleware import ExceptionMiddleware, LoggingMiddleware
 from app.db import Mongo
+from app.common.enum import UserRole
+from app.common.enum import APIError
 from app.socket import manager
 from app.core.config import settings
 
@@ -23,7 +25,7 @@ async def lifespan(_: FastAPI):
         await userService.create({
             "username":settings.ADMIN_USERNAME,
             "password":settings.ADMIN_PASSWORD,
-            "role":"Manager"
+            "role":UserRole.ADMIN,
         })
     logger.info("Application startup complete.")
     yield
@@ -34,6 +36,7 @@ app = FastAPI(
     title = "QRApp Backend",
     debug = False,
     lifespan = lifespan,
+    version = settings.APP_VERSION,
 )
 # Middleware
 app.add_middleware(LoggingMiddleware)
@@ -46,7 +49,7 @@ async def websocket(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            await websocket.receive_text()  # giữ kết nối
+            await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 # Handle Exception
@@ -59,9 +62,11 @@ async def exception_handler(_: Request, exc: APIException):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(_, exc: RequestValidationError):
     return JSONResponse(
-        status_code=422,
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
-            "message":"Validation Error",
-            "error":exc.errors()
+            "message":APIError.VALIDATION_ERROR,
+            "error":[
+                f"{error['msg']} {error['loc']}" for error in exc.errors()
+            ]
         }
     )
