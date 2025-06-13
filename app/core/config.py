@@ -2,8 +2,7 @@ import os
 from typing import Literal
 
 from loguru import logger
-from pydantic import HttpUrl, computed_field, model_validator
-from pydantic_core import MultiHostUrl
+from pydantic import HttpUrl, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
 
@@ -17,11 +16,12 @@ class Settings(BaseSettings):
     # Application
     APP_NAME: str = "QRApp Backend"
     APP_VERSION: str = "1.0.0"
+    PAGE_SIZE: int = 10
     # Secret
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
-    ACCESS_KEY: str = "1"
-    REFRESH_KEY: str = "1"
+    ACCESS_KEY: str
+    REFRESH_KEY: str
     # FrontEnd
     FRONTEND_HOST:HttpUrl = "http://localhost:5173"
     # Database

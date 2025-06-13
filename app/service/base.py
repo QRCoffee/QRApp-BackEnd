@@ -21,12 +21,13 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         skip: int | None = None,
         limit: int | None = None,
     ) -> List[ModelType]:
-        return await self.model.find(
+        users = await self.model.find(
             {},
             skip= skip,
             limit = limit,
-            fetch_links=True
+            fetch_links=True,
         ).to_list()
+        return users
 
     async def create(self, data: Union[dict, CreateSchemaType]) -> ModelType:
         if isinstance(data, BaseModel):

@@ -1,14 +1,16 @@
-from typing import Optional, List, Literal, Callable
+from typing import List, Optional
+
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+from app.common.enum import APIError, APIMessage, UserRole
 from app.common.exceptions import HTTP_401_UNAUTHORZIED, HTTP_403_FORBIDDEN
 from app.core.security import ACCESS_JWT
-from app.common.enum import UserRole,APIError,APIMessage
 from app.db import Redis
 
 security = HTTPBearer(auto_error=False)
 
-def permissions(roles: Optional[List[UserRole]] = None) -> Callable:
+def permissions(roles: Optional[List[UserRole]] = None) -> dict:
     """
     Dependency gộp giữa xác thực đăng nhập (JWT Bearer) và kiểm tra quyền truy cập theo vai trò.
 
@@ -23,7 +25,12 @@ def permissions(roles: Optional[List[UserRole]] = None) -> Callable:
     def _permissions(
         credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     ) -> dict:
-        if credentials is None or credentials.scheme.lower() != "bearer":
+        if credentials is None:
+            raise HTTP_401_UNAUTHORZIED(
+                error=APIError.UNAUTHORIZED,
+                message=APIMessage.UNAUTHORIZED,
+            )
+        if credentials.scheme.lower() != "bearer":
             raise HTTP_401_UNAUTHORZIED(
                 error=APIError.INVALID_TOKEN,
                 message=APIMessage.INVALID_TOKEN,

@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field, field_validator,ConfigDict
 from datetime import datetime
+from typing import Optional
+
 from bson import ObjectId
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class BaseResponse(BaseModel):
@@ -8,9 +10,9 @@ class BaseResponse(BaseModel):
         populate_by_name= True,
         from_attributes=True,
     )
-    id: str = Field(alias="_id")
-    created_at: datetime
-    updated_at: datetime
+    id: Optional[str] = Field(alias="_id")
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
     @field_validator("id", mode="before")
     @classmethod

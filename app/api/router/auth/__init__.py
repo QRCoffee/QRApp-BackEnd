@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends
-from app.common.enum import UserRole,APIMessage,APIError
+
 from app.api.dependency import permissions
-from app.common.exceptions import HTTP_409_CONFLICT, HTTP_401_UNAUTHORZIED
+from app.common.enum import APIError, APIMessage, UserRole
+from app.common.exceptions import HTTP_401_UNAUTHORZIED
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.db import Redis as SessionManager
-from app.schema.user import Auth,UserResponse,Token,Session,Manager,Administrator
+from app.schema.user import (Administrator, Auth, Manager, Session, Token,
+                             UserResponse)
 from app.service import userService
 
 apiRouter = APIRouter(
@@ -19,11 +21,6 @@ apiRouter = APIRouter(
     response_model=APIResponse[UserResponse],
 )
 async def sign_up(data:Manager | Administrator, _ = Depends(permissions([UserRole.ADMIN]))):
-    if await userService.find_by(by="username", value=data.username):
-        raise HTTP_409_CONFLICT(
-            error= APIError.CONFLICT,
-            message=APIMessage.USERNAME_CONFLIC,
-        )
     user = await userService.create(data)
     return APIResponse(
         data=user

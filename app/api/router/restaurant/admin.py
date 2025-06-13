@@ -1,11 +1,19 @@
-from fastapi import APIRouter, Depends
-from app.common.enum import UserRole
+from typing import List
+
+from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends, Query
+
 from app.api.dependency import permissions
+from app.common.enum import UserRole
+from app.common.exceptions import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND,
+                                   HTTP_409_CONFLICT)
 from app.common.responses import APIResponse
-from app.common.exceptions import HTTP_404_NOT_FOUND,HTTP_409_CONFLICT
-from app.schema.restaurant import RestaurantCreate,AssignRestaurant
-from app.schema.user import UserResponse
-from app.service import restaurantService,userService
+from app.core.config import settings
+from app.schema.restaurant import (AssignRestaurant, RestaurantCreate,
+                                   RestaurantResponse)
+from app.schema.user import UserResponse, UserUpdate
+from app.service import restaurantService, userService
+
 AdminRouter = APIRouter(
     tags=["Restaurant: Admin"],
     prefix="/restaurants",
@@ -16,10 +24,35 @@ AdminRouter = APIRouter(
 
 @AdminRouter.get(
     path = "", 
-    name="List of restaurants"
+    name="List of restaurants",
+    response_model=APIResponse[List[RestaurantResponse]]
 )
-async def get_restaurants():
-    restaurants = await restaurantService.find_all()
+async def get_restaurants(
+    page: int = Query(default=1,ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50)
+):
+    skip = (page - 1) * limit
+    restaurants = await restaurantService.find_all(
+        skip=skip,
+        limit=limit
+    )
+    return APIResponse(
+        data = restaurants
+    )
+
+@AdminRouter.get(
+    path = "/{id}", 
+    name="Detail restaurants",
+    response_model=APIResponse[RestaurantResponse]
+)
+async def get_restaurant(id: PydanticObjectId):
+    restaurants = await restaurantService.find_by(
+        value=id,
+    )
+    if restaurants is None:
+        raise HTTP_404_NOT_FOUND(
+            message = f"Nhà hàng {id} không tồn tại"
+        )
     return APIResponse(
         data = restaurants
     )
@@ -51,8 +84,8 @@ async def Assign_restaurant(data:AssignRestaurant):
     if owner is None:
         raise HTTP_404_NOT_FOUND(f"Người dùng {owner_id} không tồn tại")
     holder = await userService.find_by(
-        by="restaurant._id",
-        value=restaurant.id,
+        by="restaurant",
+        value=restaurant,
     )
     if holder:
         raise HTTP_409_CONFLICT(
@@ -60,10 +93,39 @@ async def Assign_restaurant(data:AssignRestaurant):
         )
     owner = await userService.update(
         id = owner_id,
-        data = {
-            "restaurant": restaurant
-        }
+        data = UserUpdate(
+            restaurant=restaurant
+        )
     )
     return APIResponse(
         data = owner,
+    )
+
+@AdminRouter.delete(
+    path = "/{id}",
+    name = "Delete restaurant",
+    response_model=APIResponse[RestaurantResponse]
+
+)
+async def delete_restaurant(id:PydanticObjectId):
+    restaurant = await restaurantService.find_by(value=id)
+    if restaurant is None:
+        raise HTTP_404_NOT_FOUND(
+            message = f"Nhà hàng {id} không tồn tại"
+        )
+    owner = await userService.find_by(
+        by="restaurant",
+        value=restaurant,
+    )
+    if owner is None:
+        raise HTTP_400_BAD_REQUEST(message="Chủ sở hữu không khả thi")
+    await userService.update(
+        id = owner.id,
+        data = UserUpdate(
+            restaurant=None
+        )
+    )
+    await restaurantService.delete(id)
+    return APIResponse(
+        data=restaurant
     )

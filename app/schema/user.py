@@ -1,9 +1,12 @@
-from pydantic import BaseModel
-from typing import Literal,Optional
-from pydantic import Field
+from typing import Literal, Optional
+
+from beanie import PydanticObjectId
+from pydantic import BaseModel, Field
+
 from app.common.enum import UserRole
-from app.schema.restaurant import Restaurant
 from app.schema import BaseResponse
+from app.schema.restaurant import RestaurantResponse
+
 
 class Auth(BaseModel):
     username: str
@@ -16,6 +19,9 @@ class Session(BaseModel):
     refresh_token: str
 
 class UserCreate(Auth):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address:Optional[str] = None
     role: UserRole
 
 class Staff(UserCreate):
@@ -35,9 +41,15 @@ class Administrator(UserCreate):
     )
 
 class UserUpdate(BaseModel):
-    pass
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address:Optional[str] = None
+    restaurant: Optional[PydanticObjectId] = None
 
 class UserResponse(BaseResponse):
     username: str
     role: UserRole
-    restaurant: Optional[Restaurant] = None
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    restaurant: Optional[RestaurantResponse] = None

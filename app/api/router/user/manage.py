@@ -1,6 +1,7 @@
-from fastapi import APIRouter,Depends
-from app.common.responses import APIResponse
+from fastapi import APIRouter, Depends
+
 from app.api.dependency import permissions
+from app.common.responses import APIResponse
 from app.schema.user import UserResponse
 
 ManageRouter = APIRouter(
@@ -13,6 +14,7 @@ ManageRouter = APIRouter(
     response_model=APIResponse[UserResponse],
 )
 async def profile(payload = Depends(permissions())):
+    payload.pop("restaurant")
     return APIResponse(
         data=payload
     )
@@ -23,7 +25,19 @@ async def profile(payload = Depends(permissions())):
     status_code=200,
     response_model=APIResponse,
 )
-async def profile(payload = Depends(permissions())):
+async def restaurant(payload = Depends(permissions())):
+    restaurant = payload.pop("restaurant")
+    if restaurant.get("id") == 'None':
+        restaurant = None
     return APIResponse(
-        data=payload.get("restaurant")
+        data=restaurant
     )
+
+@ManageRouter.put(
+    path = "/me",
+    name = "Update Profile",
+    status_code=200,
+    # response_model=APIResponse,
+)
+async def update(payload = Depends(permissions())):
+    return payload

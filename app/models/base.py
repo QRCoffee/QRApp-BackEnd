@@ -1,8 +1,9 @@
 from datetime import datetime
-
-from beanie import Document, Insert, Replace, before_event,PydanticObjectId
-from pydantic import Field,ConfigDict
 from typing import Optional
+
+from beanie import Document, Insert, PydanticObjectId, Replace, before_event
+from pydantic import Field
+
 
 class Base(Document):
     id: Optional[PydanticObjectId] = Field(default=None, alias="_id")

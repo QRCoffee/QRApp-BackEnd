@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class UserRole(str, Enum):
     ADMIN = "Admin"
     MANAGER = "Manager"
@@ -86,7 +87,9 @@ class APIMessage(str, Enum):
     # Generic request messages
     SUCCESS = "Thành công"
     # Auth related messages
-    USERNAME_CONFLIC = "username đã tồn tại"
+    USERNAME_CONFLIC = "username đã được sử dụng"
+    PHONE_CONFLIC = "Số điện thoại đã được sử dụng"
+    UNAUTHORIZED = "Đăng nhập để sử dụng"
     INVALID_CREDENTIALS = "Tên đăng nhập hoặc mật khẩu không chính xác"
     INVALID_TOKEN = "Token không hợp lệ"
     SESSION_EXPIRED = "Session không hợp lệ"

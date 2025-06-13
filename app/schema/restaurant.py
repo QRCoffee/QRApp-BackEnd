@@ -1,7 +1,11 @@
-from pydantic import BaseModel,Field
-from typing import Optional,Union
-from app.models import User,Restaurant
+from typing import Optional, Union
+
 from beanie import PydanticObjectId
+from pydantic import BaseModel, Field
+
+from app.models import Restaurant, User
+from app.schema import BaseResponse
+
 
 class RestaurantCreate(BaseModel):
     name: str = Field(..., description="Restaurant name")
@@ -16,3 +20,8 @@ class RestaurantUpdate(BaseModel):
 class AssignRestaurant(BaseModel):
     restaurant_id: Union[PydanticObjectId,Restaurant]
     owner_id: Union[PydanticObjectId,User]
+
+class RestaurantResponse(BaseResponse):
+    name: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None

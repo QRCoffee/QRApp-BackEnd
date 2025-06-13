@@ -1,6 +1,8 @@
 from typing import Any
-from app.common.enum import APIError,APIMessage
+
 from fastapi import HTTPException, status
+
+from app.common.enum import APIError
 
 
 class APIException(HTTPException):
@@ -11,6 +13,9 @@ class APIException(HTTPException):
         }
         super().__init__(status_code, detail, headers)
 
+class HTTP_400_BAD_REQUEST(APIException):
+    def __init__(self, message = None, error = APIError.BAD_REQUEST, headers=None):
+        super().__init__(status.HTTP_400_BAD_REQUEST, message, error, headers)
 class HTTP_401_UNAUTHORZIED(APIException):
     def __init__(self, message = None, error = APIError.UNAUTHORIZED, headers=None):
         super().__init__(status.HTTP_401_UNAUTHORIZED, message, error, headers)
