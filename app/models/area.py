@@ -3,9 +3,8 @@ from typing import Optional
 from beanie import Link
 from pydantic import Field
 
-from app.models import Restaurant
-
 from .base import Base
+from .restaurant import Restaurant
 
 
 class Area(Base):

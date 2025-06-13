@@ -1,7 +1,7 @@
 from typing import Optional
 
 import bcrypt
-from beanie import Insert, Link, before_event
+from beanie import Insert, Link, Update, before_event
 from pydantic import Field
 
 from app.common.enum import APIMessage, UserRole
@@ -25,14 +25,14 @@ class User(Base):
         if not self.password.startswith("$2b$"):
             self.password = bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     
-    @before_event(Insert)
+    @before_event([Insert,Update])
     async def unique_username(self):
         from app.service import userService
         user = await userService.find_by(by="username", value=self.username)
-        if user:
+        if user and self.id != user.id:
             raise HTTP_409_CONFLICT(APIMessage.USERNAME_CONFLIC)
     
-    @before_event(Insert)
+    @before_event([Insert,Update])
     async def unique_phone_number(self):
         from app.service import userService
         if self.phone is not None:
@@ -40,7 +40,7 @@ class User(Base):
                 by = "phone",
                 value = self.phone
             )
-            if holder:
+            if holder and holder.id != self.id:
                 raise HTTP_409_CONFLICT(APIMessage.PHONE_CONFLIC)
 
 

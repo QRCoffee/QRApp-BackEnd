@@ -12,7 +12,7 @@ from app.schema.user import UserResponse
 from app.service import userService
 
 AdminRouter = APIRouter(
-    tags = ["User: Admin"]
+    tags = ["Admin: User"]
 )
 @AdminRouter.get(
     path = "/users",

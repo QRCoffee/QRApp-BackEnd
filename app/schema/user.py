@@ -40,6 +40,11 @@ class Administrator(UserCreate):
         default=UserRole.ADMIN,
     )
 
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address:Optional[str] = None
+
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None

@@ -15,7 +15,7 @@ from app.schema.user import UserResponse, UserUpdate
 from app.service import restaurantService, userService
 
 AdminRouter = APIRouter(
-    tags=["Restaurant: Admin"],
+    tags=["Admin: Restaurant"],
     prefix="/restaurants",
     dependencies=[
         Depends(permissions([UserRole.ADMIN]))
@@ -93,9 +93,9 @@ async def Assign_restaurant(data:AssignRestaurant):
         )
     owner = await userService.update(
         id = owner_id,
-        data = UserUpdate(
-            restaurant=restaurant
-        )
+        data = {
+            "restaurant":restaurant
+        }
     )
     return APIResponse(
         data = owner,
