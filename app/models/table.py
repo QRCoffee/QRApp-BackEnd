@@ -1,6 +1,8 @@
 from typing import Optional
-
-from beanie import Insert, Link, before_event
+import httpx
+from PIL import Image
+from io import BytesIO
+from beanie import Insert, Link, before_event,after_event
 from pydantic import Field
 
 from app.common.exceptions import HTTP_409_CONFLICT
@@ -25,3 +27,27 @@ class Table(Base):
         })
         if any(table.name.lower() == self.name.lower() for table in tables):
             raise HTTP_409_CONFLICT(f"Bàn '{self.name}' đã tồn tại trong khu vực này")
+    
+    @after_event(Insert)
+    async def set_qr_url(self):
+        from app.db import QRCode
+        table_id = self.id
+        url = f"https://quickchart.io/qr?text={table_id}&size=300"
+        response = httpx.get(url)
+        # Convert PNG to WebP using Pillow
+        img = Image.open(BytesIO(response.content))
+        webp_buffer = BytesIO()
+        img.save(webp_buffer, format="WEBP", quality=80, optimize=True)
+        webp_bytes = webp_buffer.getvalue()
+
+        # Generate unique filename
+        filename = f"qr-codes/{table_id}.webp"
+        QRCode.client.put_object(
+            bucket_name=QRCode.bucket_name,
+            object_name=filename,
+            data=BytesIO(webp_bytes),
+            length=len(webp_bytes),
+            content_type='image/webp'
+        )
+        self.qr_url = f"http://localhost:9000/{QRCode.bucket_name}/{filename}"
+        await self.save()

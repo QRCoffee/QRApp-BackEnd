@@ -99,3 +99,9 @@ class MinIO:
         return [object.object_name for object in self.client.list_objects(self.bucket_name)]
     def get_url(self,object_name:str):
         return f"{"https" if self.secure else "http"}://{self.endpoint}/{self.bucket_name}/{object_name}"
+    
+QRCode = MinIO(
+    bucket_name='qrcode',
+    access_key='admin',
+    secret_key='admin123456'
+)
