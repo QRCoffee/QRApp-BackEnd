@@ -1,7 +1,9 @@
 import io
 import json
 from minio import Minio
-from typing import Any
+from typing import Any,List
+from mimetypes import guess_type
+from minio.deleteobjects import DeleteObject
 
 class MinIO:
     def __init__(self,
@@ -42,7 +44,18 @@ class MinIO:
                     bucket_name = self.bucket_name,
                     policy = json.dumps(policy)
                 )
-
+    def upload_from_file(self, file_path: str,object_name:str | None = None) -> str:
+        content_type, _ = guess_type(file_path)
+        if object_name is None:
+            object_name = file_path
+        with open(file_path, "rb") as f:
+            self.upload(
+                object=f,
+                object_name=object_name,
+                content_type=content_type or "application/octet-stream"
+            )
+        return object_name
+        
     def upload(self, object: Any, object_name: str = None, content_type: str = "application/octet-stream") -> str:
         if object_name is None:
             object_name = f"{uuid.uuid4().hex}"
@@ -65,14 +78,21 @@ class MinIO:
             length=size,
             content_type=content_type
         )
-        url = f"{"https" if self.secure else "http"}://{self.endpoint}/{self.bucket_name}/{object_name}"
-        return url
-    
-QRCode = MinIO(
-    bucket_name = "QRCode",
-    access_key = "admin",
-    secret_key="admin123456",
-    public=True,
-)
+        return object_name
 
-__all__ = ["QRCode"]
+    def remove(self, object_name: str | List[str]) -> bool:
+        try:
+            if isinstance(object_name,str):
+                self.client.remove_object(self.bucket_name, object_name)
+            else:
+                object_name = [DeleteObject(obj) for obj in object_name]
+                self.client.remove_objects(self.bucket_name, object_name)
+            return True
+        except Exception as e:
+            print(e)
+            return False
+    
+    def objects(self):
+        return [object.object_name for object in self.client.list_objects(self.bucket_name)]
+    def get_url(self,object_name:str):
+        return f"{"https" if self.secure else "http"}://{self.endpoint}/{self.bucket_name}/{object_name}"
