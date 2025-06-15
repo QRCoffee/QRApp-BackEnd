@@ -14,6 +14,7 @@ class Table(Base):
     area: Link[Area] = Field(...,nullable=False)
     capacity: int = Field(default=1,nullable=False,ge=0)
     image_url: Optional[str] = Field(default=None)
+    qr_url: Optional[str] = Field(default=None)
     is_active: bool = Field(default=True)
 
     @before_event(Insert)

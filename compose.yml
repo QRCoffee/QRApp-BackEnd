@@ -9,7 +9,7 @@ services:
       - minio_data:/data
     environment:
       MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: admin
+      MINIO_ROOT_PASSWORD: admin123456
     command: server /data --console-address ":9001"
     restart: unless-stopped
 
