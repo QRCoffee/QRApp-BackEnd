@@ -1,10 +1,12 @@
-from typing import List,Optional
-from fastapi import APIRouter,Depends,Query
-from app.api.dependency import login_required,required_role
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, Query
+
+from app.api.dependency import login_required, required_role
 from app.common.enum import UserRole
-from app.core.config import settings
 from app.common.responses import APIResponse
-from app.schema.permission import PermissionResponse,PermissionCreate
+from app.core.config import settings
+from app.schema.permission import PermissionResponse
 from app.service import permissionService
 
 PermissionRouter = APIRouter(

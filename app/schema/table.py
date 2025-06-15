@@ -1,6 +1,9 @@
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
+
 from app.schema import BaseResponse
+
 
 class TableCreate(BaseModel):
     name: str

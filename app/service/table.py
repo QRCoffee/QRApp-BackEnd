@@ -1,6 +1,5 @@
-from app.schema.table import TableCreate,TableUpdate
 from app.models.table import Table
-
+from app.schema.table import TableCreate, TableUpdate
 from app.service.base import Service
 
 

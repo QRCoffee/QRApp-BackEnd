@@ -1,6 +1,5 @@
-from app.schema.permission import PermissionCreate, PermissionUpdate
 from app.models.permission import Permission
-
+from app.schema.permission import PermissionCreate, PermissionUpdate
 from app.service.base import Service
 
 

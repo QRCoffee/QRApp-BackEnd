@@ -1,9 +1,12 @@
 import io
 import json
-from minio import Minio
-from typing import Any,List
+import uuid
 from mimetypes import guess_type
+from typing import Any, List
+
+from minio import Minio
 from minio.deleteobjects import DeleteObject
+
 
 class MinIO:
     def __init__(self,

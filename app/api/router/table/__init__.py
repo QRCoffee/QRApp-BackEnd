@@ -1,5 +1,6 @@
-from fastapi import APIRouter
 from beanie import PydanticObjectId
+from fastapi import APIRouter
+
 apiRouter = APIRouter(
     prefix="/tables"
 )
@@ -13,5 +14,5 @@ def get_tables():
 @apiRouter.get(
     path = "{id}",
 )
-def get_tables(id:PydanticObjectId):
-    return True
+def get_table(id:PydanticObjectId):
+    return id
