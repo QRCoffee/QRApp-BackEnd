@@ -10,26 +10,26 @@ from app.db.redis import Redis
 
 class JWTSecurity:
     def __init__(self,secret_key:str,algorithm:str = "HS256",expires_delta:datetime.timedelta | None = None):
-        self.__algorithm = algorithm
-        self.__expires_delta = expires_delta
-        self.__secret_key = secret_key
+        self._algorithm = algorithm
+        self._expires_delta = expires_delta
+        self._secret_key = secret_key
     def encode(self,payload: dict | BaseModel,session:bool = False) -> str:
         if isinstance(payload,dict):
             to_encode = payload.copy()
         else:
             to_encode = jsonable_encoder(payload)
-        expire = datetime.datetime.now(datetime.timezone.utc) + (self.__expires_delta if self.__expires_delta else datetime.timedelta(minutes=15))
+        expire = datetime.datetime.now(datetime.timezone.utc) + (self._expires_delta if self._expires_delta else datetime.timedelta(minutes=15))
         to_encode.update({"exp": expire})
-        token = jwt.encode(to_encode, self.__secret_key, algorithm=self.__algorithm)
+        token = jwt.encode(to_encode, self._secret_key, algorithm=self._algorithm)
         if session:
             Redis.set(
-                key = to_encode.get("_id"),
+                key = to_encode.get("user_id"),
                 value = token,
-                ttl = int(self.__expires_delta.total_seconds()),
+                ttl = int(self._expires_delta.total_seconds()),
             )
         return token
     def decode(self,token:str):
-        return jwt.decode(token,self.__secret_key,algorithms=[self.__algorithm])
+        return jwt.decode(token,self._secret_key,algorithms=[self._algorithm])
 
 ACCESS_JWT = JWTSecurity(
     secret_key = settings.ACCESS_KEY,

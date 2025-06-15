@@ -1,10 +1,12 @@
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 
 from beanie import PydanticObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
-from app.common.enum import UserRole
+from app.common.enum import PermissionCode, UserRole
+from app.models import Permission
 from app.schema import BaseResponse
+from app.schema.permission import PermissionResponse
 from app.schema.restaurant import RestaurantResponse
 
 
@@ -23,6 +25,7 @@ class UserCreate(Auth):
     phone: Optional[str] = None
     address:Optional[str] = None
     role: UserRole
+    permissions: List[int|Permission] = Field(default_factory=list)
 
 class Staff(UserCreate):
     role: Literal[UserRole.STAFF] = Field(
@@ -30,15 +33,51 @@ class Staff(UserCreate):
         exclude=True,
     )
 
-class Manager(UserCreate):
-    role: Literal[UserRole.MANAGER] = Field(
-        default=UserRole.MANAGER,
-    )
+# class Staff(Auth):
+#     name: Optional[str] = None
+#     phone: Optional[str] = None
+#     address:Optional[str] = None
 
-class Administrator(UserCreate):
-    role: Literal[UserRole.ADMIN] = Field(
-        default=UserRole.ADMIN,
-    )
+#     @computed_field(return_type=UserRole)
+#     @property
+#     def role(self) -> UserRole:
+#         return UserRole.STAFF
+
+#     @computed_field(return_type=List[int|Permission])
+#     @property
+#     def permissions(self):
+#         return PermissionCode.get_permissions_by_role(self.role)
+    
+class Manager(Auth):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address:Optional[str] = None
+
+    @computed_field(return_type=UserRole)
+    @property
+    def role(self) -> UserRole:
+        return UserRole.MANAGER
+
+    @computed_field(return_type=List[int|Permission])
+    @property
+    def permissions(self):
+        return PermissionCode.get_permissions_by_role(self.role)
+
+class Administrator(Auth):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address:Optional[str] = None
+
+    @computed_field(return_type=UserRole)
+    @property
+    def role(self) -> UserRole:
+        return UserRole.ADMIN
+
+    @computed_field(return_type=List[int|Permission])
+    @property
+    def permissions(self):
+        return PermissionCode.get_permissions_by_role(self.role)
+    
 
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
@@ -57,4 +96,12 @@ class UserResponse(BaseResponse):
     name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+
+class UserDetailResponse(BaseResponse):
+    username: str
+    role: UserRole
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    permissions: List[PermissionResponse] = []
     restaurant: Optional[RestaurantResponse] = None

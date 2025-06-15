@@ -2,7 +2,7 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from app.core.config import settings
-from app.models import Area, Restaurant, User
+from app.models import Area, Permission, Restaurant, Table, User
 
 
 class MongoDB:
@@ -23,6 +23,8 @@ class MongoDB:
                 User,
                 Restaurant,
                 Area,
+                Table,
+                Permission,
             ]
         )
         return self

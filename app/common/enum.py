@@ -95,3 +95,111 @@ class APIMessage(str, Enum):
     SESSION_EXPIRED = "Session không hợp lệ"
     PERMISSION_DENIED = "Không đủ quyền"
     SERVER_ERROR = "Đã có lỗi xảy ra, vui lòng thử lại sau"
+
+class PermissionCode(Enum):
+    """System Permissions Enumeration
+    Format:
+    - 1xx: Restaurant permissions
+    - 2xx: Area permissions
+    - 3xx: Table permissions
+    - 4xx: User/Staff permissions
+    """
+
+    # Restaurant Permissions (1xx)
+    CREATE_RESTAURANT = (101, "Tạo nhà hàng mới")
+    UPDATE_RESTAURANT = (102, "Cập nhật thông tin nhà hàng")
+    DELETE_RESTAURANT = (103, "Xóa nhà hàng")
+    VIEW_RESTAURANT   = (104, "Xem thông tin nhà hàng")
+
+    # Area Permissions (2xx)
+    CREATE_AREA = (201, "Tạo khu vực mới")
+    UPDATE_AREA = (202, "Cập nhật thông tin khu vực")
+    DELETE_AREA = (203, "Xóa khu vực")
+    VIEW_AREA   = (204, "Xem thông tin khu vực")
+
+    # Table Permissions (3xx)
+    CREATE_TABLE = (301, "Tạo bàn mới")
+    UPDATE_TABLE = (302, "Cập nhật thông tin bàn")
+    DELETE_TABLE = (303, "Xóa bàn")
+    VIEW_TABLE   = (304, "Xem thông tin bàn")
+
+    # Staff Permissions (4xx)
+    CREATE_STAFF = (401, "Tạo tài khoản nhân viên")
+    UPDATE_STAFF = (402, "Cập nhật thông tin nhân viên")
+    DELETE_STAFF = (403, "Xóa tài khoản nhân viên")
+    VIEW_STAFF   = (404, "Xem thông tin nhân viên")
+
+    # Admin/User Permissions (5xx)
+    CREATE_USER = (501, "Tạo người dùng mới")
+    UPDATE_USER = (502, "Cập nhật thông tin người dùng")
+    DELETE_USER = (503, "Xóa tải khoản người dùng")
+    VIEW_USER = (504, "Xem thông tin người dùng")
+    
+    CREATE_ADMIN_USER = (505, "Tạo quản trị mới")
+    DELETE_ADMIN_USER = (506, "Xóa tải khoản quản trị")
+    UPDATE_ADMIN_USER = (507, "Cập nhật thông tin quản trị")
+    VIEW_ADMIN_USER = (508, "Xem thông tin người dùng")
+
+
+    # Permission (6xx)
+    CREATE_PERMISSION = (601, "Tạo quyền hạn mới")
+    UPDATE_PERMISSION = (602, "Cập nhật thông tin quyền hạn")
+    DELETE_PERMISSION = (603, "Xóa quyền hạn")
+    VIEW_PERMISSION = (604, "Xem quyền hạn")
+
+    def __init__(self, code: int, description: str):
+        self._code = code
+        self._description = description
+
+    @property
+    def code(self) -> int:
+        return self._code
+
+    @property
+    def description(self) -> str:
+        return self._description
+    
+    @classmethod
+    def get_permissions_by_role(cls, role: UserRole) -> list["PermissionCode"]:
+        if role == UserRole.ADMIN:
+            return [
+                # Restaurant full access
+                cls.CREATE_RESTAURANT.code,
+                cls.UPDATE_RESTAURANT.code,
+                cls.DELETE_RESTAURANT.code,
+                cls.VIEW_RESTAURANT.code,
+                # User full access
+                cls.CREATE_USER.code,
+                cls.UPDATE_USER.code,
+                cls.DELETE_USER.code,
+                cls.VIEW_USER.code,
+                # Admin full access
+                cls.CREATE_ADMIN_USER.code,
+                cls.DELETE_ADMIN_USER.code,
+                cls.UPDATE_ADMIN_USER.code,
+                cls.VIEW_ADMIN_USER.code,
+            ]
+        if role == UserRole.MANAGER:
+            return [
+                # Restaurant limited access
+                cls.UPDATE_RESTAURANT.code,
+                cls.VIEW_RESTAURANT.code,
+                # Area full access
+                cls.CREATE_AREA.code,
+                cls.UPDATE_AREA.code,
+                cls.DELETE_AREA.code,
+                cls.VIEW_AREA.code,
+                # Table full access
+                cls.CREATE_TABLE.code,
+                cls.UPDATE_TABLE.code,
+                cls.DELETE_TABLE.code,
+                cls.VIEW_TABLE.code,
+                # Staff full access
+                cls.CREATE_STAFF.code,
+                cls.UPDATE_STAFF.code,
+                cls.DELETE_STAFF.code,
+                cls.VIEW_STAFF.code,
+            ]
+        if role == UserRole.STAFF:
+            return []  # No permissions yet
+        return []  # Return empty list for unknown roles

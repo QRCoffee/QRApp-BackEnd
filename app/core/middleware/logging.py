@@ -1,11 +1,14 @@
 import time
-from typing import Dict,Any
+from typing import Any, Dict
+
 from fastapi import Request
+from fastapi.exceptions import ResponseValidationError
+from fastapi.responses import JSONResponse
 from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
+
 from app.common.enum import APIError, APIMessage
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import ResponseValidationError
+
 
 class LoggingMiddleware(BaseHTTPMiddleware):
     def _get_request_info(self, request: Request) -> Dict[str, Any]:

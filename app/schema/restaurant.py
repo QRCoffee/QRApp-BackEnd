@@ -3,7 +3,8 @@ from typing import Optional, Union
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
 
-from app.models import Restaurant, User
+from app.models.restaurant import Restaurant
+from app.models.user import User
 from app.schema import BaseResponse
 
 

@@ -3,16 +3,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from loguru import logger
 
 from app.api.router import apiRouter
-from app.common.enum import APIError
+from app.common.enum import APIError, PermissionCode, UserRole
 from app.common.exceptions import APIException
 from app.core.config import settings
-from app.core.middleware import ExceptionMiddleware, LoggingMiddleware
+from app.core.middleware import LoggingMiddleware
 from app.db import Mongo
+from app.schema.permission import PermissionCreate
 from app.schema.user import Administrator
-from app.service import userService
+from app.service import permissionService, userService
 from app.socket import manager
 
 
@@ -20,29 +20,39 @@ from app.socket import manager
 async def lifespan(_: FastAPI):    
     # on_startup
     await Mongo.initialize()
-    if not await userService.find_by(
-        "username",
-        "admin"
+    for permission in PermissionCode:
+        if await permissionService.find_one_by(
+            by="code",
+            value=permission.code
+        ) is None:
+            await permissionService.create(PermissionCreate(
+                code = permission.code,
+                description = permission.description,
+            ))
+    if not await userService.find_one_by(
+        by = "username",
+        value = "admin"
     ):
         await userService.create(Administrator(
             username = settings.ADMIN_USERNAME,
             password = settings.ADMIN_PASSWORD,
-            name = "Administrator"
-        ))  
-    logger.info("Application startup complete.")
+            permissions = PermissionCode.get_permissions_by_role(UserRole.ADMIN)
+        ))        
     yield
     # on_shutdown
-    logger.info("Waiting for application shutdown.")
 
 app = FastAPI(
     title = "QRApp Backend",
+    description="""
+    * 📚 Swagger UI: `/docs`
+    * 📖 ReDoc: `/redoc`
+    """,
     debug = False,
     lifespan = lifespan,
     version = settings.APP_VERSION,
 )
 # Middleware
 app.add_middleware(LoggingMiddleware)
-app.add_middleware(ExceptionMiddleware)
 # Endpoint
 app.include_router(apiRouter)
 # WebSocket

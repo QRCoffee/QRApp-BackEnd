@@ -1,27 +1,17 @@
 services:
-  redis:
-    image: redis:latest
-    container_name: QRSession
+  minio:
+    image: minio/minio:latest
+    container_name: minio
     ports:
-      - "6379:6379"
+      - "9000:9000"   # S3 API port
+      - "9001:9001"   # Web UI
     volumes:
-      - redis_data:/data
-    restart: unless-stopped
-
-  mysql:
-    image: mysql:8.0
-    container_name: QRMySQL
-    ports:
-      - "3306:3306"
+      - minio_data:/data
     environment:
-      MYSQL_ROOT_PASSWORD: Nh@thuyd4hp
-      MYSQL_DATABASE: QRApp
-      MYSQL_USER: nhathuyd4hp
-      MYSQL_PASSWORD: 123456
-    volumes:
-      - mysql_data:/var/lib/mysql
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin
+    command: server /data --console-address ":9001"
     restart: unless-stopped
 
 volumes:
-  redis_data:
-  mysql_data:
+  minio_data:

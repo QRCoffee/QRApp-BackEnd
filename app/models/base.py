@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from beanie import Document, Insert, PydanticObjectId, Replace, before_event
+from beanie import (Document, Insert, PydanticObjectId, Replace, Update,
+                    before_event)
 from pydantic import Field
 
 
@@ -15,7 +16,7 @@ class Base(Document):
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
-    @before_event(Replace)
+    @before_event([Insert,Update,Replace])
     def update_timestamp(self):
         self.updated_at = datetime.now()
 

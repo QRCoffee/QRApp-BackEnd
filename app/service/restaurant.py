@@ -1,7 +1,6 @@
-from app.models import Restaurant
+from app.models.restaurant import Restaurant
 from app.schema.restaurant import RestaurantCreate, RestaurantUpdate
-
-from .base import Service
+from app.service.base import Service
 
 
 class RestaurantService(Service[Restaurant, RestaurantCreate, RestaurantUpdate]):

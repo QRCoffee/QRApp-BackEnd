@@ -18,7 +18,7 @@ class Restaurant(Base):
     async def unique_phone_number(self):
         from app.service import restaurantService
         if self.phone is not None:
-            holder = await restaurantService.find_by(
+            holder = await restaurantService.find_one_by(
                 by = "phone",
                 value = self.phone
             )

@@ -39,17 +39,6 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def config_logging(self) -> Self:
         logger.remove()
-        # Config 
-        logger.add(
-            sink=lambda msg: print(msg, end=""),
-            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
-                   "<level>{level: <8}</level> | "
-                   "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
-                   "<level>{message}</level>",
-            colorize=True,
-            enqueue = True,
-            level=self.LOG_LEVEL,
-        )
         os.makedirs(os.path.dirname(self.LOG_FILE), exist_ok=True)
         logger.add(
             self.LOG_FILE,

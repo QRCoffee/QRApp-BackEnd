@@ -11,18 +11,19 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    async def find_by(self, by: str = "_id", value: Any = None) -> Optional[ModelType]:
+    async def find_one_by(self, by: str = "_id", value: Any = None) -> Optional[ModelType]:
         if by == "_id":
             return await self.model.get(value,fetch_links=True)
         return await self.model.find_one({by: value},fetch_links=True)
 
-    async def find_all(
+    async def find_many_by(
         self,
+        conditions: dict[str,Any] | None = None,
         skip: int | None = None,
         limit: int | None = None,
     ) -> List[ModelType]:
-        users = await self.model.find(
-            {},
+        users = await self.model.find_many(
+            conditions,
             skip= skip,
             limit = limit,
             fetch_links=True,
