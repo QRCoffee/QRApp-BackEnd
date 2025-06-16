@@ -40,7 +40,6 @@ async def lifespan(_: FastAPI):
         ))        
     yield
     # on_shutdown
-
 app = FastAPI(
     title = "QRApp Backend",
     description="""
