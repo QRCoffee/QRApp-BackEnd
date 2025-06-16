@@ -31,10 +31,13 @@ cd QRApp-BackEnd
 
 ```ini
 # .env
-ACCESS_KEY=your-access-secret
-REFRESH_KEY=your-refresh-secret
-MONGO_URL=mongodb://localhost:27017
-REDIS_URL=redis://localhost:6379
+ACCESS_KEY=
+REFRESH_KEY=
+MONGO_URL=
+REDIS_URL=
+MINIO_ENDPOINT=
+MINIO_ACCESS_KEY=
+MINIO_SECRET_KEY=
 ```
 
 #### 4. Tạo môi trường ảo và cài dependencies
@@ -66,10 +69,13 @@ docker pull nhathuyd4hp/qrapp-backend:latest
 
 ```ini
 # .env
-ACCESS_KEY=your-access-secret
-REFRESH_KEY=your-refresh-secret
-MONGO_URL=mongodb://localhost:27017
-REDIS_URL=redis://localhost:6379
+ACCESS_KEY=
+REFRESH_KEY=
+MONGO_URL=
+REDIS_URL=
+MINIO_ENDPOINT=
+MINIO_ACCESS_KEY=
+MINIO_SECRET_KEY=
 ```
 
 #### 3. Chạy container
