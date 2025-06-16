@@ -19,6 +19,7 @@ class User(Base):
     phone: Optional[str] = Field(default=None,nullalbe=True)
     address:Optional[str] = Field(default=None,nullalbe=True)
     restaurant: Optional[Link[Restaurant]] = Field(default=None)
+    image_url: Optional[str] = Field(default=None)
     role: UserRole = Field(default=UserRole.STAFF)
     permissions: List[Link[Permission]] = Field(
         default_factory=list,

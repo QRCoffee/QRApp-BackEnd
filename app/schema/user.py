@@ -83,11 +83,13 @@ class ProfileUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     address:Optional[str] = None
+    image_url: Optional[str] = None
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     address:Optional[str] = None
+    image_url: Optional[str] = None
     restaurant: Optional[PydanticObjectId] = None
 
 class UserResponse(BaseResponse):
@@ -96,6 +98,7 @@ class UserResponse(BaseResponse):
     name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    image_url: Optional[str] = None
 
 class UserDetailResponse(BaseResponse):
     username: str
@@ -103,5 +106,6 @@ class UserDetailResponse(BaseResponse):
     name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
+    image_url: Optional[str] = None
     permissions: List[PermissionResponse] = []
     restaurant: Optional[RestaurantResponse] = None
