@@ -81,7 +81,7 @@ MINIO_SECRET_KEY=
 #### 3. Chạy container
 
 ```bash
-docker run -p 8000:8000 --env-file .env qrapp-backend:latest
+docker run -p 8000:8000 --env-file .env nhathuyd4hp/qrapp-backend:latest
 ```
 
 ## 📑 Tài liệu API
