@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # Database
     MONGO_URL: str | None = None
     MONGO_DATABASE:str = "QRApp"
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str | None = None
+    MINIO_SECRET_KEY: str | None = None
     # Session
     REDIS_URL: str | None = None
     # ADMIN ACOUNT

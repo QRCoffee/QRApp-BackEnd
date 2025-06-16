@@ -1,8 +1,9 @@
-from typing import Optional
-import httpx
-from PIL import Image
 from io import BytesIO
-from beanie import Insert, Link, before_event,after_event
+from typing import Optional
+
+import httpx
+from beanie import Insert, Link, after_event, before_event
+from PIL import Image
 from pydantic import Field
 
 from app.common.exceptions import HTTP_409_CONFLICT
