@@ -1,44 +1,84 @@
-# QRApp Backend
+# 🚀 QRApp Backend
 
-## Project Setup
+---
 
-### Prerequisites
+## 📦 Project Setup
 
-1. Install UV Package Manager:
+### ✅ Yêu cầu
+
+- Python 3.12+
+- [UV](https://astral.sh/blog/uv/) (trình quản lý gói siêu nhanh)
+- Docker (tuỳ chọn)
+
+---
+
+### 🔧 Cài đặt & chạy bằng mã nguồn
+
+#### 1. Cài đặt UV
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-2. Clone the repository:
+#### 2. Clone repository
+
 ```bash
 git clone https://github.com/QRCoffee/QRApp-BackEnd.git
 cd QRApp-BackEnd
 ```
 
-3. Create environment file `.env`:
+#### 3. Tạo file `.env`
+
 ```ini
-# MongoDB
-ACCESS_KEY=
-REFRESH_KEY=
-MONGO_URL=
-REDIS_URL=
+# .env
+ACCESS_KEY=your-access-secret
+REFRESH_KEY=your-refresh-secret
+MONGO_URL=mongodb://localhost:27017
+REDIS_URL=redis://localhost:6379
 ```
 
-### Development Setup
+#### 4. Tạo môi trường ảo và cài dependencies
 
-1. Create and activate virtual environment:
 ```bash
 uv venv
-source .venv/Scripts/activate # Windows
-source .venv/bin/activate # Linux/MacOS
-```
-2. Install dependencies:
-```bash
+source .venv/bin/activate      # Linux/MacOS
+source .venv/Scripts/activate  # Windows
 uv sync
 ```
 
-3. Run 
+#### 5. Chạy ứng dụng
+
 ```bash
-make dev # Dev Mode
-make production # Production Mode
+make dev         # chế độ phát triển (hot reload)
+make production  # chế độ production
 ```
+
+---
+
+### 🐳 Chạy bằng Docker
+
+#### 1. Dùng image có sẵn trên Docker Hub
+
+```bash
+docker pull nhathuyd4hp/qrapp-backend:latest
+```
+#### 2. Tạo file `.env`
+
+```ini
+# .env
+ACCESS_KEY=your-access-secret
+REFRESH_KEY=your-refresh-secret
+MONGO_URL=mongodb://localhost:27017
+REDIS_URL=redis://localhost:6379
+```
+
+#### 3. Chạy container
+
+```bash
+docker run -p 8000:8000 --env-file .env qrapp-backend:latest
+```
+
+## 📑 Tài liệu API
+
+Truy cập Swagger UI tại:  
+👉 [http://localhost:8000/docs](http://localhost:8000/docs)
