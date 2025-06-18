@@ -21,6 +21,7 @@ class User(Base):
     address:Optional[str] = Field(default=None,nullable=True)
     image_url: Optional[str] = Field(default=None)
     role: Literal['Admin','BusinessOwner','Staff'] = Field(default='Staff')
+    available: bool = Field(True)
     permissions: List[Link[Permission]] = Field(default_factory=list)
     group: Optional[Link[Group]] = Field(default=None)
     business: Optional[Link[Business]] = Field(default=None)
