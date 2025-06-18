@@ -73,5 +73,11 @@ async def me(request:Request):
     ]
 )
 async def me(request:Request):
-    user = await userService.find_one_by(value=request.state.user_id)
-    return APIResponse(data=user.permissions)
+    permissions = []
+    for permission in request.state.user_permissions:
+        p = await permissionService.find_one_by(
+            by = "code",
+            value = permission,
+        )
+        permissions.append(p)
+    return APIResponse(data=permissions)
