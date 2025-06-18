@@ -1,8 +1,11 @@
-from .base import Base
 from typing import Optional
-from beanie import Link,before_event,Insert
-from pymongo import IndexModel
+
+from beanie import Insert, Link, before_event
 from pydantic import Field
+from pymongo import IndexModel
+
+from .base import Base
+
 
 class BusinessType(Base):
     name: str = Field(..., description="Unique business type name")

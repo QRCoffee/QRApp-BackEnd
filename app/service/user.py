@@ -1,7 +1,6 @@
-from beanie import Document
 
 from app.models.user import User
-from app.schema.user import Auth, UserCreate,UserUpdate
+from app.schema.user import UserCreate, UserUpdate
 from app.service import permissionService
 
 from .base import Service

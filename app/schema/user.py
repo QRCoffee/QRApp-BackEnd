@@ -1,7 +1,10 @@
+from typing import List, Literal, Optional
+
+from beanie import Link, PydanticObjectId
 from pydantic import BaseModel, Field, computed_field
-from typing import Optional,Literal,List
-from beanie import Link,PydanticObjectId
-from app.models import Permission,Group,Business
+
+from app.models import Business, Group, Permission
+
 
 class Auth(BaseModel):
     username: str

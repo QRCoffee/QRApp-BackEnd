@@ -1,7 +1,9 @@
-from pydantic import BaseModel,field_validator,Field
-from beanie import Link
-from app.models import BusinessType,User
 from typing import Optional
+
+from beanie import Link
+from pydantic import BaseModel, Field, field_validator
+
+from app.models import BusinessType, User
 from app.schema import BaseResponse
 
 

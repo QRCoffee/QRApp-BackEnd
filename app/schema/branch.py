@@ -1,7 +1,10 @@
-from pydantic import BaseModel
-from beanie import PydanticObjectId
 from typing import Optional
+
+from beanie import PydanticObjectId
+from pydantic import BaseModel
+
 from app.schema import BaseResponse
+
 
 class BranchCreate(BaseModel):
     name: str

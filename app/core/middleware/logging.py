@@ -1,10 +1,11 @@
 import time
 from typing import Any, Dict
-from pydantic import ValidationError
+
 from fastapi import Request
 from fastapi.exceptions import ResponseValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
+from pydantic import ValidationError
 from pymongo.errors import DuplicateKeyError
 from starlette.middleware.base import BaseHTTPMiddleware
 

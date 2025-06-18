@@ -1,9 +1,10 @@
-from fastapi import APIRouter,Depends,Request
 from beanie import PydanticObjectId
-from app.schema.user import Staff
+from fastapi import APIRouter, Depends, Request
+
+from app.api.dependency import login_required, required_role
 from app.common.responses import APIResponse
-from app.api.dependency import login_required,required_role
-from app.service import businessService,userService
+from app.schema.user import Staff
+from app.service import businessService, userService
 
 apiRouter = APIRouter(
     tags = ["User"],

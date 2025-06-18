@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class APIError(str, Enum):
     # Auth related errors
     UNAUTHORIZED = "Unauthorized"  # Chưa xác thực hoặc không có quyền truy cập

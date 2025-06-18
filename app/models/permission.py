@@ -1,7 +1,10 @@
+from typing import List, Optional
+
 from pydantic import Field
-from typing import Optional,List
-from .base import Base
 from pymongo import IndexModel
+
+from .base import Base
+
 
 class Permission(Base):
     code: str = Field(..., description="Unique permission code")

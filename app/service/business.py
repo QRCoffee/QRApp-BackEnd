@@ -1,6 +1,6 @@
-from app.models.business import BusinessType,Business
-from app.schema.business import BusinessTypeCreate, BusinessTypeUpdate
-from app.schema.business import BusinessCreate, BusinessUpdate
+from app.models.business import Business, BusinessType
+from app.schema.business import (BusinessCreate, BusinessTypeCreate,
+                                 BusinessTypeUpdate, BusinessUpdate)
 from app.service.base import Service
 
 

@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Optional,List
-from beanie import (Document, Insert, PydanticObjectId, Replace, Update,
-                    before_event,SaveChanges)
+from typing import List, Optional
+
+from beanie import (Document, Insert, PydanticObjectId, Replace, SaveChanges,
+                    before_event)
 from pydantic import Field
 
 

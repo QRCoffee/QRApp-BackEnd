@@ -1,9 +1,13 @@
-from pydantic import Field
-from .base import Base
+from typing import List, Optional
+
 from beanie import Link
-from typing import Optional,List
-from app.models.permission import Permission
+from pydantic import Field
+
 from app.models.business import Business
+from app.models.permission import Permission
+
+from .base import Base
+
 
 class Group(Base):
     name: str

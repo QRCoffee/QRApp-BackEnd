@@ -1,11 +1,15 @@
-from beanie import init_beanie,Document
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from typing import List
+
+from beanie import Document, init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
 from app.core.config import settings
-from app.models import Permission,User,Business,BusinessType,Group,Branch
-from app.service import permissionService,userService
-from app.schema.user import Administrator
+from app.models import Branch, Business, BusinessType, Group, Permission, User
 from app.schema.permission import PermissionCreate
+from app.schema.user import Administrator
+from app.service import permissionService, userService
+
+
 class MongoDB:
     def __init__(
         self,

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request
 
 from app.api.router.auth import apiRouter as authRouter
-from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.business import apiRouter as businessRouter
+from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.group import apiRouter as groupRouter
 from app.api.router.user import apiRouter as userRouter
 from app.common.enum import APIError

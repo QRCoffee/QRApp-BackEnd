@@ -1,7 +1,9 @@
+from beanie import PydanticObjectId
+
 from app.models.group import Group
 from app.schema.group import GroupCreate, GroupUpdate
 from app.service.base import Service
-from beanie import PydanticObjectId
+
 
 class GroupService(Service[Group, GroupCreate, GroupUpdate]):
     def __init__(self):

@@ -1,4 +1,4 @@
-from typing import List, Optional,Literal
+from typing import List, Literal, Optional
 
 import bcrypt
 from beanie import Insert, Link, Update, before_event
@@ -6,9 +6,10 @@ from pydantic import Field
 
 from app.common.enum import APIMessage
 from app.common.exceptions import HTTP_409_CONFLICT
-from app.models.permission import Permission
-from app.models.group import Group
 from app.models.business import Business
+from app.models.group import Group
+from app.models.permission import Permission
+
 from .base import Base
 
 

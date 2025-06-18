@@ -1,12 +1,10 @@
 from typing import List, Optional
 
-from beanie import PydanticObjectId
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.common.enum import APIError, APIMessage
-from app.common.exceptions import (HTTP_401_UNAUTHORZIED, HTTP_403_FORBIDDEN,
-                                   HTTP_404_NOT_FOUND)
+from app.common.exceptions import HTTP_401_UNAUTHORZIED, HTTP_403_FORBIDDEN
 from app.core.security import ACCESS_JWT
 from app.db import Redis
 
