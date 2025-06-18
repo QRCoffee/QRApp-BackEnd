@@ -27,7 +27,7 @@ async def sign_in(data:Auth):
         )
     user_id = str(user.id)
     user_role = str(user.role)
-    user_scope = str(user.scope.to_ref().id) if user.scope else None
+    user_scope = str(user.business.to_ref().id) if user.business else None
     user_group = str(user.group.to_ref().id) if user.group else None
     user_permissions = [permission.to_ref().id for permission in user.permissions]
     for index,permission in enumerate(user_permissions):

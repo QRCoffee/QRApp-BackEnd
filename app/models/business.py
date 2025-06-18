@@ -28,6 +28,7 @@ class Business(Base):
     business_type: Link[BusinessType]
     tax_code: Optional[str] = Field(default=None, description="Business tax code")
     owner: Optional["Link[User]"] = Field(description="Business Owner") # type: ignore
+    available: bool = Field(True)
 
     class Settings:
         indexes = [

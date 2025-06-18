@@ -23,7 +23,7 @@ class User(Base):
     role: Literal['Admin','BusinessOwner','Staff'] = Field(default='Staff')
     permissions: List[Link[Permission]] = Field(default_factory=list)
     group: Optional[Link[Group]] = Field(default=None)
-    scope: Optional[Link[Business]] = Field(default=None)
+    business: Optional[Link[Business]] = Field(default=None)
 
     @before_event(Insert)
     def hash_password(self):

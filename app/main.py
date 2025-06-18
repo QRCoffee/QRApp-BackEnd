@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.router import apiRouter
 from app.common.enum import APIError
 from app.common.exceptions import APIException
@@ -31,6 +31,13 @@ app = FastAPI(
 )
 # Middleware
 app.add_middleware(LoggingMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Cho phép tất cả nguồn (origin)
+    allow_credentials=True,
+    allow_methods=["*"],  # Cho phép tất cả phương thức (GET, POST, PUT, DELETE...)
+    allow_headers=["*"],  # Cho phép tất cả header
+)
 # Endpoint
 app.include_router(apiRouter)
 # WebSocket
