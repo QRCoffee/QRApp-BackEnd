@@ -5,14 +5,11 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.api.router import apiRouter
-from app.common.enum import APIError, PermissionCode, UserRole
+from app.common.enum import APIError
 from app.common.exceptions import APIException
 from app.core.config import settings
 from app.core.middleware import LoggingMiddleware
 from app.db import Mongo
-from app.schema.permission import PermissionCreate
-from app.schema.user import Administrator
-from app.service import permissionService, userService
 from app.socket import manager
 
 
@@ -20,24 +17,6 @@ from app.socket import manager
 async def lifespan(_: FastAPI):    
     # on_startup
     await Mongo.initialize()
-    for permission in PermissionCode:
-        if await permissionService.find_one_by(
-            by="code",
-            value=permission.code
-        ) is None:
-            await permissionService.create(PermissionCreate(
-                code = permission.code,
-                description = permission.description,
-            ))
-    if not await userService.find_one_by(
-        by = "username",
-        value = "admin"
-    ):
-        await userService.create(Administrator(
-            username = settings.ADMIN_USERNAME,
-            password = settings.ADMIN_PASSWORD,
-            permissions = PermissionCode.get_permissions_by_role(UserRole.ADMIN)
-        ))        
     yield
     # on_shutdown
 app = FastAPI(

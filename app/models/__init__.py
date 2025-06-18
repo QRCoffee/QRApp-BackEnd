@@ -1,7 +1,8 @@
-from .area import Area
 from .permission import Permission
-from .restaurant import Restaurant
-from .table import Table
 from .user import User
-
-__all__ = ["User","Restaurant","Area","Table","Permission"]
+from .group import Group
+from .business import Business,BusinessType
+from .branch import Branch
+Business.model_rebuild()
+User.model_rebuild()
+__all__ = ["User","BusinessType","Group","Business","Permission","Branch"]

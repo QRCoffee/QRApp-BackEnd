@@ -14,14 +14,14 @@ services:
     command: server /data --console-address ":9001"
     restart: unless-stopped
 
-  qrapp-backend:
-    image: nhathuyd4hp/qrapp-backend:latest
-    container_name: api.qrapp
-    hostname: api.qrapp
-    ports:
-        - 8000:8000
-    env_file:
-        - .env
+  # qrapp-backend:
+  #   image: nhathuyd4hp/qrapp-backend:latest
+  #   container_name: api.qrapp
+  #   hostname: api.qrapp
+  #   ports:
+  #       - 8000:8000
+  #   env_file:
+  #       - .env
 
 volumes:
   minio_data:

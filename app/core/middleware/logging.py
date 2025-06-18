@@ -1,10 +1,11 @@
 import time
 from typing import Any, Dict
-
+from pydantic import ValidationError
 from fastapi import Request
 from fastapi.exceptions import ResponseValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
+from pymongo.errors import DuplicateKeyError
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.common.enum import APIError, APIMessage
@@ -41,6 +42,14 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 status_code = 422
                 error = APIError.VALIDATION_ERROR
                 message = [f"{error['msg']} {error['loc']}" for error in e.errors()]
+            if isinstance(e,ValidationError):
+                status_code = 422
+                error = APIError.VALIDATION_ERROR
+                message = [f"{error['msg']} {error['loc']}" for error in e.errors()]
+            if isinstance(e,DuplicateKeyError):
+                status_code = 409
+                error = APIError.CONFLICT
+                message = f"{e.details['keyValue']['name']} đã tồn tại"
             log_data = {
                 **self._get_request_info(request),
                 "duration": duration,

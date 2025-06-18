@@ -1,0 +1,104 @@
+from fastapi import APIRouter, Depends,Query
+from beanie import PydanticObjectId
+from app.core.config import settings
+from app.common.responses import APIResponse,APIMessage
+from app.schema.business import BusinessTypeCreate,BusinessTypeResponse,BusinessTypeUpdate
+from app.common.exceptions import HTTP_400_BAD_REQUEST,HTTP_404_NOT_FOUND,HTTP_409_CONFLICT
+from app.service import businessTypeService
+from typing import List
+from app.api.dependency import login_required, required_role,required_permissions
+
+apiRouter = APIRouter(
+    tags = ["Business Type"],
+    prefix="/business-type",
+    dependencies = [
+        Depends(login_required),
+        Depends(required_role(
+            role=[
+                'Admin'
+            ])
+        ),
+    ]
+)
+
+@apiRouter.get(
+    path = "",
+    name = "Xem danh sách loại doanh nghiệp",
+    response_model=APIResponse[List[BusinessTypeResponse]],
+    dependencies=[
+        Depends(required_permissions(
+            permissions=[
+                "view.businesstype"
+            ])
+        )
+    ]
+)
+async def post_business_type(
+    page: int = Query(default=1,ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
+):
+    data = await businessTypeService.find_many_by(
+        conditions={},
+        skip=(page - 1) * limit,
+        limit=limit,
+    )
+    return APIResponse(data=data)
+
+@apiRouter.post(
+    path = "",
+    name = "Tạo loại doanh nghiệp",
+    response_model=APIResponse[BusinessTypeResponse],
+    dependencies=[
+        Depends(required_permissions(
+            permissions=[
+                "create.businesstype"
+            ])
+        )
+    ]
+)
+async def post_business_type(data:BusinessTypeCreate | List[BusinessTypeCreate]):
+    if await businessTypeService.find_one_by("name",data.name.upper()):
+        raise HTTP_409_CONFLICT(f"{data.name.upper()} đã tồn tại")
+    data = await businessTypeService.create(data)
+    return APIResponse(data=data)
+
+@apiRouter.put(
+    path = "/{id}",
+    name = "Sửa loại Doanh Nghiệp",
+    response_model=APIResponse[BusinessTypeResponse],
+    dependencies=[
+        Depends(required_permissions(
+            permissions=[
+                "update.businesstype"
+            ])
+        )
+    ]
+)
+async def update_business_type(id:PydanticObjectId,data:BusinessTypeUpdate):
+    if await businessTypeService.find_one_by(value=id) is None:
+        raise HTTP_404_NOT_FOUND(f"Không tìm thấy {id}")
+    data = await businessTypeService.update(
+        id =id,
+        data = data.model_dump(exclude_none=True)
+    )    
+    return APIResponse(data=data)
+
+@apiRouter.delete(
+    path = "/{id}",
+    name = "Xóa loại Doanh Nghiệp",
+    response_model=APIResponse[BusinessTypeResponse],
+    dependencies=[
+        Depends(required_permissions(
+            permissions=[
+                "delete.businesstype"
+            ])
+        )
+    ]
+)
+async def delete_business_type(id:PydanticObjectId):
+    if await businessTypeService.find_one_by(value=id) is None:
+        raise HTTP_404_NOT_FOUND(f"Không tìm thấy {id}")
+    if not await businessTypeService.delete(id):
+        raise HTTP_400_BAD_REQUEST(f"Lỗi khi xóa {id}")
+    return APIResponse()
+    

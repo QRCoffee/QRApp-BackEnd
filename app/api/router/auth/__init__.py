@@ -1,38 +1,21 @@
 from fastapi import APIRouter, Depends, Request
 
 from app.api.dependency import login_required, required_role
-from app.common.enum import APIError, APIMessage, UserRole
+from app.common.enum import APIError, APIMessage
 from app.common.exceptions import HTTP_401_UNAUTHORZIED
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.db import Redis as SessionManager
-from app.schema.user import Auth, Manager, Session, Token, UserDetailResponse
+from app.schema.user import Auth, Session, Token
 from app.service import userService
 
 apiRouter = APIRouter(
-    tags = ["Auth"],
+    tags = ["Auth - Self"],
 )
-
-@apiRouter.post(
-    path = "/sign-up",
-    name  = "Sign Up",
-    status_code=201,
-    response_model=APIResponse[UserDetailResponse],
-    dependencies = [
-        Depends(login_required),
-        Depends(required_role([UserRole.ADMIN])
-        ),
-    ]
-)
-async def sign_up(data:Manager):
-    user = await userService.create(data)
-    return APIResponse(
-        data=user
-    )
 
 @apiRouter.post(
     path = "/sign-in",
-    name  = "Sign In",
+    name = "Đăng nhập",
     status_code=200,
     response_model=APIResponse[Token],
 )
@@ -44,15 +27,16 @@ async def sign_in(data:Auth):
             message=APIMessage.INVALID_CREDENTIALS,
         )
     user_id = str(user.id)
-    restaurant_id = None
-    permissions = [permission.code for permission in user.permissions]
-    if restaurant := user.restaurant:
-        restaurant_id = str(restaurant.id)
+    user_scope = str(user.scope.id) if user.scope else None
+    user_group = str(user.group.id) if user.group else None
+    user_role = user.role
+    user_permissions = [permission.code for permission in user.permissions]
     payload  = {
-        "user_id":user_id,
-        "restaurant_id": restaurant_id,
-        "role": user.role,
-        "permissions": permissions,
+        "user_id": user_id,
+        "user_scope": user_scope,
+        "user_group": user_group,
+        "user_role":user_role,
+        "user_permissions": user_permissions,
     }
     access_token=ACCESS_JWT.encode(payload)
     refresh_token=REFRESH_JWT.encode(payload,session=True)
@@ -63,22 +47,29 @@ async def sign_in(data:Auth):
         )
     )
 
-@apiRouter.post(
-    path = "/sign-out",
-    name  = "Sign Out",
+@apiRouter.get(
+    path = "/me",
+    name = "Xem thông tin cá nhân",
     status_code=200,
     response_model=APIResponse,
-    response_model_exclude={"data"},
     dependencies = [
-        Depends(login_required),
+        Depends(login_required)
     ]
 )
-async def sign_out(data:Session, request: Request):
-    user_id = request.state.user_id
-    if SessionManager.get(user_id) != data.refresh_token:
-        raise HTTP_401_UNAUTHORZIED(
-            error= APIError.SESSION_INVALID,
-            message="đăng xuất thất bại"
-        )
-    SessionManager.delete(user_id)
-    return APIResponse()
+async def me(request:Request):
+    user = await userService.find_one_by(value=request.state.user_id)
+    return APIResponse(data=user)
+    
+
+@apiRouter.get(
+    path = "/permissions",
+    name = "Xem quyền của cá nhân",
+    status_code=200,
+    response_model=APIResponse,
+    dependencies = [
+        Depends(login_required)
+    ]
+)
+async def me(request:Request):
+    user = await userService.find_one_by(value=request.state.user_id)
+    return APIResponse(data=user.permissions)

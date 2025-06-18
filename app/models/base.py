@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional,List
 from beanie import (Document, Insert, PydanticObjectId, Replace, Update,
-                    before_event)
+                    before_event,SaveChanges)
 from pydantic import Field
 
 
@@ -11,15 +10,22 @@ class Base(Document):
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     
+    # Action Permissions
+    __action__: List[str] = ["create", "view", "delete", "update"]
+
     @before_event(Insert)
     def set_created_at(self):
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
 
-    @before_event([Insert,Update,Replace])
-    def update_timestamp(self):
+    @before_event([Replace, SaveChanges])
+    def set_updated_at(self):
         self.updated_at = datetime.now()
 
     def model_dump(self, *args, **kwargs) -> dict:
         kwargs.setdefault("by_alias", True)
         return super().model_dump(*args, **kwargs)
+    
+    @classmethod
+    def get_actions(cls) -> List[str]:
+        return cls.__action__

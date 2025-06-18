@@ -18,7 +18,7 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def find_many_by(
         self,
-        conditions: dict[str,Any] | None = None,
+        conditions: dict[str,Any] = {},
         skip: int | None = None,
         limit: int | None = None,
     ) -> List[ModelType]:

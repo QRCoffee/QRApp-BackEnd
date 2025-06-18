@@ -1,14 +1,14 @@
-from typing import List, Optional
+from typing import List, Optional,Literal
 
 import bcrypt
 from beanie import Insert, Link, Update, before_event
 from pydantic import Field
 
-from app.common.enum import APIMessage, UserRole
+from app.common.enum import APIMessage
 from app.common.exceptions import HTTP_409_CONFLICT
 from app.models.permission import Permission
-from app.models.restaurant import Restaurant
-
+from app.models.group import Group
+from app.models.business import Business
 from .base import Base
 
 
@@ -18,15 +18,18 @@ class User(Base):
     name: Optional[str] = Field(default=None,nullalbe=True)
     phone: Optional[str] = Field(default=None,nullalbe=True)
     address:Optional[str] = Field(default=None,nullalbe=True)
-    restaurant: Optional[Link[Restaurant]] = Field(default=None)
     image_url: Optional[str] = Field(default=None)
-    role: UserRole = Field(default=UserRole.STAFF)
+    role: Literal['Admin','BusinessOwner','Staff'] = Field(default='Staff')
     permissions: List[Link[Permission]] = Field(
         default_factory=list,
     )
+    group: Optional[Link[Group]] = Field(default=None)
+    scope: Optional[Link[Business]] = Field(default=None)
 
     @before_event(Insert)
     def hash_password(self):
+        if self.role not in ['Admin','BusinessOwner','Staff']:
+            raise Exception("Role")
         if not self.password.startswith("$2b$"):
             self.password = bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
     
