@@ -6,7 +6,7 @@ from app.common.exceptions import HTTP_401_UNAUTHORZIED
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.schema.user import Auth, Token
-from app.service import userService
+from app.service import permissionService, userService
 
 apiRouter = APIRouter(
     tags = ["Auth - Self"],
@@ -26,10 +26,13 @@ async def sign_in(data:Auth):
             message=APIMessage.INVALID_CREDENTIALS,
         )
     user_id = str(user.id)
-    user_scope = str(user.scope.id) if user.scope else None
-    user_group = str(user.group.id) if user.group else None
-    user_role = user.role
-    user_permissions = [permission.code for permission in user.permissions]
+    user_role = str(user.role)
+    user_scope = str(user.scope.to_ref().id) if user.scope else None
+    user_group = str(user.group.to_ref().id) if user.group else None
+    user_permissions = [permission.to_ref().id for permission in user.permissions]
+    for index,permission in enumerate(user_permissions):
+        permission = await permissionService.find_one_by(value=permission)
+        user_permissions[index] = permission.code
     payload  = {
         "user_id": user_id,
         "user_scope": user_scope,

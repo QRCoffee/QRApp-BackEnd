@@ -22,8 +22,8 @@ class APIError(str, Enum):
     INVALID_CREDENTIALS = "InvalidCredentials"  # Thông tin đăng nhập không chính xác
     USER_ALREADY_EXISTS = "UserAlreadyExists"  # Username đã tồn tại
     USER_INACTIVE = "UserInactive"  # Tài khoản bị vô hiệu hóa
-    PASSWORD_MISMATCH = "PasswordMismatch"  # Mật khẩu không khớp khi đổi mật khẩu
-    PASSWORD_TOO_WEAK = "PasswordTooWeak"  # Mật khẩu quá yếu
+    PASSWORD_MISMATCH = "PasswordMismatch"  # pragma: allowlist secret
+    PASSWORD_TOO_WEAK = "PasswordTooWeak"  # pragma: allowlist secret
     ACCOUNT_LOCKED = "AccountLocked"  # Tài khoản bị khóa do đăng nhập sai nhiều lần
     ACCOUNT_DISABLED = "AccountDisabled"  # Tài khoản bị vô hiệu hóa bởi admin
     

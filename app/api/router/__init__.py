@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request
 
+from app.api.router.area import apiRouter as areaRouter
 from app.api.router.auth import apiRouter as authRouter
 from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
@@ -14,6 +15,7 @@ apiRouter.include_router(businesstypeRouter)
 apiRouter.include_router(businessRouter)
 apiRouter.include_router(groupRouter)
 apiRouter.include_router(userRouter)
+apiRouter.include_router(areaRouter)
 # Handle Undefined API
 @apiRouter.api_route(
     path = "/{path:path}",

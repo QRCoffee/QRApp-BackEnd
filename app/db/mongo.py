@@ -4,7 +4,8 @@ from beanie import Document, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from app.core.config import settings
-from app.models import Branch, Business, BusinessType, Group, Permission, User
+from app.models import (Area, Branch, Business, BusinessType, Group,
+                        Permission, User)
 from app.schema.permission import PermissionCreate
 from app.schema.user import Administrator
 from app.service import permissionService, userService
@@ -63,5 +64,6 @@ Mongo = MongoDB(
         BusinessType,
         Business,
         Branch,
+        Area,
     ]
 )

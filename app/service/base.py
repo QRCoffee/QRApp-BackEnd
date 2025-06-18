@@ -13,8 +13,8 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def find_one_by(self, by: str = "_id", value: Any = None) -> Optional[ModelType]:
         if by == "_id":
-            return await self.model.get(value,fetch_links=True)
-        return await self.model.find_one({by: value},fetch_links=True)
+            return await self.model.get(value)
+        return await self.model.find_one({by: value})
 
     async def find_many_by(
         self,
@@ -26,7 +26,6 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             conditions,
             skip= skip,
             limit = limit,
-            fetch_links=True,
         ).to_list()
         return users
 

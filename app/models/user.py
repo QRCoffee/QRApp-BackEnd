@@ -16,14 +16,12 @@ from .base import Base
 class User(Base):
     username: str = Field(nullable=False,unique=True)
     password: str = Field(nullable=False)
-    name: Optional[str] = Field(default=None,nullalbe=True)
-    phone: Optional[str] = Field(default=None,nullalbe=True)
-    address:Optional[str] = Field(default=None,nullalbe=True)
+    name: Optional[str] = Field(default=None,nullable=True)
+    phone: Optional[str] = Field(default=None,nullable=True)
+    address:Optional[str] = Field(default=None,nullable=True)
     image_url: Optional[str] = Field(default=None)
     role: Literal['Admin','BusinessOwner','Staff'] = Field(default='Staff')
-    permissions: List[Link[Permission]] = Field(
-        default_factory=list,
-    )
+    permissions: List[Link[Permission]] = Field(default_factory=list)
     group: Optional[Link[Group]] = Field(default=None)
     scope: Optional[Link[Business]] = Field(default=None)
 
