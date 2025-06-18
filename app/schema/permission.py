@@ -13,6 +13,10 @@ class PermissionUpdate(BaseModel):
     code: Optional[str] = None
     description: Optional[str] = None 
 
-class PermissionResponse(BaseResponse):
+class FullPermissionResponse(BaseResponse):
+    code: str
+    description: Optional[str] = None
+
+class DetailPermissionResponse(BaseModel):
     code: str
     description: Optional[str] = None

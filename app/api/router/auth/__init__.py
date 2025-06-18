@@ -5,7 +5,7 @@ from app.common.enum import APIError, APIMessage
 from app.common.exceptions import HTTP_401_UNAUTHORZIED
 from app.common.responses import APIResponse
 from app.core.security import ACCESS_JWT, REFRESH_JWT
-from app.schema.user import Auth, Token
+from app.schema.user import Auth, Token,FullUserResponse
 from app.service import permissionService, userService
 
 apiRouter = APIRouter(
@@ -53,13 +53,14 @@ async def sign_in(data:Auth):
     path = "/me",
     name = "Xem thông tin cá nhân",
     status_code=200,
-    response_model=APIResponse,
+    response_model=APIResponse[FullUserResponse],
     dependencies = [
         Depends(login_required)
     ]
 )
 async def me(request:Request):
     user = await userService.find_one_by(value=request.state.user_id)
+    await user.fetch_all_links()
     return APIResponse(data=user)
     
 

@@ -44,6 +44,22 @@ async def post_business(data:BusinessRegister):
         value = data.username,
     ):
         raise HTTP_409_CONFLICT("Tên người dùng đã được đăng kí")
+    if await userService.find_one_by(
+        by = "phone",
+        value = data.owner_contact
+    ):
+        raise HTTP_409_CONFLICT("Số điện thoại người khác đã được sử dụng")
+    if await businessService.find_one_by(
+        by = "contact",
+        value = data.business_contact
+    ):
+        raise HTTP_409_CONFLICT("Số điện thoại doanh nghiệp khác đăng kí")
+    if data.business_tax_code:
+        if await businessService.find_one_by(
+            by = "tax_code",
+            value = data.business_tax_code
+        ):
+            raise HTTP_409_CONFLICT("Mã số thuế đã được sử dụng")
     business = BusinessCreate(
         name = data.business_name,
         address=data.business_address,

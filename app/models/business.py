@@ -1,6 +1,6 @@
 from typing import Optional
 
-from beanie import Insert, Link, before_event
+from beanie import Insert, Link
 from pydantic import Field
 from pymongo import IndexModel
 
@@ -15,10 +15,6 @@ class BusinessType(Base):
         indexes = [
             IndexModel([("name", 1)], unique=True)
         ]
-
-    @before_event(Insert)
-    def upper_name(self):
-        self.name = self.name.upper()
 
 
 class Business(Base):

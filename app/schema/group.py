@@ -1,5 +1,5 @@
 from typing import Optional
-
+from app.schema import BaseResponse
 from pydantic import BaseModel, Field
 
 
@@ -8,4 +8,9 @@ class GroupCreate(BaseModel):
     description: Optional[str] = Field(default=None, description="Optional description")
 
 class GroupUpdate(BaseModel):
-    pass
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+class GroupResponse(BaseResponse):
+    name: str
+    description: Optional[str] = None

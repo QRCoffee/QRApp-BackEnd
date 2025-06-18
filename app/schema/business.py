@@ -37,10 +37,17 @@ class BusinessUpdate(BaseModel):
     contact: Optional[str] = None
     tax_code: Optional[str] = None
 
-class BusinessResponse(BaseResponse):
+class FullBusinessResponse(BaseResponse):
     name: str 
     address: str
     contact: str
     business_type: BusinessType
     tax_code: Optional[str] = None
     owner: Optional[User] = Field(description="Business Owner") # type: ignore
+
+class BusinessResponse(BaseResponse):
+    name: str 
+    address: str
+    contact: str
+    business_type: BusinessType
+    tax_code: Optional[str] = None

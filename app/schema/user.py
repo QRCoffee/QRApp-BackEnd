@@ -2,9 +2,11 @@ from typing import List, Literal, Optional
 
 from beanie import Link, PydanticObjectId
 from pydantic import BaseModel, Field, computed_field
-
+from app.schema import BaseResponse
 from app.models import Business, Group, Permission
-
+from app.schema.permission import DetailPermissionResponse
+from app.schema.group import GroupResponse
+from app.schema.business import BusinessResponse
 
 class Auth(BaseModel):
     username: str
@@ -80,3 +82,15 @@ class BusinessRegister(Auth):
     @property
     def role(self) -> str:
         return "BusinessOwner"
+
+class FullUserResponse(BaseResponse):
+    username: Optional[str] = None
+    password: Optional[str] = None
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    image_url: Optional[str] = None
+    role: Optional[str] = None
+    permissions: List[DetailPermissionResponse] = []
+    group: Optional[GroupResponse] = None
+    business: Optional[BusinessResponse] = None
