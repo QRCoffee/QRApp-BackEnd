@@ -52,4 +52,4 @@ USER appuser
 EXPOSE 8000
 
 # Chạy FastAPI với Uvicorn
-CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--log-level=warning", "--host=0.0.0.0", "--port=8000", "--workers=2"]
+CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host=0.0.0.0", "--port=8000", "--workers=2"]
