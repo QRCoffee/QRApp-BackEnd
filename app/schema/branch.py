@@ -1,16 +1,14 @@
 from typing import Optional
-
-from beanie import PydanticObjectId
 from pydantic import BaseModel
-
 from app.schema import BaseResponse
+from app.models import Business
 
 
 class BranchCreate(BaseModel):
     name: str
     address: str
     contact: Optional[str] = None
-    business: PydanticObjectId
+    business: Business
 
 class BranchUpdate(BaseModel):
     name: str

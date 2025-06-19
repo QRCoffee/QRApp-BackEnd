@@ -1,12 +1,12 @@
-from app.models.business import BusinessType
-from app.schema.business import BusinessTypeCreate, BusinessTypeUpdate
+from app.models.branch import Branch
+from app.schema.branch import BranchCreate,BranchUpdate
 from app.service.base import Service
 
 
-class BusinessTypeService(Service[BusinessType, BusinessTypeCreate, BusinessTypeUpdate]):
+class BranchService(Service[Branch, BranchCreate, BranchUpdate]):
     def __init__(self):
-        super().__init__(BusinessType)
+        super().__init__(Branch)
 
-businessTypeService = BusinessTypeService()
+branchService = BranchService()
 
-__all__ = ["businessTypeService"]
+__all__ = ["branchService"]

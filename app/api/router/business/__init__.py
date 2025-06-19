@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,Query
+from app.core.config import settings
 from typing import List
 from beanie import PydanticObjectId
 from app.api.dependency import (login_required, required_permissions,
@@ -7,7 +8,8 @@ from app.common.http_exception import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT,HT
 from app.common.api_response import Response
 from app.schema.business import BusinessCreate,BusinessResponse
 from app.schema.user import BusinessOwner, BusinessRegister,FullUserResponse
-from app.service import businessService, businessTypeService, userService
+from app.schema.branch import BranchCreate
+from app.service import businessService, businessTypeService, userService,branchService
 
 apiRouter = APIRouter(
     tags=['Business'],
@@ -32,8 +34,15 @@ apiRouter = APIRouter(
     )],
     response_model=Response[List[BusinessResponse]]
 )
-async def get_businesses():
-    businesses = await businessService.find_many(fetch_links=True)
+async def get_businesses(
+    page: int = Query(default=1,ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
+):
+    businesses = await businessService.find_many(
+        skip=(page - 1) * limit,
+        limit=limit,
+        fetch_links=True
+    )
     return Response(data=businesses)
 
 @apiRouter.post(
@@ -79,7 +88,7 @@ async def post_business(data:BusinessRegister):
     )
     business = await businessService.insert(business)
     owner = await userService.insert(owner)
-    await businessService.update(id = business.id,
+    business = await businessService.update(id = business.id,
         data = {
             "owner":owner,
         }
@@ -90,6 +99,12 @@ async def post_business(data:BusinessRegister):
             "business":business,
         }
     )
+    await branchService.insert(BranchCreate(
+        name = business.name,
+        address = business.address,
+        contact=business.contact,
+        business=business
+    ))
     user = await userService.find_one({"username":data.username})
     await user.fetch_all_links()
     return Response(data=user)
