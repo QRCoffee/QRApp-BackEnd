@@ -44,12 +44,12 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return doc
 
     # 5. Ghi nhiều document
-    async def insert_many(self, data_list: List[Union[dict, CreateSchemaType]]) -> List[ModelType]:
+    async def insert_many(self, data: List[Union[dict, CreateSchemaType]]) -> List[ModelType]:
         docs = []
-        for data in data_list:
-            if isinstance(data, BaseModel):
-                data = data.model_dump()
-            docs.append(self.model(**data))
+        for object in data:
+            if isinstance(object, BaseModel):
+                object = object.model_dump()
+            docs.append(self.model(**object))
         return await self.model.insert_many(docs)
 
     # 6. Cập nhật theo ID

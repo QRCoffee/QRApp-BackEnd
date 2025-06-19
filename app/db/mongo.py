@@ -1,8 +1,8 @@
 from typing import List
-
+from loguru import logger
 from beanie import Document, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-
+from pymongo.errors import BulkWriteError
 from app.core.config import settings
 from app.models import (Area, Branch, Business, BusinessType, Group,
                         Permission, User)
@@ -30,14 +30,21 @@ class MongoDB:
             database=self.database,
             document_models=self.documents
         )
+        # Init Permission
+        permissions = []
         for document in self.documents:
             for action in document.get_actions():
-                permission = await permissionService.find_one({"code":f"{action.lower()}.{document.__name__.lower()}"})
-                if permission is None:
-                    await permissionService.insert(PermissionCreate(
-                        code = f"{action.lower()}.{document.__name__.lower()}",
-                        description=f"{action.upper()} {document.__name__.upper()}"
-                    ))
+                code = f"{action.lower()}.{document.__name__.lower()}"
+                description=f"{action.upper()} {document.__name__.upper()}"
+                if await permissionService.find_one({"code":code}) is None:
+                    permissions.append(Permission(code=code, description=description))
+        try:
+            await permissionService.insert_many(permissions)
+        except BulkWriteError:
+            pass
+        except Exception as e:
+            logger.error(e)
+        # Init Admin 
         if not await userService.find_one({"username":"admin"}):
             await userService.insert(Administrator(
                 username = settings.ADMIN_USERNAME,
