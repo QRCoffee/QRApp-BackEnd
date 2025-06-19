@@ -3,7 +3,7 @@ from typing import Optional
 from beanie import Link
 from pydantic import Field
 
-from app.models.base import Base  # Giả sử bạn đang kế thừa từ một Base chung
+from app.models.base import Base
 from app.models.business import Business
 
 

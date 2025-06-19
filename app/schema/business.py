@@ -11,10 +11,6 @@ class BusinessTypeCreate(BaseModel):
     name: str
     description: Optional[str] = None
 
-    @field_validator("name")
-    def uppercase_name(cls, v: str) -> str:
-        return v.upper()
-
 class BusinessTypeUpdate(BaseModel):
     name: str
     description: Optional[str] = None

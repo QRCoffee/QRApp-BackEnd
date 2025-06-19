@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from pymongo.errors import DuplicateKeyError
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.common.enum import APIError, APIMessage
+from app.common.api_message import KeyResponse, get_message
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -37,19 +37,19 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             duration = time.time() - start_time
             status_code = 500
-            error = APIError.SERVER_ERROR
-            message = APIMessage.SERVER_ERROR
+            error = KeyResponse.SERVER_ERROR
+            message = get_message(KeyResponse.SERVER_ERROR)
             if isinstance(e,ResponseValidationError):
                 status_code = 422
-                error = APIError.VALIDATION_ERROR
+                error = KeyResponse.VALIDATION_ERROR
                 message = [f"{error['msg']} {error['loc']}" for error in e.errors()]
             if isinstance(e,ValidationError):
                 status_code = 422
-                error = APIError.VALIDATION_ERROR
+                error = KeyResponse.VALIDATION_ERROR
                 message = [f"{error['msg']} {error['loc']}" for error in e.errors()]
             if isinstance(e,DuplicateKeyError):
                 status_code = 409
-                error = APIError.CONFLICT
+                error = KeyResponse.CONFLICT
                 message = f"{e.details['keyValue']['name']} đã tồn tại"
             log_data = {
                 **self._get_request_info(request),

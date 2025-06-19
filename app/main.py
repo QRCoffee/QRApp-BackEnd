@@ -5,8 +5,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.router import apiRouter
-from app.common.enum import APIError
-from app.common.exceptions import APIException
+from app.common.api_message import KeyResponse
+from app.common.http_exception import HTTP_ERROR
 from app.core.config import settings
 from app.core.middleware import LoggingMiddleware
 from app.db import Mongo
@@ -20,7 +20,7 @@ async def lifespan(_: FastAPI):
     yield
     # on_shutdown
 app = FastAPI(
-    title = "QRApp Backend",
+    title = "QRBusiness Backend",
     description="""
     * 📚 Swagger UI: `/docs`
     * 📖 ReDoc: `/redoc`
@@ -33,10 +33,10 @@ app = FastAPI(
 app.add_middleware(LoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cho phép tất cả nguồn (origin)
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Cho phép tất cả phương thức (GET, POST, PUT, DELETE...)
-    allow_headers=["*"],  # Cho phép tất cả header
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 # Endpoint
 app.include_router(apiRouter)
@@ -50,8 +50,8 @@ async def websocket(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 # Handle Exception
-@app.exception_handler(APIException)
-async def exception_handler(_: Request, exc: APIException):
+@app.exception_handler(HTTP_ERROR)
+async def exception_handler(_: Request, exc: HTTP_ERROR):
     return JSONResponse(
         status_code=exc.status_code,
         content=exc.detail
@@ -61,7 +61,7 @@ async def validation_exception_handler(_, exc: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
-            "message":APIError.VALIDATION_ERROR,
+            "message":KeyResponse.VALIDATION_ERROR,
             "error":[
                 f"{error['msg']} {error['loc']}" for error in exc.errors()
             ]

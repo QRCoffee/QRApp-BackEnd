@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from beanie import PydanticObjectId
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
-from app.common.exceptions import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT,HTTP_404_NOT_FOUND
-from app.common.responses import APIResponse
+from app.common.http_exception import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT,HTTP_404_NOT_FOUND
+from app.common.api_response import Response
 from app.schema.business import BusinessCreate
 from app.schema.user import BusinessOwner, BusinessRegister
 from app.service import businessService, businessTypeService, userService
@@ -28,7 +28,7 @@ apiRouter = APIRouter(
             "create.business"
         ])
     )],
-    response_model=APIResponse
+    response_model=Response
 )
 async def post_business(data:BusinessRegister):
     type = await businessTypeService.find_one_by(value=data.business_type)
@@ -93,7 +93,7 @@ async def post_business(data:BusinessRegister):
         value = data.username,
     )
     await user.fetch_all_links()
-    return APIResponse(data=user)
+    return Response(data=user)
 
 @apiRouter.post(
     path = "/{id}",
@@ -103,11 +103,11 @@ async def post_business(data:BusinessRegister):
             "update.business"
         ])
     )],
-    response_model=APIResponse
+    response_model=Response
 )
 async def lock_unlock_business(id:PydanticObjectId):
     business = await businessService.find_one_by(value = id)
     if business is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy doanh nghiệp")
     business = await businessService.update(id=id,data={"available": not business.available})
-    return APIResponse(data=business)
+    return Response(data=business)

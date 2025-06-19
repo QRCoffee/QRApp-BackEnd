@@ -32,19 +32,14 @@ class MongoDB:
         )
         for document in self.documents:
             for action in document.get_actions():
-                if await permissionService.find_one_by(
-                    by = "code",
-                    value = f"{action.lower()}.{document.__name__.lower()}",
-                ) is None:
-                    await permissionService.create(PermissionCreate(
+                permission = await permissionService.find_one({"code":f"{action.lower()}.{document.__name__.lower()}"})
+                if permission is None:
+                    await permissionService.insert(PermissionCreate(
                         code = f"{action.lower()}.{document.__name__.lower()}",
                         description=f"{action.upper()} {document.__name__.upper()}"
                     ))
-        if not await userService.find_one_by(
-            by = "username",
-            value = "admin"
-        ):
-            await userService.create(Administrator(
+        if not await userService.find_one({"username":"admin"}):
+            await userService.insert(Administrator(
                 username = settings.ADMIN_USERNAME,
                 password = settings.ADMIN_PASSWORD,
                 name = "Administrator",

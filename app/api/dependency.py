@@ -3,8 +3,8 @@ from typing import List, Optional
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.common.enum import APIError, APIMessage
-from app.common.exceptions import HTTP_401_UNAUTHORZIED, HTTP_403_FORBIDDEN
+from app.common.api_message import get_message,KeyResponse
+from app.common.http_exception import HTTP_401_UNAUTHORZIED, HTTP_403_FORBIDDEN
 from app.core.security import ACCESS_JWT
 from app.db import Redis
 
@@ -16,20 +16,20 @@ def login_required(
 ) -> bool:
     if credentials is None:
         raise HTTP_401_UNAUTHORZIED(
-            error=APIError.UNAUTHORIZED,
-            message=APIMessage.UNAUTHORIZED,
+            error=KeyResponse.UNAUTHORIZED,
+            message=get_message(KeyResponse.UNAUTHORIZED),
         )
     if credentials.scheme.lower() != "bearer":
         raise HTTP_401_UNAUTHORZIED(
-            error=APIError.INVALID_TOKEN,
-            message=APIMessage.INVALID_TOKEN,
+            error=KeyResponse.INVALID_TOKEN,
+            message=get_message(KeyResponse.INVALID_TOKEN),
         )
     try:
         payload: dict = ACCESS_JWT.decode(credentials.credentials)
         if not Redis.get(payload.get("user_id")):
             raise HTTP_401_UNAUTHORZIED(
-                error=APIError.SESSION_EXPIRED,
-                message=APIMessage.SESSION_EXPIRED,
+                error=KeyResponse.SESSION_EXPIRED,
+                message=get_message(KeyResponse.SESSION_EXPIRED),
             )
         for key, value in payload.items():
             if key == 'exp':
@@ -38,8 +38,8 @@ def login_required(
         return True
     except Exception:
         raise HTTP_401_UNAUTHORZIED(
-            error=APIError.INVALID_TOKEN,
-            message=APIMessage.INVALID_TOKEN,
+            error=KeyResponse.INVALID_TOKEN,
+            message=get_message(KeyResponse.INVALID_TOKEN),
         )
 
 def required_role(
@@ -48,7 +48,7 @@ def required_role(
     def role_checker(request: Request):
         user_role = request.state.user_role
         if role is not None and user_role not in role:
-            raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+            raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))
         return True
     return role_checker
 
@@ -59,7 +59,7 @@ def required_permissions(
         user_permissions: List[int] = request.state.user_permissions
         if permissions is not None:
             if not all(perm in user_permissions for perm in permissions):
-                raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+                raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))
         return True
     return permission_checker
 

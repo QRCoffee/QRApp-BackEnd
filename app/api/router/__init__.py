@@ -6,8 +6,8 @@ from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.group import apiRouter as groupRouter
 from app.api.router.user import apiRouter as userRouter
-from app.common.enum import APIError
-from app.common.exceptions import HTTP_404_NOT_FOUND
+from app.common.api_message import KeyResponse
+from app.common.http_exception import HTTP_404_NOT_FOUND
 
 apiRouter = APIRouter()
 apiRouter.include_router(authRouter)
@@ -24,6 +24,6 @@ apiRouter.include_router(areaRouter)
 )
 async def catch_all(path: str, request: Request):
     raise HTTP_404_NOT_FOUND(
-        error=APIError.NOT_FOUND,
+        error=KeyResponse.NOT_FOUND,
         message=f"{request.method} {request.url.path} is undefined"
     )

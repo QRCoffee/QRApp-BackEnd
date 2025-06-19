@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Request
 
 from app.api.dependency import login_required
-from app.common.enum import APIError, APIMessage
-from app.common.exceptions import HTTP_401_UNAUTHORZIED
-from app.common.responses import APIResponse
+from app.common.api_message import KeyResponse, get_message
+from app.common.http_exception import HTTP_401_UNAUTHORZIED
+from app.common.api_response import Response
 from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.schema.user import Auth, Token,FullUserResponse
 from app.service import permissionService, userService
@@ -16,23 +16,22 @@ apiRouter = APIRouter(
     path = "/sign-in",
     name = "Đăng nhập",
     status_code=200,
-    response_model=APIResponse[Token],
+    response_model=Response[Token],
 )
 async def sign_in(data:Auth):
-    user = await userService.find_one_by(by="username", value=data.username)
+    user = await userService.find_one({"username":data.username})
     if not user or not user.verify_password(data.password):
         raise HTTP_401_UNAUTHORZIED(
-            error= APIError.INVALID_CREDENTIALS,
-            message=APIMessage.INVALID_CREDENTIALS,
+            error   = KeyResponse.INVALID_CREDENTIALS,
+            message = get_message(KeyResponse.INVALID_CREDENTIALS)
         )
     user_id = str(user.id)
-    user_role = str(user.role)
-    user_scope = str(user.business.to_ref().id) if user.business else None
+    user_role = str(user.role) 
+    user_scope = str(user.business.to_ref().id) if user.business else None 
     user_group = str(user.group.to_ref().id) if user.group else None
     user_permissions = [permission.to_ref().id for permission in user.permissions]
-    for index,permission in enumerate(user_permissions):
-        permission = await permissionService.find_one_by(value=permission)
-        user_permissions[index] = permission.code
+    user_permissions = await permissionService.find_many({"_id": {"$in": user_permissions}})
+    user_permissions = [p.code for p in user_permissions]
     payload  = {
         "user_id": user_id,
         "user_scope": user_scope,
@@ -42,7 +41,7 @@ async def sign_in(data:Auth):
     }
     access_token=ACCESS_JWT.encode(payload)
     refresh_token=REFRESH_JWT.encode(payload,session=True)
-    return APIResponse(
+    return Response(
         data = Token(
             access_token=access_token,
             refresh_token=refresh_token,
@@ -53,32 +52,28 @@ async def sign_in(data:Auth):
     path = "/me",
     name = "Xem thông tin cá nhân",
     status_code=200,
-    response_model=APIResponse[FullUserResponse],
+    response_model=Response[FullUserResponse],
     dependencies = [
         Depends(login_required)
     ]
 )
 async def me(request:Request):
-    user = await userService.find_one_by(value=request.state.user_id)
+    user = await userService.find(request.state.user_id)
     await user.fetch_all_links()
-    return APIResponse(data=user)
+    return Response(data=user)
     
 
 @apiRouter.get(
     path = "/permissions",
     name = "Xem quyền của cá nhân",
     status_code=200,
-    response_model=APIResponse,
+    response_model=Response,
     dependencies = [
         Depends(login_required)
     ]
 )
 async def me(request:Request):
-    permissions = []
-    for permission in request.state.user_permissions:
-        p = await permissionService.find_one_by(
-            by = "code",
-            value = permission,
-        )
-        permissions.append(p)
-    return APIResponse(data=permissions)
+    codes = request.state.user_permissions
+    permissions = await permissionService.find_many({"code": {"$in": codes}})
+    return Response(data=permissions)
+

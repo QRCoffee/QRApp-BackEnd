@@ -1,8 +1,9 @@
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Request
-from app.common.exceptions import HTTP_403_FORBIDDEN,HTTP_404_NOT_FOUND
+from app.common.http_exception import HTTP_403_FORBIDDEN,HTTP_404_NOT_FOUND
 from app.api.dependency import login_required, required_role,required_permissions
-from app.common.responses import APIResponse
+from app.common.api_message import get_message,KeyResponse
+from app.common.api_response import Response
 from app.schema.user import Staff
 from app.service import businessService, userService
 
@@ -23,7 +24,7 @@ apiRouter = APIRouter(
 @apiRouter.get(
     path = "",
     name = "Xem người dùng/nhân viên",
-    response_model=APIResponse,
+    response_model=Response,
     dependencies = [
         Depends(required_permissions(permissions=[
             "view.user"
@@ -38,12 +39,12 @@ async def get_users(request:Request):
         users = await userService.find_many_by({
             "scope._id": PydanticObjectId(user_scope)
         })
-    return APIResponse(data=users)
+    return Response(data=users)
 
 @apiRouter.post(
     path = "",
     name = "Tạo người dùng/nhân viên",
-    response_model=APIResponse,
+    response_model=Response,
     dependencies = [
         Depends(required_permissions(permissions=[
             "create.user"
@@ -56,12 +57,12 @@ async def post_user(data:Staff,request:Request):
     business = await businessService.find_one_by(value=user_scope)
     data['scope'] = business
     staff = await userService.create(data)
-    return APIResponse(data=staff)
+    return Response(data=staff)
 
 @apiRouter.post(
     path = "/{id}",
     name = "Mở/Khóa người dùng/nhân viên",
-    response_model=APIResponse,
+    response_model=Response,
     dependencies = [
         Depends(required_permissions(permissions=[
             "update.user"
@@ -80,5 +81,5 @@ async def lock_unlock_user(id:PydanticObjectId,request:Request):
                 "available": not user.available
             }
         )
-        return APIResponse(data=user)
-    raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+        return Response(data=user)
+    raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))

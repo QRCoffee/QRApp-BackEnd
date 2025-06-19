@@ -1,11 +1,11 @@
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Request
-
+from app.common.api_message import get_message,KeyResponse
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
-from app.common.exceptions import (HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN,
+from app.common.http_exception import (HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN,
                                    HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
-from app.common.responses import APIResponse
+from app.common.api_response import Response
 from app.schema.group import GroupCreate
 from app.service import businessService, groupService
 
@@ -25,7 +25,7 @@ apiRouter = APIRouter(
 @apiRouter.post(
     path = "",
     name = "Tạo Group",
-    response_model=APIResponse,
+    response_model=Response,
     dependencies = [
         Depends(required_permissions(permissions=[
                 "create.group"
@@ -41,12 +41,12 @@ async def post_group(data:GroupCreate,request:Request):
     if any(group.name.lower() == data["name"].lower() for group in group_in_business):
         raise HTTP_409_CONFLICT(f"Đã có nhóm {data["name"]} tại doanh nghiệp/scope này")
     group = await groupService.create(data)
-    return APIResponse(data=group)
+    return Response(data=group)
 
 @apiRouter.delete(
     path = "/{id}",
     name = "Xóa Group",
-    response_model=APIResponse,
+    response_model=Response,
     dependencies = [
         Depends(required_permissions(permissions=[
                 "delete.group"
@@ -60,7 +60,7 @@ async def delete_group(id:PydanticObjectId,request:Request):
         raise HTTP_404_NOT_FOUND(f"Group {id} không tồn tại")
     if request.state.user_scope == str(group.scope.id):
         if await groupService.delete(id):
-            return APIResponse(data=True)
+            return Response(data=True)
         else:
             raise HTTP_400_BAD_REQUEST("Có lỗi khi xảy ra")
-    raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+    raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))
