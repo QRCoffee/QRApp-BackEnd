@@ -5,6 +5,7 @@ from app.api.router.auth import apiRouter as authRouter
 from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.group import apiRouter as groupRouter
+from app.api.router.branch import apiRouter as branchRouter
 from app.api.router.user import apiRouter as userRouter
 from app.common.api_message import KeyResponse
 from app.common.http_exception import HTTP_404_NOT_FOUND
@@ -13,6 +14,7 @@ apiRouter = APIRouter()
 apiRouter.include_router(authRouter)
 apiRouter.include_router(businesstypeRouter)
 apiRouter.include_router(businessRouter)
+apiRouter.include_router(branchRouter)
 apiRouter.include_router(groupRouter)
 apiRouter.include_router(userRouter)
 apiRouter.include_router(areaRouter)

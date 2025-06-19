@@ -3,7 +3,10 @@ from pydantic import BaseModel
 from app.schema import BaseResponse
 from app.models import Business
 
-
+class BranchCreateWithoutBusiness(BaseModel):
+    name: str
+    address: str
+    contact: Optional[str] = None
 class BranchCreate(BaseModel):
     name: str
     address: str

@@ -28,7 +28,7 @@ class MongoDB:
     async def initialize(self):
         await init_beanie(
             database=self.database,
-            document_models=self.documents
+            document_models=self.documents,
         )
         # Init Permission
         permissions = []
