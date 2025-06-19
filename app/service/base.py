@@ -27,12 +27,14 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         conditions: Dict[str, Any] | None = None,
         skip: int | None = None,
         limit: int | None = None,
+        fetch_links: bool = False,
     ) -> List[ModelType]:
         conditions = conditions or {}
         return await self.model.find_many(
             conditions,
             skip=skip,
             limit=limit,
+            fetch_links=fetch_links,
         ).to_list()
 
     # 4. Ghi 1 document

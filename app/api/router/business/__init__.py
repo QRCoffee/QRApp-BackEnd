@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends
+from typing import List
 from beanie import PydanticObjectId
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
 from app.common.http_exception import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT,HTTP_404_NOT_FOUND
 from app.common.api_response import Response
-from app.schema.business import BusinessCreate
-from app.schema.user import BusinessOwner, BusinessRegister
+from app.schema.business import BusinessCreate,BusinessResponse
+from app.schema.user import BusinessOwner, BusinessRegister,FullUserResponse
 from app.service import businessService, businessTypeService, userService
 
 apiRouter = APIRouter(
@@ -20,45 +21,46 @@ apiRouter = APIRouter(
     ]
 )
 
+@apiRouter.get(
+    path = "",
+    name = "Danh sách doanh nghiệp",
+    status_code=200,
+    dependencies = [Depends(
+        required_permissions(permissions=[
+            "view.business"
+        ])
+    )],
+    response_model=Response[List[BusinessResponse]]
+)
+async def get_businesses():
+    businesses = await businessService.find_many(fetch_links=True)
+    return Response(data=businesses)
+
 @apiRouter.post(
     path = "",
     name = "Đăng kí doanh nghiệp",
+    status_code=201,
     dependencies = [Depends(
         required_permissions(permissions=[
             "create.business"
         ])
     )],
-    response_model=Response
+    response_model=Response[FullUserResponse]
 )
 async def post_business(data:BusinessRegister):
-    type = await businessTypeService.find_one_by(value=data.business_type)
+    type = await businessTypeService.find(data.business_type)
     if type is None:
         raise HTTP_400_BAD_REQUEST("Loại doanh nghiệp không phù hợp")
-    if await businessService.find_one_by(
-        by = "name",
-        value = data.business_name,
-    ):
+    if await businessService.find_one({"name":data.business_name}):
         raise HTTP_409_CONFLICT("Tên doanh nghiệp đã được đăng kí")
-    if await userService.find_one_by(
-        by = "username",
-        value = data.username,
-    ):
+    if await userService.find_one({"username":data.username},):
         raise HTTP_409_CONFLICT("Tên người dùng đã được đăng kí")
-    if await userService.find_one_by(
-        by = "phone",
-        value = data.owner_contact
-    ):
+    if await userService.find_one({"phone":data.owner_contact}):
         raise HTTP_409_CONFLICT("Số điện thoại người khác đã được sử dụng")
-    if await businessService.find_one_by(
-        by = "contact",
-        value = data.business_contact
-    ):
+    if await businessService.find_one({"contact":data.business_contact}):
         raise HTTP_409_CONFLICT("Số điện thoại doanh nghiệp khác đăng kí")
     if data.business_tax_code:
-        if await businessService.find_one_by(
-            by = "tax_code",
-            value = data.business_tax_code
-        ):
+        if await businessService.find_one({"tax_code":data.business_tax_code}):
             raise HTTP_409_CONFLICT("Mã số thuế đã được sử dụng")
     business = BusinessCreate(
         name = data.business_name,
@@ -75,8 +77,8 @@ async def post_business(data:BusinessRegister):
         phone= data.owner_contact,
         address=data.owner_address,
     )
-    business = await businessService.create(business)
-    owner = await userService.create(owner)
+    business = await businessService.insert(business)
+    owner = await userService.insert(owner)
     await businessService.update(id = business.id,
         data = {
             "owner":owner,
@@ -88,10 +90,7 @@ async def post_business(data:BusinessRegister):
             "business":business,
         }
     )
-    user = await userService.find_one_by(
-        by = "username",
-        value = data.username,
-    )
+    user = await userService.find_one({"username":data.username})
     await user.fetch_all_links()
     return Response(data=user)
 
@@ -103,11 +102,12 @@ async def post_business(data:BusinessRegister):
             "update.business"
         ])
     )],
-    response_model=Response
+    response_model=Response[BusinessResponse]
 )
 async def lock_unlock_business(id:PydanticObjectId):
-    business = await businessService.find_one_by(value = id)
+    business = await businessService.find(id)
     if business is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy doanh nghiệp")
     business = await businessService.update(id=id,data={"available": not business.available})
+    await business.fetch_link('business_type')
     return Response(data=business)

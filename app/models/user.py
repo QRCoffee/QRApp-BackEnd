@@ -21,7 +21,7 @@ class User(Base):
     role: Literal['Admin','BusinessOwner','Staff'] = Field(default='Staff')
     available: bool = Field(True)
     permissions: List[Link[Permission]] = Field(default_factory=list)
-    group: Optional[Link[Group]] = Field(default=None)
+    group: List[Link[Group]] = Field(default_factory=list)
     business: Optional[Link[Business]] = Field(default=None)
 
     class Settings:

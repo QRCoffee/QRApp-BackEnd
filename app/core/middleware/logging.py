@@ -47,10 +47,6 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 status_code = 422
                 error = KeyResponse.VALIDATION_ERROR
                 message = [f"{error['msg']} {error['loc']}" for error in e.errors()]
-            if isinstance(e,DuplicateKeyError):
-                status_code = 409
-                error = KeyResponse.CONFLICT
-                message = f"{e.details['keyValue']['name']} đã tồn tại"
             log_data = {
                 **self._get_request_info(request),
                 "duration": duration,

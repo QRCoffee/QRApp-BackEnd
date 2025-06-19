@@ -8,6 +8,7 @@ from app.api.dependency import (login_required, required_permissions,
 from app.common.http_exception import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND,
                                    HTTP_409_CONFLICT)
 from app.common.api_response import Response
+from app.common.api_message import get_message,KeyResponse
 from app.core.config import settings
 from app.schema.business import (BusinessTypeCreate, BusinessTypeResponse,
                                  BusinessTypeUpdate)
@@ -83,8 +84,11 @@ async def post_business_type(data:BusinessTypeCreate | List[BusinessTypeCreate])
     ]
 )
 async def update_business_type(id:PydanticObjectId,data:BusinessTypeUpdate):
-    if await businessTypeService.find(id) is None:
-        raise HTTP_404_NOT_FOUND(f"Không tìm thấy {id}")
+    business = await businessTypeService.find(id)
+    if business is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy")
+    if data.name.upper() == business.name.upper():
+        raise HTTP_409_CONFLICT(f"Đã tồn tại {data.name}")
     data = await businessTypeService.update(
         id =id,
         data = data.model_dump(exclude_none=True)
@@ -94,7 +98,7 @@ async def update_business_type(id:PydanticObjectId,data:BusinessTypeUpdate):
 @apiRouter.delete(
     path = "/{id}",
     name = "Xóa loại Doanh Nghiệp",
-    response_model=Response[BusinessTypeResponse],
+    deprecated = True,
     dependencies=[
         Depends(required_permissions(
             permissions=[
@@ -108,5 +112,5 @@ async def delete_business_type(id:PydanticObjectId):
         raise HTTP_404_NOT_FOUND(f"Không tìm thấy {id}")
     if not await businessTypeService.delete(id):
         raise HTTP_400_BAD_REQUEST(f"Lỗi khi xóa {id}")
-    return Response()
+    return True
     

@@ -37,13 +37,15 @@ class FullBusinessResponse(BaseResponse):
     name: str 
     address: str
     contact: str
-    business_type: BusinessType
     tax_code: Optional[str] = None
+    available: bool
+    business_type: BusinessType
     owner: Optional[User] = Field(description="Business Owner") # type: ignore
 
 class BusinessResponse(BaseResponse):
     name: str 
     address: str
     contact: str
-    business_type: BusinessType
     tax_code: Optional[str] = None
+    available: bool
+    business_type: BusinessType

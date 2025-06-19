@@ -92,5 +92,5 @@ class FullUserResponse(BaseResponse):
     image_url: Optional[str] = None
     role: Optional[str] = None
     permissions: List[DetailPermissionResponse] = []
-    group: Optional[GroupResponse] = None
+    group: List[GroupResponse] = []
     business: Optional[BusinessResponse] = None
