@@ -26,6 +26,6 @@ apiRouter.include_router(areaRouter)
 )
 async def catch_all(path: str, request: Request):
     raise HTTP_404_NOT_FOUND(
-        error=KeyResponse.NOT_FOUND,
+        error="NOT FOUND",
         message=f"{request.method} {request.url.path} is undefined"
     )
