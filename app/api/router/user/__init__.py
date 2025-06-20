@@ -103,7 +103,7 @@ async def lock_unlock_user(id:PydanticObjectId,request:Request,task: BackgroundT
     if user is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy")
     user_request_scope = request.state.user_scope
-    if user_request_scope is None or user_request_scope == str(user.business.id):
+    if user_request_scope is None or user_request_scope == str(user.business.to_ref().id):
         user = await userService.update(
             id=id,
             data = {
