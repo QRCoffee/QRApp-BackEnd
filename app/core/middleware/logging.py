@@ -6,7 +6,6 @@ from fastapi.exceptions import ResponseValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
 from pydantic import ValidationError
-from pymongo.errors import DuplicateKeyError
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.common.api_message import KeyResponse, get_message

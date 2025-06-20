@@ -1,4 +1,4 @@
-from typing import Any, Generic, List, Optional, Type, TypeVar, Union,Dict
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from beanie import Document
 from pydantic import BaseModel

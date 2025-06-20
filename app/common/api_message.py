@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class KeyResponse(str, Enum):
     SUCCESS = "SUCCESS"
     USERNAME_CONFLICT = "USERNAME_CONFLICT"

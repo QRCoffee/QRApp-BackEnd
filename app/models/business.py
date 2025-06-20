@@ -1,6 +1,6 @@
 from typing import Optional
 
-from beanie import Insert, Link
+from beanie import Link
 from pydantic import Field
 from pymongo import IndexModel
 

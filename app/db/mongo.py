@@ -1,12 +1,13 @@
 from typing import List
-from loguru import logger
+
 from beanie import Document, init_beanie
+from loguru import logger
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo.errors import BulkWriteError
+
 from app.core.config import settings
 from app.models import (Area, Branch, Business, BusinessType, Group,
                         Permission, User)
-from app.schema.permission import PermissionCreate
 from app.schema.user import Administrator
 from app.service import permissionService, userService
 

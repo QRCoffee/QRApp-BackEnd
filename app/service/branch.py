@@ -1,5 +1,5 @@
 from app.models.branch import Branch
-from app.schema.branch import BranchCreate,BranchUpdate
+from app.schema.branch import BranchCreate, BranchUpdate
 from app.service.base import Service
 
 

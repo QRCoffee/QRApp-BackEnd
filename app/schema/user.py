@@ -2,11 +2,13 @@ from typing import List, Literal, Optional
 
 from beanie import Link, PydanticObjectId
 from pydantic import BaseModel, Field, computed_field
-from app.schema import BaseResponse
+
 from app.models import Business, Group, Permission
-from app.schema.permission import DetailPermissionResponse
-from app.schema.group import GroupResponse
+from app.schema import BaseResponse
 from app.schema.business import BusinessResponse
+from app.schema.group import GroupResponse
+from app.schema.permission import DetailPermissionResponse
+
 
 class Auth(BaseModel):
     username: str

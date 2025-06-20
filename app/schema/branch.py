@@ -1,7 +1,10 @@
 from typing import Optional
+
 from pydantic import BaseModel
-from app.schema import BaseResponse
+
 from app.models import Business
+from app.schema import BaseResponse
+
 
 class BranchCreateWithoutBusiness(BaseModel):
     name: str

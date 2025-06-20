@@ -1,7 +1,8 @@
+from enum import Enum
 from typing import Any
 
 from fastapi import HTTPException, status
-from enum import Enum
+
 
 class Error(str, Enum):
     SUCCESS = "SUCCESS"

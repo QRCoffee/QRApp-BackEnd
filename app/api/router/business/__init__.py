@@ -1,15 +1,19 @@
-from fastapi import APIRouter, Depends,Query
-from app.core.config import settings
 from typing import List
+
 from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends, Query
+
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
-from app.common.http_exception import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT,HTTP_404_NOT_FOUND
 from app.common.api_response import Response
-from app.schema.business import BusinessCreate,BusinessResponse
-from app.schema.user import BusinessOwner, BusinessRegister,FullUserResponse
+from app.common.http_exception import (HTTP_400_BAD_REQUEST,
+                                       HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
+from app.core.config import settings
 from app.schema.branch import BranchCreate
-from app.service import businessService, businessTypeService, userService,branchService
+from app.schema.business import BusinessCreate, BusinessResponse
+from app.schema.user import BusinessOwner, BusinessRegister, FullUserResponse
+from app.service import (branchService, businessService, businessTypeService,
+                         userService)
 
 apiRouter = APIRouter(
     tags=['Business'],

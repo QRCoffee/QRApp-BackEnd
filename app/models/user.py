@@ -4,6 +4,7 @@ import bcrypt
 from beanie import Insert, Link, before_event
 from pydantic import Field
 from pymongo import IndexModel
+
 from app.models.business import Business
 from app.models.group import Group
 from app.models.permission import Permission

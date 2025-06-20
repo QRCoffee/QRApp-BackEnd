@@ -5,10 +5,9 @@ from fastapi import APIRouter, Depends, Query
 
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
-from app.common.http_exception import (HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND,
-                                   HTTP_409_CONFLICT)
 from app.common.api_response import Response
-from app.common.api_message import get_message,KeyResponse
+from app.common.http_exception import (HTTP_400_BAD_REQUEST,
+                                       HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
 from app.core.config import settings
 from app.schema.business import (BusinessTypeCreate, BusinessTypeResponse,
                                  BusinessTypeUpdate)

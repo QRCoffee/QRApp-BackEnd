@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, Request
 
 from app.api.dependency import login_required
 from app.common.api_message import KeyResponse, get_message
-from app.common.http_exception import HTTP_401_UNAUTHORZIED
 from app.common.api_response import Response
+from app.common.http_exception import HTTP_401_UNAUTHORZIED
 from app.core.security import ACCESS_JWT, REFRESH_JWT
-from app.schema.user import Auth, Token,FullUserResponse
+from app.schema.user import Auth, FullUserResponse, Token
 from app.service import permissionService, userService
 
 apiRouter = APIRouter(

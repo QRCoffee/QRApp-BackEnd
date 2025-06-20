@@ -1,14 +1,18 @@
 from typing import List
+
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Request
-from app.common.api_message import get_message,KeyResponse
+
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
-from app.common.http_exception import (HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN,
-                                   HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
+from app.common.api_message import KeyResponse, get_message
 from app.common.api_response import Response
-from app.schema.group import GroupCreate,GroupResponse
-from app.service import businessService, groupService,permissionService,userService
+from app.common.http_exception import (HTTP_400_BAD_REQUEST,
+                                       HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND,
+                                       HTTP_409_CONFLICT)
+from app.schema.group import GroupCreate, GroupResponse
+from app.service import (businessService, groupService, permissionService,
+                         userService)
 
 apiRouter = APIRouter(
     tags = ['Group'],
