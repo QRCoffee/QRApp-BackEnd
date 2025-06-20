@@ -7,7 +7,8 @@ from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND)
-from app.schema.branch import BranchCreateWithoutBusiness, BranchResponse,BranchUpdate
+from app.schema.branch import (BranchCreateWithoutBusiness, BranchResponse,
+                               BranchUpdate)
 from app.service import branchService, businessService
 
 apiRouter = APIRouter(

@@ -1,7 +1,10 @@
 from typing import Optional
+
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
+
 from app.schema import BaseResponse
+
 
 class AreaCreate(BaseModel):
     name: str

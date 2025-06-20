@@ -4,8 +4,8 @@ from beanie import Link
 from pydantic import Field
 
 from app.models.base import Base
-from app.models.business import Business
 from app.models.branch import Branch
+from app.models.business import Business
 
 
 class Area(Base):

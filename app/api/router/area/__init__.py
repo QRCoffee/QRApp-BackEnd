@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Request
 
-from app.api.dependency import login_required, required_permissions
-from app.schema.area import AreaCreate
+from app.api.dependency import login_required
 from app.common.api_response import Response
-from app.service import businessService,areaService
+from app.schema.area import AreaCreate
+from app.service import areaService, businessService
 
 apiRouter = APIRouter(
     tags=['Area'],

@@ -1,14 +1,16 @@
-from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Request,BackgroundTasks
 from typing import List
+
+from beanie import PydanticObjectId
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
+
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
 from app.common.api_message import KeyResponse, get_message
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
-from app.schema.user import Staff,UserResponse,FullUserResponse
-from app.service import businessService, userService
 from app.db import Redis
+from app.schema.user import FullUserResponse, Staff, UserResponse
+from app.service import businessService, userService
 
 apiRouter = APIRouter(
     tags = ["User"],
