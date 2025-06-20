@@ -12,7 +12,7 @@ from .base import Base
 class Group(Base):
     name: str
     description: Optional[str] = Field(default=None, description="Optional description")
-    scope: Optional[Link[Business]] = Field(default=None)
+    business: Optional[Link[Business]] = Field(default=None)
     permissions: List[Link[Permission]] = Field(
         default_factory=list,
     )

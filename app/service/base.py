@@ -66,6 +66,14 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await db_item.save()
         return db_item
 
+    async def update_one(
+        self,
+        id: Any,
+        conditions: Dict[str,Any]
+    ) -> Optional[ModelType]:
+        await self.model.find_one({"_id": id}).update(conditions)
+        return await self.model.get(id)
+    
     # 7. Cập nhật nhiều document theo điều kiện
     async def update_many(self, conditions: dict[str, Any], update_data: dict[str, Any]) -> int:
         result = await self.model.find(conditions).update({"$set": update_data})

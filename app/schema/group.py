@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import Optional,List
 from app.schema import BaseResponse
 from pydantic import BaseModel, Field
-
+from app.schema.permission import DetailPermissionResponse
 
 class GroupCreate(BaseModel):
     name: str
@@ -14,3 +14,4 @@ class GroupUpdate(BaseModel):
 class GroupResponse(BaseResponse):
     name: str
     description: Optional[str] = None
+    permissions: List[DetailPermissionResponse] = []
