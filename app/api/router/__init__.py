@@ -9,16 +9,16 @@ from app.api.router.group import apiRouter as groupRouter
 from app.api.router.user import apiRouter as userRouter
 from app.common.http_exception import HTTP_404_NOT_FOUND
 
-apiRouter = APIRouter()
-apiRouter.include_router(authRouter)
-apiRouter.include_router(businesstypeRouter)
-apiRouter.include_router(businessRouter)
-apiRouter.include_router(branchRouter)
-apiRouter.include_router(groupRouter)
-apiRouter.include_router(userRouter)
-apiRouter.include_router(areaRouter)
+api = APIRouter()
+api.include_router(authRouter)
+api.include_router(businesstypeRouter)
+api.include_router(businessRouter)
+api.include_router(branchRouter)
+api.include_router(groupRouter)
+api.include_router(userRouter)
+api.include_router(areaRouter)
 # Handle Undefined API
-@apiRouter.api_route(
+@api.api_route(
     path = "/{path:path}",
     methods = ["GET", "POST", "DELETE","PUT","PATCH","OPTIONS"],
     include_in_schema=False,

@@ -50,9 +50,9 @@ class Administrator(Auth):
         return "Admin"
 
 class BusinessOwner(Auth):
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    address:Optional[str] = None
+    name: str
+    phone: str
+    address:str
     
     @computed_field(return_type=str)
     @property
@@ -60,9 +60,9 @@ class BusinessOwner(Auth):
         return "BusinessOwner"
     
 class Staff(Auth):
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    address:Optional[str] = None
+    name: str
+    phone: str
+    address: str
     
     @computed_field(return_type=str)
     @property
@@ -87,7 +87,6 @@ class BusinessRegister(Auth):
 
 class FullUserResponse(BaseResponse):
     username: Optional[str] = None
-    password: Optional[str] = None
     name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
@@ -96,3 +95,13 @@ class FullUserResponse(BaseResponse):
     permissions: List[DetailPermissionResponse] = []
     group: List[GroupResponse] = []
     business: Optional[BusinessResponse] = None
+    available: bool
+
+class UserResponse(BaseResponse):
+    username: Optional[str] = None
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    image_url: Optional[str] = None
+    role: Optional[str] = None
+    available: bool

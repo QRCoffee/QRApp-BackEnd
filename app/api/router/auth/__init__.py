@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, Request
 
-from app.api.dependency import login_required
+from app.api.dependency import login_required,required_role
 from app.common.api_message import KeyResponse, get_message
 from app.common.api_response import Response
-from app.common.http_exception import HTTP_401_UNAUTHORZIED
+from app.common.http_exception import HTTP_401_UNAUTHORZIED,HTTP_403_FORBIDDEN
 from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.schema.user import Auth, FullUserResponse, Token
-from app.service import permissionService, userService
+from app.schema.permission import PermissionProjection
+from app.schema.business import FullBusinessResponse
+from app.service import permissionService, userService,businessService
 
 apiRouter = APIRouter(
     tags = ["Auth - Self"],
@@ -25,12 +27,17 @@ async def sign_in(data:Auth):
             error   = KeyResponse.INVALID_CREDENTIALS,
             message = get_message(KeyResponse.INVALID_CREDENTIALS)
         )
+    if not user.available:
+        raise HTTP_403_FORBIDDEN("Tài khoản hiện bị khóa")
     user_id = str(user.id)
     user_role = str(user.role) 
     user_scope = str(user.business.to_ref().id) if user.business else None 
     user_group = str(user.group.to_ref().id) if user.group else None
     user_permissions = [permission.to_ref().id for permission in user.permissions]
-    user_permissions = await permissionService.find_many({"_id": {"$in": user_permissions}})
+    user_permissions = await permissionService.find_many(
+        {"_id": {"$in": user_permissions}},
+        projection_model=PermissionProjection,
+    )
     user_permissions = [p.code for p in user_permissions]
     payload  = {
         "user_id": user_id,
@@ -64,7 +71,7 @@ async def me(request:Request):
     
 
 @apiRouter.get(
-    path = "/permissions",
+    path = "/my-permissions",
     name = "Xem quyền của cá nhân",
     status_code=200,
     response_model=Response,
@@ -76,4 +83,22 @@ async def me(request:Request):
     codes = request.state.user_permissions
     permissions = await permissionService.find_many({"code": {"$in": codes}})
     return Response(data=permissions)
+
+@apiRouter.get(
+    path = "/my-business",
+    name = "Xem doanh nghiệp cá nhân",
+    status_code=200,
+    response_model=Response[FullBusinessResponse],
+    response_model_exclude={"data":{"owner"}},
+    dependencies = [
+        Depends(login_required),
+        Depends(required_role(role=[
+            "BusinessOwner"
+        ]))
+    ]
+)
+async def me(request:Request):
+    business = await businessService.find(request.state.user_scope)
+    await business.fetch_all_links()
+    return Response(data=business)
 

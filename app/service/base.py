@@ -17,9 +17,9 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return await self.model.get(id)
 
     # 2. Tìm một document theo điều kiện
-    async def find_one(self, conditions: Dict[str, Any] | None = None) -> Optional[ModelType]:
+    async def find_one(self, conditions: Dict[str, Any] | None = None,projection_model: None = None) -> Optional[ModelType]:
         conditions = conditions or {}
-        return await self.model.find_one(conditions)
+        return await self.model.find_one(conditions,projection_model=projection_model)
 
     # 3. Tìm nhiều document theo điều kiện
     async def find_many(
@@ -27,6 +27,7 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         conditions: Dict[str, Any] | None = None,
         skip: int | None = None,
         limit: int | None = None,
+        projection_model: None = None,
         fetch_links: bool = False,
     ) -> List[ModelType]:
         conditions = conditions or {}
@@ -34,6 +35,7 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             conditions,
             skip=skip,
             limit=limit,
+            projection_model=projection_model,
             fetch_links=fetch_links,
         ).to_list()
 

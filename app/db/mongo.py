@@ -19,7 +19,9 @@ class MongoDB:
         database: str,
         documents:List[Document],
     ):
-        self.client = AsyncIOMotorClient(url)
+        self.client = AsyncIOMotorClient(
+            url,
+        )
         self.database = AsyncIOMotorDatabase(
             client=self.client,
             name=database,

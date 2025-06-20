@@ -1,7 +1,7 @@
 from typing import Optional
 
 from beanie import Link
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,field_validator
 
 from app.models import BusinessType, User
 from app.schema import BaseResponse
@@ -12,7 +12,7 @@ class BusinessTypeCreate(BaseModel):
     description: Optional[str] = None
 
 class BusinessTypeUpdate(BaseModel):
-    name: str
+    name: Optional[str] = None
     description: Optional[str] = None
 
 class BusinessTypeResponse(BaseResponse):
@@ -41,6 +41,12 @@ class FullBusinessResponse(BaseResponse):
     available: bool
     business_type: BusinessType
     owner: Optional[User] = Field(description="Business Owner") # type: ignore
+
+    @field_validator("owner")
+    @classmethod
+    def serializer_owner(cls,v: Optional[User]):
+        from app.schema.user import UserResponse
+        return UserResponse.model_validate(v)
 
 class BusinessResponse(BaseResponse):
     name: str 

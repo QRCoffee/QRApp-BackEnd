@@ -3,6 +3,7 @@ from enum import Enum
 
 class KeyResponse(str, Enum):
     SUCCESS = "SUCCESS"
+    CONFLICT = "CONFLICT"
     USERNAME_CONFLICT = "USERNAME_CONFLICT"
     PHONE_CONFLICT = "PHONE_CONFLICT"
     UNAUTHORIZED = "UNAUTHORIZED"

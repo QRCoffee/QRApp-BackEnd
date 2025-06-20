@@ -17,6 +17,7 @@ dependencies = [
     "pyjwt>=2.10.1",
     "pymysql>=1.1.1",
     "redis>=6.2.0",
+    "typer>=0.16.0",
 ]
 
 [dependency-groups]

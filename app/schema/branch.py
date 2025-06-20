@@ -17,8 +17,8 @@ class BranchCreate(BaseModel):
     business: Business
 
 class BranchUpdate(BaseModel):
-    name: str
-    address: str
+    name: Optional[str] = None
+    address: Optional[str] = None
     contact: Optional[str] = None
 
 class BranchResponse(BaseResponse):

@@ -20,3 +20,6 @@ class FullPermissionResponse(BaseResponse):
 class DetailPermissionResponse(BaseModel):
     code: str
     description: Optional[str] = None
+
+class PermissionProjection(BaseModel):
+    code: str

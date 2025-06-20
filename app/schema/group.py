@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, Field,model_validator
+from app.models.user import User
 from app.schema import BaseResponse
 from app.schema.permission import DetailPermissionResponse
 
@@ -18,3 +18,13 @@ class GroupResponse(BaseResponse):
     name: str
     description: Optional[str] = None
     permissions: List[DetailPermissionResponse] = []
+
+class FullGroupResponse(GroupResponse):
+    users: Optional[List[User]] = []
+
+    @classmethod
+    async def from_model(cls, model: GroupResponse) -> "FullGroupResponse":
+        data = model.model_dump()
+        from app.service import userService
+        users = await userService.find_many({"group.$id": model.id})
+        return cls(**data,users=users)
