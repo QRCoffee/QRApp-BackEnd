@@ -7,9 +7,9 @@ class AuthUser(HttpUser):
     def on_start(self):
         # Khởi tạo dữ liệu test
         self.test_users = [
-            {"username": "admin", "password": "admin"},
-            {"username": "test1", "password": "test123"},
-            {"username": "test2", "password": "test123"},
+            {"username": "admin", "password": "admin"}, # pragma: allowlist secret
+            {"username": "test1", "password": "test123"}, # pragma: allowlist secret
+            {"username": "test2", "password": "test123"}, # pragma: allowlist secret
             # Thêm nhiều test user khác nếu cần
         ]
 
