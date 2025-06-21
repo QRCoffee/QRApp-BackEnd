@@ -63,4 +63,4 @@ def required_permissions(
         return True
     return permission_checker
 
-__all__ = ["login_required","required_role","required_permissions","require_restaurant"]
+__all__ = ["login_required","required_role","required_permissions"]
