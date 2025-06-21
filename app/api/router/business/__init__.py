@@ -142,8 +142,8 @@ async def post_business(data:BusinessRegister):
     await user.fetch_all_links()
     return Response(data=user)
 
-@apiRouter.post(
-    path = "/{id}",
+@apiRouter.put(
+    path = "/active/{id}",
     name = "Mở/Khóa doanh nghiệp",
     dependencies = [Depends(
         required_permissions(permissions=[

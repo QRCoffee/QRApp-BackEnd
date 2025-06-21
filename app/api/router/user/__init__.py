@@ -92,8 +92,8 @@ async def post_user(data:Staff,request:Request):
     staff = await userService.insert(data)
     return Response(data=staff)
 
-@apiRouter.post(
-    path = "/{id}",
+@apiRouter.put(
+    path = "/active/{id}",
     name = "Mở/Khóa người dùng/nhân viên",
     response_model=Response[UserResponse],
     dependencies = [
