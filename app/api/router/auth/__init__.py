@@ -71,7 +71,22 @@ def sign_out(data:Session,request:Request):
     if SessionManager.get(request.state.user_id):
         raise HTTP_403_FORBIDDEN("Đăng xuất thất bại")
     return Response(data="Đăng xuất thành công")
-    
+
+@apiRouter.post(
+    path = "/refresh-token",
+    name = "Làm mới token",
+    response_model=Response[Token]
+)
+def refresh_token(data: Session):
+    payload = REFRESH_JWT.decode(data.refresh_token)
+    payload.pop('exp')
+    access_token = ACCESS_JWT.encode(payload)
+    return Response(
+        data = Token(
+            access_token=access_token,
+            refresh_token=data.refresh_token
+        )
+    )
 
 @apiRouter.get(
     path = "/me",
