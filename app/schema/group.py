@@ -1,11 +1,8 @@
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
-
-from app.models.user import User
 from app.schema import BaseResponse
 from app.schema.permission import DetailPermissionResponse
-
 
 class GroupCreate(BaseModel):
     name: str
@@ -21,11 +18,12 @@ class GroupResponse(BaseResponse):
     permissions: List[DetailPermissionResponse] = []
 
 class FullGroupResponse(GroupResponse):
-    users: Optional[List[User]] = []
+    users: Optional[List[BaseModel]] = []
 
     @classmethod
-    async def from_model(cls, model: GroupResponse) -> "FullGroupResponse":
-        data = model.model_dump()
+    async def from_model(cls, model: BaseModel) -> "FullGroupResponse":
         from app.service import userService
-        users = await userService.find_many({})
+        from app.schema.user import UserResponse
+        data = model.model_dump()
+        users = await userService.find_many(projection_model=UserResponse,fetch_links=True)
         return cls(**data,users=users)

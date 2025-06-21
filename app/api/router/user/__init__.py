@@ -10,7 +10,7 @@ from app.common.api_response import Response
 from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from app.db import Redis
 from app.schema.user import FullUserResponse, Staff, UserResponse
-from app.service import businessService, userService
+from app.service import businessService, userService,branchService
 
 apiRouter = APIRouter(
     tags = ["User"],
@@ -79,10 +79,16 @@ async def get_user(id:PydanticObjectId,request:Request):
     ]
 )
 async def post_user(data:Staff,request:Request):
+    branch = await branchService.find(data.branch) 
+    if branch is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy chi nhánh")
+    if str(branch.business.to_ref().id) != request.state.user_scope:
+        raise HTTP_403_FORBIDDEN("Chi nhánh không tồn tại trong doanh nghiệp của bạn")
     data = data.model_dump()
     user_scope = request.state.user_scope
     business = await businessService.find(user_scope)
     data['business'] = business
+    data['branch'] = branch
     staff = await userService.insert(data)
     return Response(data=staff)
 

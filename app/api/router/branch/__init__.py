@@ -74,8 +74,8 @@ async def update_branch(id:PydanticObjectId,data:BranchUpdate, request:Request):
 
 @apiRouter.delete(
     path = "/{id}",
-    status_code=204,
     name = "Xóa chi nhánh",
+    response_model=Response
 )
 async def delete_branch(id:PydanticObjectId, request:Request):
     branch = await branchService.find(id)
@@ -87,5 +87,5 @@ async def delete_branch(id:PydanticObjectId, request:Request):
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     if not await branchService.delete(id):
         raise HTTP_400_BAD_REQUEST("Lỗi")
-    return True
+    return Response(data="Xóa thành công")
 

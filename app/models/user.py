@@ -8,7 +8,7 @@ from pymongo import IndexModel
 from app.models.business import Business
 from app.models.group import Group
 from app.models.permission import Permission
-
+from app.models.branch import Branch
 from .base import Base
 
 
@@ -22,6 +22,7 @@ class User(Base):
     role: Literal['Admin','BusinessOwner','Staff'] = Field(default='Staff')
     available: bool = Field(True)
     permissions: List[Link[Permission]] = Field(default_factory=list)
+    branch: Optional[Link[Branch]] = Field(default=None)
     group: List[Link[Group]] = Field(default_factory=list)
     business: Optional[Link[Business]] = Field(default=None)
 

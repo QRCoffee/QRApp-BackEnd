@@ -43,15 +43,16 @@ async def get_groups(request:Request):
 
 @apiRouter.get(
     path = "/{id}",
-    name = "Xem nhóm (Thuộc quyền sở hữu)",
-    response_model=Response[FullGroupResponse],
+    name = "Xem chi tiết nhóm (Thuộc quyền sở hữu)",
+    response_model=Response,
     response_model_exclude={"data":"business"}
 )
 async def get_group(id:PydanticObjectId,request:Request):
     group = await groupService.find(id)
     if PydanticObjectId(request.state.user_scope) == group.business.to_ref().id:
         await group.fetch_link("permissions")
-        return Response(data = await FullGroupResponse.from_model(group))
+        data = await FullGroupResponse.from_model(group)
+        return Response(data=data)
     raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))
 
 @apiRouter.post(
@@ -81,13 +82,13 @@ async def post_group(data:GroupCreate,request:Request):
 @apiRouter.delete(
     path = "/{id}",
     name = "Xóa nhóm",
-    status_code=204,
     dependencies = [
         Depends(required_permissions(permissions=[
                 "delete.group"
             ])
         ),
-    ]
+    ],
+    response_model=Response,
 )
 async def delete_group(id:PydanticObjectId,request:Request):
     group = await groupService.find(id)
@@ -95,7 +96,7 @@ async def delete_group(id:PydanticObjectId,request:Request):
         raise HTTP_404_NOT_FOUND(f"Không tìm thấy")
     if PydanticObjectId(request.state.user_scope) == group.business.to_ref().id:
         if await groupService.delete(id):
-            return True
+            return Response(data="Xóa thành công")
         else:
             raise HTTP_400_BAD_REQUEST("Có lỗi khi xảy ra")
     raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))

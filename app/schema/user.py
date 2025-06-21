@@ -63,7 +63,8 @@ class Staff(Auth):
     name: str
     phone: str
     address: str
-    
+    branch: PydanticObjectId
+
     @computed_field(return_type=str)
     @property
     def role(self) -> str:

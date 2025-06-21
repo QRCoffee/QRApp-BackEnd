@@ -86,10 +86,11 @@ async def update_business_type(id:PydanticObjectId,data:BusinessTypeUpdate):
     if await businessTypeService.find(id) is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy")
     if data.name:
-        if await businessTypeService.find_one({
+        if type := await businessTypeService.find_one({
             "name": {"$regex": f"^{data.name}$", "$options": "i"}
         }):
-            raise HTTP_409_CONFLICT(f"Loại hình {data.name} đã tồn tại")
+            if type.id != id:
+                raise HTTP_409_CONFLICT(f"Loại hình {data.name} đã tồn tại")
     data = await businessTypeService.update(
         id =id,
         data = data.model_dump(exclude_none=True)
@@ -99,7 +100,7 @@ async def update_business_type(id:PydanticObjectId,data:BusinessTypeUpdate):
 @apiRouter.delete(
     path = "/{id}",
     name = "Xóa loại Doanh Nghiệp",
-    status_code=204,
+    deprecated=True,
     dependencies=[
         Depends(required_permissions(
             permissions=[
