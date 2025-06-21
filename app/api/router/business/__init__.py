@@ -1,4 +1,4 @@
-from typing import List
+from typing import List,Optional
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query
@@ -43,9 +43,11 @@ async def get_businesses(
     page: int = Query(default=1,ge=1),
     limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
     type: str = Query(default=None,description="Lọc theo loại doanh nghiệp"),
-    available: bool = Query(default=True)
+    available: Optional[bool] = Query(default=None)
 ):
-    conditions = {"available": available}
+    conditions = {}
+    if available is not None:
+        conditions["available"] = available
     if type:
         types = await businessTypeService.find_many({
             "name": {"$regex": type, "$options": "i"}
