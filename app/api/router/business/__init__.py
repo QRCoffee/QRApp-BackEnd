@@ -11,7 +11,7 @@ from app.common.http_exception import (HTTP_400_BAD_REQUEST,
 from app.core.config import settings
 from app.schema.branch import BranchCreate
 from app.schema.business import (BusinessCreate, BusinessResponse,
-                                 FullBusinessResponse)
+                                 FullBusinessResponse,BusinessUpdate)
 from app.schema.user import BusinessOwner, BusinessRegister, FullUserResponse
 from app.service import (branchService, businessService, businessTypeService,
                          userService)
@@ -77,6 +77,27 @@ async def get_business(id:PydanticObjectId):
     business = await businessService.find(id)
     if business is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy")
+    await business.fetch_all_links()
+    return Response(data=business)
+
+@apiRouter.put(
+    path = "/{id}",
+    name = "Sửa thông tin doanh nghiệp",
+    status_code=200,
+    dependencies = [Depends(
+        required_permissions(permissions=[
+            "update.business"
+        ])
+    )],
+    response_model=Response[FullBusinessResponse]
+)
+async def put_business(id:PydanticObjectId,data:BusinessUpdate):
+    business = await businessService.find(id)
+    if business is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy")
+    if await businessService.find_one({"contact":data.contact}):
+        raise HTTP_409_CONFLICT("Contact được doanh nghiệp khác sử dụng")
+    business = await businessService.update(id,data)
     await business.fetch_all_links()
     return Response(data=business)
 

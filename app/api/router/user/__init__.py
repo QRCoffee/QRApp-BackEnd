@@ -7,9 +7,9 @@ from app.api.dependency import (login_required, required_permissions,
                                 required_role)
 from app.common.api_message import KeyResponse, get_message
 from app.common.api_response import Response
-from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND,HTTP_409_CONFLICT
 from app.db import Redis
-from app.schema.user import FullUserResponse, Staff, UserResponse
+from app.schema.user import FullUserResponse, Staff, UserResponse,UserUpdate
 from app.service import branchService, businessService, userService
 
 apiRouter = APIRouter(
@@ -97,6 +97,24 @@ async def post_user(data:Staff,request:Request):
     data['branch'] = branch
     staff = await userService.insert(data)
     return Response(data=staff)
+
+@apiRouter.put(
+    path = "/{id}",
+    name = "Sửa thông tin nhân viên/người dùng",
+    response_model = Response[UserResponse]
+)
+async def put_user(id:PydanticObjectId,data:UserUpdate,request:Request):
+    user = await userService.find_one({
+        "_id":id,
+        "role":"Staff"
+    })
+    if user is None or user.business.to_ref().id != PydanticObjectId(request.state.user_scope):
+        raise HTTP_404_NOT_FOUND("Không tìm thấy người dùng trong doanh nghiệp của bạn")
+    if await userService.find_one({"phone":data.phone}):
+        raise HTTP_409_CONFLICT("Số điện thoại đã được đăng kí")
+    user = await userService.update(id,data)
+    await user.fetch_all_links()
+    return Response(data=user)
 
 @apiRouter.put(
     path = "/active/{id}",
