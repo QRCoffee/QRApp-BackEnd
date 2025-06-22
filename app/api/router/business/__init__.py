@@ -159,5 +159,7 @@ async def lock_unlock_business(id:PydanticObjectId):
     if business is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy doanh nghiệp")
     business = await businessService.update(id=id,data={"available": not business.available})
+    owner_id = business.owner.to_ref().id
+    await userService.update(id=owner_id,data={"available": business.available})
     await business.fetch_link('business_type')
     return Response(data=business)
