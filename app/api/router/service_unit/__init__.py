@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND
-from app.schema.service_unit import ServiceUnitCreate, ServiceUnitResponse
+from app.schema.service_unit import ServiceUnitCreate, ServiceUnitResponse,ServiceUnitUpdate
 from app.service import areaService, unitService
 
 apiRouter = APIRouter(
@@ -58,4 +58,38 @@ async def post_service(data:ServiceUnitCreate,request:Request):
     data = await unitService.insert(data)
     await data.fetch_link('area')
     return Response(data=data)
-    
+
+@apiRouter.put(
+    path = "/{id}",
+    name = "Cập nhật đơn vị dịch vụ",
+    response_model=Response[ServiceUnitResponse],
+)
+async def put_service(id:PydanticObjectId,data:ServiceUnitUpdate,request:Request):
+    service_unit = await unitService.find(id)
+    if service_unit is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy")
+    area = await areaService.find(service_unit.area.to_ref().id)
+    if PydanticObjectId(request.state.user_scope) != area.business.to_ref().id:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy dịch vụ trong doanh nghiệp của bạn")
+    service = await unitService.update(
+        id = id,
+        data = data,
+    )
+    await service.fetch_link('area')
+    return Response(data=service)
+
+@apiRouter.delete(
+    path = "/{id}",
+    name = "Xóa đơn vị dịch vụ",
+    response_model=Response,
+)
+async def delete_service(id:PydanticObjectId,request:Request):
+    service_unit = await unitService.find(id)
+    if service_unit is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy")
+    area = await areaService.find(service_unit.area.to_ref().id)
+    if PydanticObjectId(request.state.user_scope) != area.business.to_ref().id:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy dịch vụ trong doanh nghiệp của bạn")
+    if not await unitService.delete(id):
+        return Response(data="Xóa thất bại")
+    return Response(data="Xóa thành công")
