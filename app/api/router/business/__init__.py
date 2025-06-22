@@ -1,4 +1,4 @@
-from typing import List,Optional
+from typing import List, Optional
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query

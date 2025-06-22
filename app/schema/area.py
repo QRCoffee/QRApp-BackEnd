@@ -2,7 +2,7 @@ from typing import Optional
 
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
-from app.models import Business
+
 from app.schema import BaseResponse
 from app.schema.branch import BranchResponse
 from app.schema.business import BusinessResponse

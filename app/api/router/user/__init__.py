@@ -10,7 +10,7 @@ from app.common.api_response import Response
 from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from app.db import Redis
 from app.schema.user import FullUserResponse, Staff, UserResponse
-from app.service import businessService, userService,branchService
+from app.service import branchService, businessService, userService
 
 apiRouter = APIRouter(
     tags = ["User"],

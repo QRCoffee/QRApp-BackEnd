@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, Request
-from app.db import Redis as SessionManager
+
 from app.api.dependency import login_required, required_role
 from app.common.api_message import KeyResponse, get_message
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_401_UNAUTHORZIED, HTTP_403_FORBIDDEN
 from app.core.security import ACCESS_JWT, REFRESH_JWT
+from app.db import Redis as SessionManager
 from app.schema.business import FullBusinessResponse
 from app.schema.permission import PermissionProjection
-from app.schema.user import Auth, FullUserResponse, Token,Session
+from app.schema.user import Auth, FullUserResponse, Session, Token
 from app.service import businessService, permissionService, userService
 
 apiRouter = APIRouter(

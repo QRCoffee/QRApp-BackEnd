@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from app.schema import BaseResponse
 
+
 class PermissionCreate(BaseModel):
     code: str
     description: Optional[str] = None

@@ -1,16 +1,10 @@
-from pydantic import Field
 from datetime import datetime
 from typing import List, Optional
-from beanie import (
-    Document,
-    Insert,
-    PydanticObjectId,
-    Replace,
-    SaveChanges,
-    Update,
-    after_event, 
-    before_event,
-)
+
+from beanie import (Document, Insert, PydanticObjectId, Replace, SaveChanges,
+                    Update, after_event, before_event)
+from pydantic import Field
+
 
 class Base(Document):
     id: Optional[PydanticObjectId] = Field(default=None, alias="_id")

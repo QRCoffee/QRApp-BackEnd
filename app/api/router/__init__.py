@@ -6,6 +6,7 @@ from app.api.router.branch import apiRouter as branchRouter
 from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.group import apiRouter as groupRouter
+from app.api.router.service_unit import apiRouter as serviceRouter
 from app.api.router.user import apiRouter as userRouter
 from app.common.http_exception import HTTP_404_NOT_FOUND
 
@@ -17,6 +18,7 @@ api.include_router(branchRouter)
 api.include_router(groupRouter)
 api.include_router(userRouter)
 api.include_router(areaRouter)
+api.include_router(serviceRouter)
 # Handle Undefined API
 @api.api_route(
     path = "/{path:path}",

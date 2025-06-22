@@ -1,11 +1,14 @@
 from typing import List
-from fastapi import APIRouter, Depends, Request
+
 from beanie import PydanticObjectId
-from app.api.dependency import login_required,required_role,required_permissions
+from fastapi import APIRouter, Depends, Request
+
+from app.api.dependency import (login_required, required_permissions,
+                                required_role)
 from app.common.api_response import Response
-from app.common.http_exception import HTTP_404_NOT_FOUND,HTTP_409_CONFLICT
-from app.schema.area import AreaCreate,AreaResponse,AreaUpdate
-from app.service import areaService, businessService,branchService
+from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from app.schema.area import AreaCreate, AreaResponse, AreaUpdate
+from app.service import areaService, branchService, businessService
 
 apiRouter = APIRouter(
     tags=['Area'],
