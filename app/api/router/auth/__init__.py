@@ -48,7 +48,7 @@ async def sign_in(data:Auth):
         "user_permissions": user_permissions,
     }
     access_token=ACCESS_JWT.encode(payload)
-    refresh_token=REFRESH_JWT.encode(payload,session=True)
+    refresh_token=REFRESH_JWT.encode(payload,session=True) if  not SessionManager.get(user_id) else SessionManager.get(user_id)
     return Response(
         data = Token(
             access_token=access_token,
