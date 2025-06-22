@@ -27,5 +27,10 @@ class FullGroupResponse(GroupResponse):
         from app.schema.user import UserResponse
         from app.service import userService
         data = model.model_dump()
-        users = await userService.find_many(projection_model=UserResponse,fetch_links=True)
+        users = await userService.find_many(
+            conditions={
+                "group.$id": {"$in": [model.id]}
+            },
+            projection_model=UserResponse
+        )
         return cls(**data,users=users)

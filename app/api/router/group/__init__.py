@@ -1,7 +1,8 @@
 from typing import List
 
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId,Link
 from fastapi import APIRouter, Depends, Request
+from fastapi.encoders import jsonable_encoder
 
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
@@ -52,6 +53,7 @@ async def get_group(id:PydanticObjectId,request:Request):
     if PydanticObjectId(request.state.user_scope) == group.business.to_ref().id:
         await group.fetch_link("permissions")
         data = await FullGroupResponse.from_model(group)
+        data.users = jsonable_encoder(data.users)
         return Response(data=data)
     raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))
 
@@ -215,7 +217,7 @@ async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,reque
         id=user.id, 
         conditions={
             "$addToSet": {
-                "group": group
+                "group": group.to_ref()
             }
         }
     )
@@ -223,8 +225,37 @@ async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,reque
     
 
 @apiRouter.delete(
-    path = "/{id}/users",
+    path = "/{id}/user/{user_id}",
     name = "Xóa nhân viên trong nhóm",
 )
-def remove_from_group(data: List[PydanticObjectId | str]):
-    pass
+async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,request:Request):
+    group = await groupService.find(id)
+    if group is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy nhóm")
+    group_scope = group.business.to_ref().id
+    current_scope = PydanticObjectId(request.state.user_scope)
+    if current_scope != group_scope:
+        raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+    conditions = {
+        "$or": [
+            {"_id": user_id},
+            {"username": user_id}
+        ]
+    }
+    if not PydanticObjectId.is_valid(user_id):
+        conditions["$or"] = conditions.get("$or")[1:]
+    user = await userService.find_one(conditions)
+    if user is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy người dùng")
+    user_scope = user.business.to_ref().id
+    if current_scope != user_scope:
+        raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+    await userService.update_one(
+        id=user.id, 
+        conditions={
+            "$pull": {
+                "group": group.to_ref()
+            }
+        }
+    )
+    return Response(data=True)
