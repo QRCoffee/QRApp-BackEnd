@@ -1,7 +1,7 @@
-from typing import List
+from typing import List,Literal,Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Request,Query
 
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
@@ -36,10 +36,16 @@ apiRouter = APIRouter(
         ]))
     ]
 )
-async def get_users(request:Request):
+async def get_users(
+    request:Request,
+    role: Optional[Literal['Admin','BusinessOwner','Staff']] = Query(default=None,description="Lọc theo vai trò")
+):
     user_scope = request.state.user_scope
     if user_scope is None:
-        users = await userService.find_many({})
+        conditions = {}
+        if role:
+            conditions['role'] = role
+        users = await userService.find_many(conditions)
     else:
         users = await userService.find_many({
             "business.$id": PydanticObjectId(user_scope),

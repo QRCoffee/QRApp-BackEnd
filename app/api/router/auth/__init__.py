@@ -8,7 +8,7 @@ from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.db import Redis as SessionManager
 from app.schema.business import FullBusinessResponse
 from app.schema.permission import PermissionProjection
-from app.schema.user import Auth, FullUserResponse, Session, Token
+from app.schema.user import Auth, FullUserResponse, Session, Token,UserUpdate,UserResponse
 from app.service import businessService, permissionService, userService
 
 apiRouter = APIRouter(
@@ -101,6 +101,26 @@ def refresh_token(data: Session):
 async def me(request:Request):
     user = await userService.find(request.state.user_id)
     await user.fetch_all_links()
+    return Response(data=user)
+
+@apiRouter.put(
+    path = "/me",
+    name = "Sửa thông tin cá nhân",
+    status_code=200,
+    response_model=Response[UserResponse],
+    dependencies = [
+        Depends(login_required),
+        Depends(required_role(role=[
+            "Admin",
+            "BusinessOwner"
+        ]))
+    ]
+)
+async def me(data:UserUpdate,request:Request):
+    user = await userService.update(
+        id = request.state.user_id,
+        data = data
+    )
     return Response(data=user)
     
 

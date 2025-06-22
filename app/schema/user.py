@@ -37,7 +37,6 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     address:Optional[str] = None
-    image_url: Optional[str] = None
 
 class Administrator(Auth):
     name: Optional[str] = None
