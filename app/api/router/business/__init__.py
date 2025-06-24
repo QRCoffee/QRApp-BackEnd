@@ -11,7 +11,7 @@ from app.common.http_exception import (HTTP_400_BAD_REQUEST,
 from app.core.config import settings
 from app.schema.branch import BranchCreate
 from app.schema.business import (BusinessCreate, BusinessResponse,
-                                 FullBusinessResponse,BusinessUpdate)
+                                 BusinessUpdate, FullBusinessResponse)
 from app.schema.user import BusinessOwner, BusinessRegister, FullUserResponse
 from app.service import (branchService, businessService, businessTypeService,
                          userService)
