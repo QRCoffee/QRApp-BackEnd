@@ -8,7 +8,8 @@ from app.core.security import ACCESS_JWT, REFRESH_JWT
 from app.db import Redis as SessionManager
 from app.schema.business import FullBusinessResponse
 from app.schema.permission import PermissionProjection
-from app.schema.user import Auth, FullUserResponse, Session, Token,UserUpdate,UserResponse
+from app.schema.user import (Auth, FullUserResponse, Session, Token,
+                             UserResponse, UserUpdate)
 from app.service import businessService, permissionService, userService
 
 apiRouter = APIRouter(

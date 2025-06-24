@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends, Query, Request
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND
-from app.schema.service_unit import ServiceUnitCreate, ServiceUnitResponse,ServiceUnitUpdate
+from app.schema.service_unit import (ServiceUnitCreate, ServiceUnitResponse,
+                                     ServiceUnitUpdate)
 from app.service import areaService, unitService
 
 apiRouter = APIRouter(

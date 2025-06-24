@@ -1,6 +1,6 @@
 from typing import List
 
-from beanie import PydanticObjectId,Link
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Request
 from fastapi.encoders import jsonable_encoder
 
@@ -214,7 +214,7 @@ async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,reque
     if current_scope != user_scope:
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     await userService.update_one(
-        id=user.id, 
+        id=user.id,
         conditions={
             "$addToSet": {
                 "group": group.to_ref()
@@ -222,7 +222,7 @@ async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,reque
         }
     )
     return Response(data=True)
-    
+
 
 @apiRouter.delete(
     path = "/{id}/user/{user_id}",
@@ -251,7 +251,7 @@ async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,reque
     if current_scope != user_scope:
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     await userService.update_one(
-        id=user.id, 
+        id=user.id,
         conditions={
             "$pull": {
                 "group": group.to_ref()
