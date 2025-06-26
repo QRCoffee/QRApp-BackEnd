@@ -1,4 +1,4 @@
-from beanie import Link,after_event,Delete
+from beanie import Delete, Link, after_event
 from pydantic import Field
 
 from app.models.business import Business

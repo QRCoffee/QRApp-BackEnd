@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
@@ -33,11 +33,17 @@ apiRouter = APIRouter(
         )
     ]
 )
-async def view_areas(request:Request):
+async def view_areas(
+    request:Request,
+    branch: Optional[PydanticObjectId] = Query(default=None)
+):
+    conditions={
+        "business._id":PydanticObjectId(request.state.user_scope),
+    }
+    if branch:
+        conditions["branch._id"] = branch
     areas = await areaService.find_many(
-        conditions={
-            "business._id":PydanticObjectId(request.state.user_scope),
-        },
+        conditions,
         fetch_links=True,
     )
     return Response(data=areas)
