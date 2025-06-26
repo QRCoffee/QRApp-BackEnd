@@ -29,20 +29,22 @@ apiRouter = APIRouter(
 )
 async def post_service(
     request:Request,
-    area: Optional[PydanticObjectId] = Query(default=None,description="Lọc đơn vị theo khu vực")
+    branch: Optional[PydanticObjectId] = Query(default=None,description="Lọc đơn vị theo chi nhánh"),
+    area: Optional[PydanticObjectId] = Query(default=None,description="Lọc đơn vị theo khu vực"),
 ):
-    area = await areaService.find(area)
-    if area is None:
-        raise HTTP_404_NOT_FOUND("Không tìm thấy khu vực")
-    if PydanticObjectId(request.state.user_scope) != area.business.to_ref().id:
-        raise HTTP_404_NOT_FOUND("Không tìm thấy khu vực trong doanh nghiệp của bạn")
-    conditions = {}
-    if area:
-        conditions['area._id'] = area.id
+    areas = await areaService.find_many(conditions={
+        "business.$id": PydanticObjectId(request.state.user_scope)
+    })
+    areas = [area.to_ref().id for area in areas]
+    conditions = {
+        "area._id": {"$in": [area] if area else areas}
+    }
     services = await unitService.find_many(
         conditions,
         fetch_links=True
     )
+    if branch:
+        services = [service for service in services if service.area.branch.id == branch]
     return Response(data=services)
 
 @apiRouter.post(
