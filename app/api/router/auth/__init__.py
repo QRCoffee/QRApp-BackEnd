@@ -13,7 +13,8 @@ from app.schema.business import FullBusinessResponse
 from app.schema.permission import PermissionProjection
 from app.schema.user import (Auth, ChangePassword, FullUserResponse, Session,
                              Token, UserResponse, UserUpdate)
-from app.service import businessService, permissionService, userService
+from app.service import (businessService, groupService, permissionService,
+                         userService)
 
 apiRouter = APIRouter(
     tags = ["Auth"],
@@ -34,11 +35,26 @@ async def sign_in(data:Auth):
         )
     if not user.available:
         raise HTTP_403_FORBIDDEN("Tài khoản hiện bị khóa")
+    # ---- # 
     user_id = str(user.id)
     user_role = str(user.role) 
     user_scope = str(user.business.to_ref().id) if user.business else None 
-    user_group = str(user.group.to_ref().id) if user.group else None
+    user_group = [group.to_ref().id for group in user.group] if user.group else []
     user_permissions = [permission.to_ref().id for permission in user.permissions]
+    # Find Group #
+    if user_group:
+        # Thêm quyền của nhóm vào user_permission
+        group_permissions = set()
+        groups = await groupService.find_many(
+            {"_id": {"$in": user_group}},
+        )
+        for group in groups:
+            group_permissions.update(group.permissions)
+        group_permissions = list(group_permissions)
+        group_permissions = [permission.to_ref().id for permission in group_permissions]
+        # - #
+        user_permissions.extend(group_permissions)
+        user_group = [str(object_id) for object_id in user_group]
     user_permissions = await permissionService.find_many(
         {"_id": {"$in": user_permissions}},
         projection_model=PermissionProjection,
