@@ -6,7 +6,8 @@ from fastapi import APIRouter, Depends, Request
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
-                                       HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND)
+                                       HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND,
+                                       HTTP_409_CONFLICT)
 from app.schema.branch import (BranchCreateWithoutBusiness, BranchResponse,
                                BranchUpdate)
 from app.service import branchService, businessService
@@ -44,6 +45,11 @@ async def get_branchs(request:Request):
 )
 async def post_branch(data:BranchCreateWithoutBusiness, request:Request):
     business = await businessService.find(request.state.user_scope)
+    if branch := await branchService.find_one(conditions={
+        "business.$id":business.id,
+        "name":data.name,
+    }):
+        raise HTTP_409_CONFLICT(f"Chi nhánh {data.name} đã tồn tại")
     if data.contact is None:
         data.contact = business.contact
     data = data.model_dump()

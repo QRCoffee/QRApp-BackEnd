@@ -5,6 +5,7 @@ from app.api.router.auth import apiRouter as authRouter
 from app.api.router.branch import apiRouter as branchRouter
 from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
+from app.api.router.category import apiRouter as categoryRouter
 from app.api.router.group import apiRouter as groupRouter
 from app.api.router.service_unit import apiRouter as serviceRouter
 from app.api.router.user import apiRouter as userRouter
@@ -19,6 +20,7 @@ api.include_router(groupRouter)
 api.include_router(userRouter)
 api.include_router(areaRouter)
 api.include_router(serviceRouter)
+api.include_router(categoryRouter)
 # Handle Undefined API
 @api.api_route(
     path = "/{path:path}",

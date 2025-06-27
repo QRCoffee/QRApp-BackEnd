@@ -4,6 +4,7 @@ import bcrypt
 from beanie import Insert, Link, before_event
 from pydantic import Field
 from pymongo import IndexModel
+from typing_extensions import Self
 
 from app.models.branch import Branch
 from app.models.business import Business
@@ -39,6 +40,12 @@ class User(Base):
             raise Exception("Role")
         if not self.password.startswith("$2b$"):
             self.password = bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+    def change_password(self,new_password:str) -> Self:
+        if not new_password.startswith("$2b$"):
+            self.password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        return self
+        
 
     def verify_password(self,password:str) -> bool:
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))

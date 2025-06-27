@@ -20,6 +20,9 @@ class Token(BaseModel):
 class Session(BaseModel):
     refresh_token: str
 
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
 class UserCreate(BaseModel):
     username: str
     password: str

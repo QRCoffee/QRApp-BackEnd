@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from typing import Optional
 
 from beanie import Link
@@ -18,15 +19,20 @@ class BusinessType(Base):
 
 
 class Business(Base):
-    name: str = Field(..., description="Unique business name")
-    address: str = Field(..., description="Business address (street, city, country, postal_code)")
-    contact: str = Field(..., description="Contact info (phone, email, website)")
-    business_type: Link[BusinessType]
-    tax_code: Optional[str] = Field(default=None, description="Business tax code")
-    owner: Optional["Link[User]"] = Field(description="Business Owner") # type: ignore
-    available: bool = Field(True)
+    name: str = Field(..., description="Tên doanh nghiệp (duy nhất)")
+    address: str = Field(..., description="Địa chỉ doanh nghiệp (bao gồm: đường, thành phố, quốc gia, mã bưu điện)")
+    contact: str = Field(..., description="Thông tin liên hệ (số điện thoại, email, website)")
+    business_type: Link["BusinessType"] = Field(..., description="Loại hình doanh nghiệp")
+    tax_code: Optional[str] = Field(default=None, description="Mã số thuế doanh nghiệp")
+    owner: Optional["Link[User]"] = Field(default=None, description="Chủ sở hữu doanh nghiệp") # type: ignore
+    available: bool = Field(default=True, description="Trạng thái hoạt động (True: đang hoạt động)")
+    expired_at: datetime = Field(
+        default_factory=lambda: datetime.now() + timedelta(minutes=1),
+        description="Thời điểm hết hạn (mặc định là hiện tại + 15 phút)"
+    )
 
     class Settings:
         indexes = [
             IndexModel([("name", 1)], unique=True)
         ]
+    
