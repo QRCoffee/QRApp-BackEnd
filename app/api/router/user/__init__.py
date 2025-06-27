@@ -11,7 +11,8 @@ from app.common.http_exception import (HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND,
                                        HTTP_409_CONFLICT)
 from app.db import Redis
 from app.schema.user import FullUserResponse, Staff, UserResponse, UserUpdate
-from app.service import branchService, businessService, userService
+from app.service import (branchService, businessService, permissionService,
+                         userService)
 
 apiRouter = APIRouter(
     tags = ["User"],
@@ -97,6 +98,66 @@ async def post_user(data:Staff,request:Request):
     data['business'] = business
     data['branch'] = branch
     staff = await userService.insert(data)
+    return Response(data=staff)
+
+@apiRouter.post(
+    path = "/permission/{id}",
+    name = "Cấp quyền cho nhân viên",
+    response_model = Response[FullUserResponse],
+    response_model_exclude={"data":{"group","business"}}
+)
+async def post_permission(id:PydanticObjectId,permissions: List[PydanticObjectId],request:Request):
+    staff = await userService.find_one(conditions={
+        "_id":id, # Tìm theo id
+        "role": "Staff", # Là nhân viên của doanh nghiệp
+        "business.$id":PydanticObjectId(request.state.user_scope),
+    })
+    if staff is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy nhân viên trong doanh nghiệp của bạn")
+    permissions = await permissionService.find_many(conditions={
+        "_id": {"$in": permissions},
+    })
+    staff = await userService.update_one(
+        id = staff.id,
+        conditions={
+        "$addToSet": {
+            "permissions": {
+                "$each": [perm.id for perm in permissions]
+            }
+        }
+    }
+    )
+    await staff.fetch_all_links()
+    return Response(data=staff)
+
+@apiRouter.delete(
+    path = "/permission/{id}",
+    name = "Thu hồi nhân viên",
+    response_model = Response[FullUserResponse],
+    response_model_exclude={"data":{"group","business"}}
+)
+async def post_permission(id:PydanticObjectId,permissions: List[PydanticObjectId],request:Request):
+    staff = await userService.find_one(conditions={
+        "_id":id, # Tìm theo id
+        "role": "Staff", # Là nhân viên của doanh nghiệp
+        "business.$id":PydanticObjectId(request.state.user_scope),
+    })
+    if staff is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy nhân viên trong doanh nghiệp của bạn")
+    permissions = await permissionService.find_many(conditions={
+        "_id": {"$in": permissions},
+    })
+    staff = await userService.update_one(
+        id = staff.id,
+        conditions={
+        "$pull": {
+            "permissions": {
+                "$in": [p.id for p in permissions]
+            }
+        }
+    }
+    )
+    await staff.fetch_all_links()
     return Response(data=staff)
 
 @apiRouter.put(
