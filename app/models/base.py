@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from beanie import (Document, Insert, PydanticObjectId, Replace, SaveChanges,
-                    Update, after_event, before_event)
+                    Update, WriteRules, before_event)
 from pydantic import Field
+from pymongo.client_session import ClientSession
 
 
 class Base(Document):
@@ -14,15 +15,20 @@ class Base(Document):
     # Action Permissions
     __action__: List[str] = ["create", "view", "delete", "update"]
 
-    @before_event(Insert)
-    def set_created_at(self):
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
-
-    @after_event([Replace, SaveChanges,Update,Insert])
+    @before_event([Insert,Update,Replace,SaveChanges])
     def set_updated_at(self):
         self.updated_at = datetime.now()
 
+    async def save(
+        self,
+        session: ClientSession | None = None,
+        link_rule: WriteRules = WriteRules.DO_NOTHING,
+        ignore_revision: bool = False,
+        **kwargs: Any
+    ) -> None:
+        self.updated_at = datetime.now()
+        return await super().save(session, link_rule, ignore_revision, **kwargs)
+    
     def model_dump(self, *args, **kwargs) -> dict:
         kwargs.setdefault("by_alias", True)
         return super().model_dump(*args, **kwargs)

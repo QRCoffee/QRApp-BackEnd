@@ -64,7 +64,6 @@ class MinIO:
     def upload(self, object: Any, object_name: str = None, content_type: str = "application/octet-stream") -> str:
         if object_name is None:
             object_name = f"{uuid.uuid4().hex}"
-
         if isinstance(object, bytes):
             data = io.BytesIO(object)
             size = len(object)
