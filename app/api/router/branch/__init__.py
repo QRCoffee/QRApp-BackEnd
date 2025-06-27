@@ -45,7 +45,7 @@ async def get_branchs(request:Request):
 )
 async def post_branch(data:BranchCreateWithoutBusiness, request:Request):
     business = await businessService.find(request.state.user_scope)
-    if branchService.find_one(conditions={
+    if branch := await branchService.find_one(conditions={
         "business.$id":business.id,
         "name":data.name,
     }):
