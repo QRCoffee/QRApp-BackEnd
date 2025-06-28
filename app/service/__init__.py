@@ -4,6 +4,7 @@ from .business import businessService, businessTypeService
 from .category import categoryService, subcategoryService
 from .group import groupService
 from .permission import permissionService
+from .product import productService
 from .service_unit import unitService
 from .user import userService
 
@@ -16,6 +17,7 @@ __all__ = [
     "areaService",
     "branchService",
     "unitService",
-    categoryService,
-    subcategoryService,
+    "categoryService",
+    "subcategoryService",
+    "productService",
 ]

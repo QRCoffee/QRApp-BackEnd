@@ -3,10 +3,11 @@ from typing import List
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Request
 
-from app.api.dependency import login_required, required_role
+from app.api.dependency import login_required
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from app.schema.category import (CategoryCreate, CategoryResponse,
+                                 CategoryUpdate, FullCategoryResponse,
                                  SubCategoryCreate, SubCategoryResponse)
 from app.service import businessService, categoryService, subcategoryService
 
@@ -15,9 +16,6 @@ apiRouter = APIRouter(
     prefix = "/categories",
     dependencies = [
         Depends(login_required),
-        Depends(required_role(
-            "BusinessOwner",
-        ))
     ]
 )
 
@@ -56,14 +54,13 @@ async def post_category(request:Request):
     path = "/{id}",
     name = "Xem một phân loại",
     status_code = 200,
-    response_model=Response
+    response_model=Response[FullCategoryResponse]
 )
 async def view_category(id:PydanticObjectId,request:Request):
     category = await categoryService.find_one(conditions={
         "_id":id,
         "business.$id":PydanticObjectId(request.state.user_scope)
         },
-        projection_model=CategoryResponse,
     )
     if category is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy phân loại")
@@ -72,13 +69,36 @@ async def view_category(id:PydanticObjectId,request:Request):
         fetch_links = True,
         projection_model=SubCategoryResponse,
     )
-    return Response(data=(category,sub_categories))
+    category = category.model_dump()
+    category['sub_category'] = sub_categories
+    return Response(data=category)
+
+@apiRouter.put(
+    path = "/{id}",
+    name = "Chỉnh sửa phân loại",
+    status_code = 200,
+    response_model=Response[CategoryResponse]
+)
+async def put_category(id:PydanticObjectId,data:CategoryUpdate,request:Request):
+    category = await categoryService.find_one(conditions={
+        "_id":id,
+        "business.$id":PydanticObjectId(request.state.user_scope)
+        },
+        projection_model=CategoryResponse,
+    )
+    if category is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy phân loại")
+    category = await categoryService.update(
+        id = category.id,
+        data = data
+    )
+    return Response(data=category)
 
 @apiRouter.post(
     path = "/{id}/subcategory",
     name = "Phân loại chi tiết",
     status_code = 201,
-    response_model=Response
+    response_model=Response[SubCategoryResponse]
 )
 async def post_subcategory(id:PydanticObjectId,data:SubCategoryCreate,request:Request):
     category = await categoryService.find_one(conditions={

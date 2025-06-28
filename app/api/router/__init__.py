@@ -7,6 +7,7 @@ from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.category import apiRouter as categoryRouter
 from app.api.router.group import apiRouter as groupRouter
+from app.api.router.product import apiRouter as productRouter
 from app.api.router.service_unit import apiRouter as serviceRouter
 from app.api.router.user import apiRouter as userRouter
 from app.common.http_exception import HTTP_404_NOT_FOUND
@@ -21,19 +22,21 @@ api.include_router(userRouter)
 api.include_router(areaRouter)
 api.include_router(serviceRouter)
 api.include_router(categoryRouter)
+api.include_router(productRouter)
 # Handle Undefined API
 @api.post(
+    tags = ['Webhook'],
     path = "/webhook",
     status_code=200,
-    name = "App Webhook"
+    name = "Webhook"
 )
 def receive_webhook():
     return True
 
 @api.api_route(
+    tags = ["Proxy"],
     path = "/{path:path}",
-    methods = ["GET", "POST", "DELETE","PUT","PATCH","OPTIONS"],
-    include_in_schema=False,
+    methods = ["GET", "POST"],
 )
 async def catch_all(path: str, request: Request):
     raise HTTP_404_NOT_FOUND(

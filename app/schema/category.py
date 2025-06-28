@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -13,15 +13,9 @@ class CategoryUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
 
-class CategoryResponse(BaseResponse):
-    name: str
-    description: Optional[str] = None
-
 class SubCategoryCreate(BaseModel):
     name: str
     description: Optional[str] = None
-    # category: PydanticObjectId
-
 
 class SubCategoryUpdate(BaseModel):
     name: Optional[str] = None
@@ -30,3 +24,12 @@ class SubCategoryUpdate(BaseModel):
 class SubCategoryResponse(BaseResponse):
     name: str
     description: Optional[str] = None
+
+class CategoryResponse(BaseResponse):
+    name: str
+    description: Optional[str] = None
+class FullCategoryResponse(BaseResponse):
+    
+    name: str
+    description: Optional[str] = None
+    sub_category: List[SubCategoryResponse] = []

@@ -1,11 +1,12 @@
 from typing import List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
 
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND
+from app.db import QRCode
 from app.schema.service_unit import (ServiceUnitCreate, ServiceUnitResponse,
                                      ServiceUnitUpdate)
 from app.service import areaService, unitService
@@ -79,6 +80,27 @@ async def put_service(id:PydanticObjectId,data:ServiceUnitUpdate,request:Request
         data = data,
     )
     await service.fetch_link('area')
+    return Response(data=service)
+
+@apiRouter.post(
+    path = "/{id}",
+    name = "Cập nhật QRCode",
+    response_model=Response[ServiceUnitResponse],
+)
+async def post_qrcode(id:PydanticObjectId,qr_code: UploadFile = File(...)):
+    contents = await qr_code.read()
+    object_name = QRCode.upload(
+        object = contents,
+        object_name=f"{id}_{qr_code.filename}",
+        content_type=qr_code.content_type,
+    )
+    service = await unitService.update(
+        id = id,
+        data = {
+            "qr_code": QRCode.get_url(object_name)
+        }
+    )
+    await service.fetch_link("area")
     return Response(data=service)
 
 @apiRouter.delete(
