@@ -22,6 +22,14 @@ api.include_router(areaRouter)
 api.include_router(serviceRouter)
 api.include_router(categoryRouter)
 # Handle Undefined API
+@api.post(
+    path = "/webhook",
+    status_code=200,
+    name = "App Webhook"
+)
+def receive_webhook():
+    return True
+
 @api.api_route(
     path = "/{path:path}",
     methods = ["GET", "POST", "DELETE","PUT","PATCH","OPTIONS"],
