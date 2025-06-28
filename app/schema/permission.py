@@ -17,7 +17,7 @@ class FullPermissionResponse(BaseResponse):
     code: str
     description: Optional[str] = None
 
-class DetailPermissionResponse(BaseModel):
+class DetailPermissionResponse(BaseResponse):
     code: str
     description: Optional[str] = None
 
