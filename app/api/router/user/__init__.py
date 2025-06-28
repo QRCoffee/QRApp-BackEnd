@@ -172,8 +172,9 @@ async def put_user(id:PydanticObjectId,data:UserUpdate,request:Request):
     })
     if user is None or user.business.to_ref().id != PydanticObjectId(request.state.user_scope):
         raise HTTP_404_NOT_FOUND("Không tìm thấy người dùng trong doanh nghiệp của bạn")
-    if await userService.find_one({"phone":data.phone}):
-        raise HTTP_409_CONFLICT("Số điện thoại đã được đăng kí")
+    if user:= await userService.find_one({"phone":data.phone}):
+        if user.id != id:
+            raise HTTP_409_CONFLICT("Số điện thoại đã được đăng kí")
     user = await userService.update(id,data)
     await user.fetch_all_links()
     return Response(data=user)
