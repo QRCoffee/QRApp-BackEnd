@@ -108,7 +108,7 @@ async def delete_group(id:PydanticObjectId,request:Request):
     name = "Cấp quyền",
     response_model=Response[GroupResponse]
 )
-async def give_permissions(id:PydanticObjectId,request:Request,data: List[str | PydanticObjectId] | None = None):
+async def give_permissions(id:PydanticObjectId,request:Request,data: List[PydanticObjectId] | None = None):
     # Check scope
     group = await groupService.find(id)
     if group is None:
@@ -120,11 +120,10 @@ async def give_permissions(id:PydanticObjectId,request:Request,data: List[str | 
     data = data or []
     grant_permissions = await permissionService.find_many(
         conditions={
-            "$or": [
-                {"_id": {"$in": [v for v in data if isinstance(v, PydanticObjectId)]}},
-                {"code": {"$in": [v for v in data if isinstance(v, str)]}},
-            ]
-        }
+            "_id": {
+                "$in": data,
+            }
+        },
     )
     if not grant_permissions:
         return Response(data=group)
