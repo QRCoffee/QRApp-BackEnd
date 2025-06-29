@@ -125,22 +125,16 @@ async def give_permissions(id:PydanticObjectId,request:Request,data: List[Pydant
             }
         },
     )
-    if not grant_permissions:
-        return Response(data=group)
     grant_permission_ids = [p.id for p in grant_permissions]
     # User permission
     user_permissions = [permission.to_ref().id for permission in user.permissions]
     # Check
     if any(permission not in user_permissions for permission in grant_permission_ids):
         raise HTTP_403_FORBIDDEN("Cần có quyền để cấp")
-    group = await groupService.update_one(
+    group = await groupService.update(
         id = id,
-        conditions={
-            "$addToSet": {
-                "permissions": {
-                    "$each": [p.to_ref() for p in grant_permissions]
-                }
-            }
+        data = {
+            "permissions": grant_permissions
         }
     )
     await group.fetch_link("permissions")
