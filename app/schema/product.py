@@ -1,7 +1,8 @@
-from typing import Optional,List
+from typing import List, Optional
 
 from beanie import PydanticObjectId
 from pydantic import BaseModel
+
 from app.models.product import Option
 from app.schema import BaseResponse
 

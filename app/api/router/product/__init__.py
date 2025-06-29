@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.dependency import login_required
 from app.common.api_response import Response
-from app.common.http_exception import HTTP_404_NOT_FOUND,HTTP_409_CONFLICT
-from app.schema.product import ProductCreate, ProductResponse, ProductUpdate,Option
+from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from app.schema.product import (Option, ProductCreate, ProductResponse,
+                                ProductUpdate)
 from app.service import productService, subcategoryService
 
 apiRouter = APIRouter(

@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.dependency import login_required
 from app.common.api_response import Response
@@ -44,11 +44,36 @@ async def post_category(data:CategoryCreate,request:Request):
     status_code = 200,
     response_model=Response[List[CategoryResponse]]
 )
-async def post_category(request:Request):
+async def get_subcategory(request:Request):
     categories = await categoryService.find_many(conditions={
         "business.$id":PydanticObjectId(request.state.user_scope)
     })
     return Response(data=categories)
+
+@apiRouter.get(
+    path = "/subcategory",
+    name = "Xem tất cả chi tiết phân loại",
+    status_code = 200,
+    response_model=Response[List[SubCategoryResponse]]
+)
+async def post_category(
+    request:Request,
+    category: Optional[PydanticObjectId] = Query(default=None)
+):
+    if category:
+        category = await categoryService.find(category)
+        if category is None:
+            raise HTTP_404_NOT_FOUND("Phân loại không phù hợp")
+        categories = [category]
+    else:
+        categories = await categoryService.find_many(conditions={
+            "business.$id":PydanticObjectId(request.state.user_scope)
+        })
+    subcategories = await subcategoryService.find_many(conditions={
+        "category.$id": {"$in": [cat.id for cat in categories]},
+    })
+    return Response(data=subcategories)
+
 
 @apiRouter.get(
     path = "/{id}",
