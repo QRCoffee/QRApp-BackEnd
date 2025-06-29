@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional,List
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query, Request
@@ -6,8 +6,10 @@ from fastapi import APIRouter, Depends, Query, Request
 from app.api.dependency import login_required
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from app.schema.product import (Option, ProductCreate, ProductResponse,
-                                ProductUpdate)
+from app.schema.product import (
+    Option, ProductCreate, ProductUpdate,
+    ProductResponse,FullProductResponse
+)
 from app.service import productService, subcategoryService
 
 apiRouter = APIRouter(
@@ -22,7 +24,7 @@ apiRouter = APIRouter(
     path = "",
     name = "Xem danh sách sản phẩm",
     status_code=200,
-    response_model=Response
+    response_model=Response[List[FullProductResponse]]
 )
 async def get_product(
     request:Request,
@@ -30,13 +32,16 @@ async def get_product(
     sub_category: Optional[PydanticObjectId] = Query(default=None),
 ):
     conditions={
-        "business.$id": PydanticObjectId(request.state.user_scope)
+        "business._id": PydanticObjectId(request.state.user_scope)
     }
     if category:
-        conditions['category.$id'] = category
+        conditions['category._id'] = category
     if sub_category:
-        conditions['subcategory.$id'] = sub_category
-    products = await productService.find_many(conditions)
+        conditions['subcategory._id'] = sub_category
+    products = await productService.find_many(
+        conditions,
+        fetch_links=True
+    )
     return Response(data=products)
 
 @apiRouter.post(
@@ -59,14 +64,10 @@ async def post_product(data:ProductCreate,request:Request):
     business = category.business
     if business.id != PydanticObjectId(request.state.user_scope):
         raise HTTP_404_NOT_FOUND("Không tìm thấy phân loại")
-    price = data.price
-    data = data.model_dump(exclude={"price"})
+    data = data.model_dump()
     data["category"] = category
     data["subcategory"] = subcategory
     data["business"] = business
-    data.get("variants",[]).append(
-        Option(price = price)
-    )
     product = await productService.insert(data)
     return Response(data=product)
 
