@@ -145,7 +145,7 @@ async def give_permissions(id:PydanticObjectId,request:Request,data: List[Pydant
     name = "Thu hồi quyền",
     response_model=Response[GroupResponse],
 )
-async def delete_permissions(id:PydanticObjectId,request:Request,data: List[str | PydanticObjectId]):
+async def delete_permissions(id:PydanticObjectId,request:Request,data: List[PydanticObjectId] | None = None):
     # Check scope
     group = await groupService.find(id)
     if group is None:
@@ -154,12 +154,10 @@ async def delete_permissions(id:PydanticObjectId,request:Request,data: List[str 
     if user.business.to_ref().id != group.business.to_ref().id:
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     # Grant permission
+    data = data or []
     grant_permissions = await permissionService.find_many(
         conditions={
-            "$or": [
-                {"_id": {"$in": [v for v in data if isinstance(v, PydanticObjectId)]}},
-                {"code": {"$in": [v for v in data if isinstance(v, str)]}},
-            ]
+            "_id": {"$in":data}
         }
     )
     if not grant_permissions:
