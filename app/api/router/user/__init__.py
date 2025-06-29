@@ -117,15 +117,11 @@ async def post_permission(id:PydanticObjectId,permissions: List[PydanticObjectId
     permissions = await permissionService.find_many(conditions={
         "_id": {"$in": permissions},
     })
-    staff = await userService.update_one(
+    staff = await userService.update(
         id = staff.id,
-        conditions={
-        "$addToSet": {
-            "permissions": {
-                "$each": [perm.id for perm in permissions]
-            }
+        data = {
+            "permissions": permissions # [perm.to_ref() for perm in permissions]
         }
-    }
     )
     await staff.fetch_all_links()
     return Response(data=staff)
