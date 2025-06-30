@@ -42,7 +42,8 @@ class MongoDB:
                 if await permissionService.find_one({"code":code}) is None:
                     permissions.append(Permission(code=code, description=description))
         try:
-            await permissionService.insert_many(permissions)
+            if permissions:
+                await permissionService.insert_many(permissions)
         except BulkWriteError:
             pass
         except Exception as e:
