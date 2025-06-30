@@ -5,8 +5,9 @@ from pydantic import BaseModel
 
 from app.models.product import Option
 from app.schema import BaseResponse
-from app.schema.category import SubCategoryResponse,CategoryResponse
 from app.schema.business import BusinessResponse
+from app.schema.category import CategoryResponse, SubCategoryResponse
+
 
 class ProductCreate(BaseModel):
     name: str
