@@ -1,15 +1,14 @@
-from typing import Optional,List
+from typing import List, Optional
 
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.dependency import login_required
 from app.common.api_response import Response
-from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from app.schema.product import (
-    Option, ProductCreate, ProductUpdate,
-    ProductResponse,FullProductResponse
-)
+from app.common.http_exception import (HTTP_400_BAD_REQUEST,
+                                       HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
+from app.schema.product import (FullProductResponse, Option, ProductCreate,
+                                ProductResponse, ProductUpdate)
 from app.service import productService, subcategoryService
 
 apiRouter = APIRouter(
@@ -153,7 +152,7 @@ async def post_product(id:PydanticObjectId,data:dict,request:Request):
 @apiRouter.delete(
     path = "/{id}/options",
     name = "Xóa options cho sản phẩm",
-    status_code=201,
+    status_code=200,
     response_model=Response[ProductResponse]
 )
 async def post_product(id:PydanticObjectId,data:dict,request:Request):
@@ -169,3 +168,18 @@ async def post_product(id:PydanticObjectId,data:dict,request:Request):
         }
     )
     return Response(data=product)
+
+@apiRouter.delete(
+    path = "/{id}",
+    name = "Xóa sản phẩm",
+    status_code=200,
+    response_model=Response
+)
+async def post_product(id:PydanticObjectId,request:Request):
+    product = await productService.find(id)
+    if product is None or product.business.to_ref().id != PydanticObjectId(request.state.user_scope):
+        raise HTTP_404_NOT_FOUND("Không tìm thấy sản phẩm")
+    if not await productService.delete(id):
+        raise HTTP_400_BAD_REQUEST("Xóa thất bại")
+    return Response(data="Xóa thành công")
+        
