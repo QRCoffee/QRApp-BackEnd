@@ -9,7 +9,7 @@ from app.common.api_message import KeyResponse, get_message
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND,
                                        HTTP_409_CONFLICT)
-from app.db import Redis
+from app.db import SessionManager
 from app.schema.user import FullUserResponse, Staff, UserResponse, UserUpdate
 from app.service import (branchService, businessService, permissionService,
                          userService)
@@ -187,7 +187,7 @@ async def put_user(id:PydanticObjectId,data:UserUpdate,request:Request):
 )
 async def lock_unlock_user(id:PydanticObjectId,request:Request,task: BackgroundTasks):
     def remove_session(user_id: str):
-        Redis.delete(user_id)
+        SessionManager.delete(user_id)
     user = await userService.find(id)
     if user is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy")

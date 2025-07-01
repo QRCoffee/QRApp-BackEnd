@@ -21,8 +21,8 @@ async def lifespan(_: FastAPI):
     yield
     # on_shutdown
 app = FastAPI(
-    title = "QRBusiness Backend",
-description = """
+    title = "QRApp Backend",
+    description = """
 ### 🔹 Tính năng
 
 - **Quản lý doanh nghiệp**  

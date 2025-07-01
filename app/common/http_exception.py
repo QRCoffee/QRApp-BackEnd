@@ -41,3 +41,7 @@ class HTTP_404_NOT_FOUND(HTTP_ERROR):
 class HTTP_409_CONFLICT(HTTP_ERROR):
     def __init__(self, message = None, error = "CONFLICT", headers=None):
         super().__init__(status.HTTP_409_CONFLICT, message, error, headers)
+
+class HTTP_429_TOO_MANY_REQUESTS(HTTP_ERROR):
+    def __init__(self, message = None, error = "TOO_MANY_REQUESTS", headers=None):
+        super().__init__(status.HTTP_429_TOO_MANY_REQUESTS, message, error, headers)

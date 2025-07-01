@@ -6,9 +6,9 @@ from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_401_UNAUTHORZIED,
                                        HTTP_403_FORBIDDEN)
+from app.core.decorator import limiter
 from app.core.security import ACCESS_JWT, REFRESH_JWT
-from app.db import QRCode
-from app.db import Redis as SessionManager
+from app.db import QRCode, SessionManager
 from app.schema.business import FullBusinessResponse
 from app.schema.permission import PermissionProjection
 from app.schema.user import (Auth, ChangePassword, FullUserResponse, Session,
@@ -26,7 +26,8 @@ apiRouter = APIRouter(
     status_code=200,
     response_model=Response[Token],
 )
-async def sign_in(data:Auth):
+@limiter()
+async def sign_in(data:Auth,request: Request):
     user = await userService.find_one({"username":data.username})
     if not user or not user.verify_password(data.password):
         raise HTTP_401_UNAUTHORZIED(
@@ -68,11 +69,12 @@ async def sign_in(data:Auth):
         "user_permissions": user_permissions,
     }
     access_token=ACCESS_JWT.encode(payload)
-    refresh_token=REFRESH_JWT.encode(payload,session=True) if  not SessionManager.get(user_id) else SessionManager.get(user_id)
+    refresh_token=REFRESH_JWT.encode(payload)
+    SessionManager.sign_in(user_id,refresh_token)
     return Response(
         data = Token(
             access_token=access_token,
-            refresh_token=refresh_token,
+            refresh_token=SessionManager.get(user_id),
         )
     )
 

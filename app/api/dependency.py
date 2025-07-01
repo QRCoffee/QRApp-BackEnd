@@ -6,7 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.common.api_message import KeyResponse, get_message
 from app.common.http_exception import HTTP_401_UNAUTHORZIED, HTTP_403_FORBIDDEN
 from app.core.security import ACCESS_JWT
-from app.db import Redis
+from app.db import SessionManager
 
 security = HTTPBearer(auto_error=False)
 
@@ -26,7 +26,7 @@ def login_required(
         )
     try:
         payload: dict = ACCESS_JWT.decode(credentials.credentials)
-        if not Redis.get(payload.get("user_id")):
+        if not SessionManager.get(payload.get("user_id")):
             raise HTTP_401_UNAUTHORZIED(
                 error=KeyResponse.SESSION_EXPIRED,
                 message=get_message(KeyResponse.SESSION_EXPIRED),

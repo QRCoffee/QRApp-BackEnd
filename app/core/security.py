@@ -5,7 +5,6 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
 from app.core.config import settings
-from app.db.redis import Redis
 
 
 class JWTSecurity:
@@ -13,7 +12,7 @@ class JWTSecurity:
         self._algorithm = algorithm
         self._expires_delta = expires_delta
         self._secret_key = secret_key
-    def encode(self,payload: dict | BaseModel,session:bool = False) -> str:
+    def encode(self,payload: dict | BaseModel) -> str:
         if isinstance(payload,dict):
             to_encode = payload.copy()
         else:
@@ -21,12 +20,6 @@ class JWTSecurity:
         expire = datetime.datetime.now(datetime.timezone.utc) + (self._expires_delta if self._expires_delta else datetime.timedelta(minutes=15))
         to_encode.update({"exp": expire})
         token = jwt.encode(to_encode, self._secret_key, algorithm=self._algorithm)
-        if session:
-            Redis.set(
-                key = to_encode.get("user_id"),
-                value = token,
-                ttl = int(self._expires_delta.total_seconds()),
-            )
         return token
     def decode(self,token:str):
         return jwt.decode(token,self._secret_key,algorithms=[self._algorithm])
