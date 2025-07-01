@@ -49,7 +49,7 @@ async def websocket(websocket: WebSocket):
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        await manager.disconnect(websocket)
 # Handle Exception
 @app.exception_handler(HTTP_ERROR)
 async def exception_handler(_: Request, exc: HTTP_ERROR):
