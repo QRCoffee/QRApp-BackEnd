@@ -13,9 +13,8 @@ class ConnectionManager:
         self.groups: Dict[str|PydanticObjectId, Dict] = {}
 
     async def connect(self, websocket: WebSocket) -> bool:
-        Authorization = websocket.headers.get("authorization")
+        token = websocket.query_params.get("token")
         try:
-            token = Authorization.split("Bearer ")[1]
             payload: dict = ACCESS_JWT.decode(token)
             user = await userService.find(payload.get('user_id'))
             group =  str(user.business.to_ref().id) if user.business else "System"
