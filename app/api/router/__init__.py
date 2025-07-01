@@ -14,6 +14,7 @@ from app.api.router.group import apiRouter as groupRouter
 from app.api.router.product import apiRouter as productRouter
 from app.api.router.service_unit import apiRouter as serviceRouter
 from app.api.router.user import apiRouter as userRouter
+from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND
 from app.socket import manager
 
@@ -29,46 +30,50 @@ api.include_router(serviceRouter)
 api.include_router(categoryRouter)
 api.include_router(productRouter)
 # broadcast message
-@api.get(
+@api.post(
     path = "/broadcast",
     tags = ['WebSocket'],
     name = "Broadcast message",
     dependencies= [
         Depends(login_required),
         Depends(required_role(role=['Admin']))
-    ]
+    ],
+    response_model=Response[bool]
 )
 async def broadcast_message(
-    user: Optional[List[PydanticObjectId]] = Query(
+    users: Optional[List[PydanticObjectId]] = Query( 
         default=None,
-        description="📌 Danh sách `user_id` cần gửi tin nhắn trực tiếp. Ưu tiên cao nhất."
+        description="🔸 Danh sách `user_id` cần gửi tin nhắn trực tiếp. Nếu có, ưu tiên gửi trước cho các user này."
     ),
     group: Optional[str] = Query(
         default=None,
-        description="""
-        🏢 Tên nhóm chính:
-        - `System`: dành cho người quản trị không thuộc doanh nghiệp
-        - `<business_id>`: ID doanh nghiệp (dành cho nhân viên doanh nghiệp)
-                """.strip()
-            ),
+        description=(
+            "🏢 Tên nhóm chính để gửi tin nhắn:\n"
+            "- `System`: Dành cho người quản trị không thuộc doanh nghiệp\n"
+            "- `<business_id>`: ID của doanh nghiệp (dành cho nhân viên doanh nghiệp)"
+        )
+    ),
     branch: Optional[str] = Query(
         default=None,
-        description="🏬 Mã chi nhánh (branch_id) nằm trong group doanh nghiệp hoặc System"
+        description="🏬 Mã chi nhánh (`branch_id`) thuộc `group` đã chỉ định (doanh nghiệp hoặc System)."
     ),
     role: Optional[str] = Query(
         default=None,
-        description="👤 Vai trò người dùng trong chi nhánh, ví dụ: `Admin`, `Staff`, `Guest`"
+        description="👤 Vai trò người dùng trong chi nhánh. Ví dụ: `Admin`, `Staff`, `Guest`."
     ),
-    message: str = Query(..., description="🔊 Nội dung tin nhắn sẽ được gửi tới WebSocket"),
-):  
+    message: str = Query(
+        ...,
+        description="🔊 Nội dung tin nhắn sẽ được gửi tới người dùng thông qua WebSocket."
+    ),
+):
     await manager.broadcast(
         message=message,
-        user_ids=user,
+        user_ids=users,
         group=group,
         branch=branch,
         role=role
     )
-    return True
+    return Response(data=True)
 # Webhook
 @api.post(
     tags = ['Webhook'],

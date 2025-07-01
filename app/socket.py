@@ -78,7 +78,6 @@ class ConnectionManager:
                 ws = self.connections.get(uid)
                 if ws:
                     await ws.send_text(message)
-            return
         # Chỉ định group cụ thể
         if group:
             group_data = self.groups.get(group, {})
@@ -100,8 +99,9 @@ class ConnectionManager:
                         for ws in role_ws:
                             await ws.send_text(message)
             return
-        # Gửi tất cả
-        for ws in self.connections.values():
-            await ws.send_text(message)
+        # Gửi tất cả nếu ko truyền gì
+        if not user_ids and not group:
+            for ws in self.connections.values():
+                await ws.send_text(message)
     
 manager = ConnectionManager()
