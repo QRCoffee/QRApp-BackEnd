@@ -5,6 +5,7 @@ from .category import categoryService, subcategoryService
 from .group import groupService
 from .permission import permissionService
 from .product import productService
+from .request import requestService
 from .service_unit import unitService
 from .user import userService
 
@@ -20,4 +21,5 @@ __all__ = [
     "categoryService",
     "subcategoryService",
     "productService",
+    "requestService",
 ]

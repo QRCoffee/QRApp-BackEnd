@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_400_BAD_REQUEST
 from app.schema.request import RequestCreate
-from app.service import areaService, unitService
+from app.service import areaService, requestService, unitService
 from app.socket import manager
 
 apiRouter = APIRouter(
@@ -13,7 +13,7 @@ apiRouter = APIRouter(
 
 @apiRouter.post(
     path = "",
-    response_model = Response[bool]
+    response_model = Response[str]
 )
 async def request(data:RequestCreate):
     service_unit = await unitService.find_one(conditions={
@@ -28,4 +28,8 @@ async def request(data:RequestCreate):
         group=area.business.to_dict().get("id"),
         branch=area.branch.to_dict().get("id"),
     )
-    return Response(data=True)
+    data = data.model_dump()
+    data['branch'] = area.branch.to_ref()
+    data['business'] = area.business.to_ref()
+    await requestService.insert(data)
+    return Response(data="Yêu cầu đang được xử lí")

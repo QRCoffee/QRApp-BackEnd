@@ -11,4 +11,5 @@ from .user import User
 
 Business.model_rebuild()
 User.model_rebuild()
+Request.model_rebuild()
 __all__ = ["User","BusinessType","Group","Business","Permission","Branch","Area","ServiceUnit","Category","SubCategory","Product","Request"]
