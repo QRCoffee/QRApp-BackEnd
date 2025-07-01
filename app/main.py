@@ -9,7 +9,7 @@ from app.api.router import api
 from app.common.api_message import KeyResponse
 from app.common.http_exception import HTTP_ERROR
 from app.core.config import settings
-from app.core.middleware import LoggingMiddleware
+from app.core.middleware import LoggingMiddleware, TraceMiddleware
 from app.db import Mongo
 from app.socket import manager
 
@@ -62,6 +62,7 @@ description = """
     version = settings.APP_VERSION,
 )
 # Middleware
+app.add_middleware(TraceMiddleware)
 app.add_middleware(LoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,

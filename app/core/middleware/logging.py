@@ -16,6 +16,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     def _get_request_info(self, request: Request) -> Dict[str, Any]:
         """Extract common request information"""
         return {
+            "request-id":request.state.request_id,
             "host": request.client.host,
             "user_agent": request.headers.get("user-agent", "unknown"),
             "method": request.method,
