@@ -12,6 +12,7 @@ from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.category import apiRouter as categoryRouter
 from app.api.router.group import apiRouter as groupRouter
 from app.api.router.product import apiRouter as productRouter
+from app.api.router.request import apiRouter as requestRouter
 from app.api.router.service_unit import apiRouter as serviceRouter
 from app.api.router.user import apiRouter as userRouter
 from app.common.api_response import Response
@@ -29,6 +30,7 @@ api.include_router(areaRouter)
 api.include_router(serviceRouter)
 api.include_router(categoryRouter)
 api.include_router(productRouter)
+api.include_router(requestRouter)
 # broadcast message
 @api.post(
     path = "/broadcast",
