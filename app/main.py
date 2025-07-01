@@ -75,10 +75,10 @@ app.include_router(api)
 # WebSocket
 @app.websocket("/ws")
 async def websocket(websocket: WebSocket):
-    await manager.connect(websocket)
     try:
-        while True:
-            await websocket.receive_text()
+        if await manager.connect(websocket):
+            while True:
+                await websocket.receive_text()
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
 # Handle Exception

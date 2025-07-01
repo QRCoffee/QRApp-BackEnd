@@ -12,7 +12,7 @@ class ConnectionManager:
         self.connections: Dict[PydanticObjectId,WebSocket] = {}
         self.groups: Dict[str|PydanticObjectId, Dict] = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket) -> bool:
         Authorization = websocket.headers.get("authorization")
         try:
             token = Authorization.split("Bearer ")[1]
@@ -30,8 +30,10 @@ class ConnectionManager:
             self.groups[group].setdefault(branch, {})
             self.groups[group][branch].setdefault(role, [])
             self.groups[group][branch][role].append(websocket)
+            return True
         except Exception:
             await websocket.close(code=1008)
+            return False
 
     async def disconnect(self, websocket: WebSocket):
         # Remove in connections
