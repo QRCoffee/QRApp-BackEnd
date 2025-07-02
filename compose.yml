@@ -1,26 +1,13 @@
 services:
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    hostname: minio
-    ports:
-      - "9000:9000"   # S3 API port
-      - "9001:9001"   # Web UI
-    volumes:
-      - minio_data:/data
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: admin123456 # pragma: allowlist secret
-    command: server /data --console-address ":9001"
-    restart: unless-stopped
-
   qrapp-backend:
     image: nhathuyd4hp/qrapp-backend:latest
     container_name: api.qrapp
     pull_policy: always
     hostname: api.qrapp
     ports:
-        - 8000:8000
+      - 8000:8000
+    volume:
+      - /app/logs:/app/logs
     env_file:
         - .env
 
