@@ -6,7 +6,7 @@ services:
     hostname: api.qrapp
     ports:
       - 8000:8000
-    volume:
+    volumes:
       - /app/logs:/app/logs
     env_file:
         - .env
