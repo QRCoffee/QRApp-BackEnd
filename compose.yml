@@ -7,9 +7,30 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - /app/logs:/app/logs
+      - ./logs:/app/logs
     env_file:
         - .env
 
-volumes:
-  minio_data:
+  promtail:
+    image: grafana/promtail:2.9.4
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/promtail.yaml
+      - ./logs:/app/logs
+    command: -config.file=/etc/promtail/promtail.yaml
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
