@@ -59,9 +59,9 @@ async def broadcast_message(
         default=None,
         description="🏬 Mã chi nhánh (`branch_id`) thuộc `group` đã chỉ định (doanh nghiệp hoặc System)."
     ),
-    role: Optional[str] = Query(
+    permission: Optional[str] = Query(
         default=None,
-        description="👤 Vai trò người dùng trong chi nhánh. Ví dụ: `Admin`, `Staff`, `Guest`."
+        description="👤 Quyền hạn người dùng trong chi nhánh."
     ),
     message: str = Query(
         ...,
@@ -71,9 +71,9 @@ async def broadcast_message(
     await manager.broadcast(
         message=message,
         user_ids=users,
-        group=group,
+        business=group,
         branch=branch,
-        role=role
+        permission=permission
     )
     return Response(data=True)
 # Webhook

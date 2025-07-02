@@ -27,39 +27,45 @@ class ConnectionManager:
             # Add to group
             self.groups.setdefault(group, {})
             self.groups[group].setdefault(branch, {})
-            self.groups[group][branch].setdefault(role, [])
-            self.groups[group][branch][role].append(websocket)
+            for permission in payload.get("user_permissions",[]):
+                self.groups[group][branch].setdefault(permission, [])
+                self.groups[group][branch][permission].append(websocket)
             return True
         except Exception:
             await websocket.close(code=1008)
             return False
 
     async def disconnect(self, websocket: WebSocket):
-        # Remove in connections
+        # Tìm user_id tương ứng với websocket
         user_id_to_remove = None
         for user_id, ws in self.connections.items():
             if ws == websocket:
                 user_id_to_remove = user_id
                 break
         if not user_id_to_remove:
-            return  # Không có user nào liên kết với websocket này
+            return  # Không tìm thấy user liên kết
+        # Xoá khỏi connections
         del self.connections[user_id_to_remove]
-        # Remove in groups
+        # Lấy user để biết group/branch
         user = await userService.find(user_id_to_remove)
         group = str(user.business.to_ref().id) if user.business else "System"
         branch = str(user.branch.to_ref().id) if user.branch else "None"
-        role = str(user.role)
         try:
-            sockets = self.groups[group][branch][role]
-            if websocket in sockets:
-                sockets.remove(websocket)
-            # Nếu list socket trống thì xóa role
-            if not self.groups[group][branch][role]:
-                del self.groups[group][branch][role]
-            # Nếu role trống ⇒ xóa branch
+            permission_map = self.groups[group][branch]
+            # Duyệt tất cả các permission và xoá websocket
+            permissions_to_delete = []
+            for permission, sockets in permission_map.items():
+                if websocket in sockets:
+                    sockets.remove(websocket)
+                if not sockets:
+                    permissions_to_delete.append(permission)
+            # Xoá các permission rỗng
+            for permission in permissions_to_delete:
+                del permission_map[permission]
+            # Nếu không còn permission nào → xoá branch
             if not self.groups[group][branch]:
                 del self.groups[group][branch]
-            # Nếu branch trống ⇒ xóa group
+            # Nếu không còn branch nào → xoá group
             if not self.groups[group]:
                 del self.groups[group]
         except KeyError:
@@ -69,40 +75,58 @@ class ConnectionManager:
         self,
         message: str,
         user_ids: Optional[List[PydanticObjectId]] = None,
-        group: Optional[str] = None,
+        business: Optional[str] = None,
         branch: Optional[str] = None,
-        role: Optional[str] = None,
+        permission: Optional[str] = None,
     ):
-        # Nếu chỉ định user cụ thể
+        sent: set[WebSocket] = set()  # Đảm bảo không gửi trùng WebSocket
+
+        # 1. Gửi theo user_ids nếu có
         if user_ids:
             for uid in user_ids:
                 ws = self.connections.get(uid)
-                if ws:
+                if ws and ws not in sent:
                     await ws.send_text(message)
-        # Chỉ định group cụ thể
-        if group:
-            group_data = self.groups.get(group, {})
-            if branch:
-                branch_data = group_data.get(branch, {})
-                if role:
-                    # Gửi cho role cụ thể
-                    for ws in branch_data.get(role, []):
-                        await ws.send_text(message)
+                    sent.add(ws)
+
+        # 2. Gửi theo group (doanh nghiệp)
+        if business:
+            group_data = self.groups.get(business)
+            if group_data:
+                if branch:
+                    branch_data = group_data.get(branch)
+                    if branch_data:
+                        if permission:
+                            for ws in branch_data.get(permission, []):
+                                if ws not in sent:
+                                    await ws.send_text(message)
+                                    sent.add(ws)
+                        else:
+                            for perm_ws_list in branch_data.values():
+                                for ws in perm_ws_list:
+                                    if ws not in sent:
+                                        await ws.send_text(message)
+                                        sent.add(ws)
                 else:
-                    # Gửi cho toàn bộ role trong branch
-                    for role_ws in branch_data.values():
-                        for ws in role_ws:
-                            await ws.send_text(message)
-            else:
-                # Gửi cho toàn bộ các branch
-                for branch_data in group_data.values():
-                    for role_ws in branch_data.values():
-                        for ws in role_ws:
-                            await ws.send_text(message)
-            return
-        # Gửi tất cả nếu ko truyền gì
-        if not user_ids and not group:
+                    for branch_data in group_data.values():
+                        if permission:
+                            for ws in branch_data.get(permission, []):
+                                if ws not in sent:
+                                    await ws.send_text(message)
+                                    sent.add(ws)
+                        else:
+                            for perm_ws_list in branch_data.values():
+                                for ws in perm_ws_list:
+                                    if ws not in sent:
+                                        await ws.send_text(message)
+                                        sent.add(ws)
+
+        # 3. Nếu không có user_ids và business => gửi cho tất cả
+        if not user_ids and not business:
             for ws in self.connections.values():
-                await ws.send_text(message)
+                if ws not in sent:
+                    await ws.send_text(message)
+                    sent.add(ws)
+
     
 manager = ConnectionManager()

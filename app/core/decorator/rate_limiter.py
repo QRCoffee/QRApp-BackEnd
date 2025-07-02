@@ -1,8 +1,11 @@
-from fastapi import Request
 from functools import wraps
-from app.db import LimitManager
-from app.common.http_exception import HTTP_429_TOO_MANY_REQUESTS
 from typing import Callable
+
+from fastapi import Request
+
+from app.common.http_exception import HTTP_429_TOO_MANY_REQUESTS
+from app.db import LimitManager
+
 
 def limiter(max_request: int = 5, duration: int = 60):
     """

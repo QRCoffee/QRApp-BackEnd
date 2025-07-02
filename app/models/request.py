@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 
 from beanie import Link
 from pydantic import Field
@@ -26,6 +26,8 @@ class Request(Base):
     area: "Link[Area]" = Field(..., description="Khu vực thuộc chi nhánh, ví dụ: tầng, phòng, khu A...") # type: ignore
     branch: "Link[Branch]" = Field(..., description="Chi nhánh nơi phát sinh yêu cầu") # type: ignore
     business: "Link[Business]" = Field(..., description="Doanh nghiệp sở hữu chi nhánh và hệ thống phục vụ") # type: ignore
+    # Ghi đè __action__ để thêm hành động 'share'
+    __action__: List[str] = ["view","receive","delete","update"]
 
 
 

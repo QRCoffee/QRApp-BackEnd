@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
@@ -11,6 +11,7 @@ class RequestCreate(BaseModel):
     reason: Optional[str] = Field(default=None, description="Lý do yêu cầu")
     service_unit: PydanticObjectId
     area: PydanticObjectId
+    data: Any
 
 class RequestUpdate(BaseModel):
     status: Optional[RequestStatus] = RequestStatus.PENDING
