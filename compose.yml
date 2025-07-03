@@ -1,28 +1,39 @@
 services:
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    hostname: minio
-    ports:
-      - "9000:9000"   # S3 API port
-      - "9001:9001"   # Web UI
-    volumes:
-      - minio_data:/data
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: admin123456 # pragma: allowlist secret
-    command: server /data --console-address ":9001"
-    restart: unless-stopped
-
   qrapp-backend:
     image: nhathuyd4hp/qrapp-backend:latest
     container_name: api.qrapp
     pull_policy: always
     hostname: api.qrapp
     ports:
-        - 8000:8000
+      - 8000:8000
+    volumes:
+      - ./logs:/app/logs
     env_file:
         - .env
 
-volumes:
-  minio_data:
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: promtail
+    volumes:
+      - ./promtail-config.yaml:/etc/promtail/promtail.yaml
+      - ./logs:/app/logs
+    command: -config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - qrapp-backend
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
