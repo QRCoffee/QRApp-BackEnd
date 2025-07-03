@@ -1,3 +1,4 @@
+import json
 import time
 from typing import Any, Dict
 
@@ -33,7 +34,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 "status_code": response.status_code,
                 "error": None
             }
-            logger.info(log_data)
+            logger.info(json.dumps(log_data))
             return response
         except Exception as e:
             duration = time.time() - start_time
@@ -58,7 +59,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 "status_code": status_code,
                 "error": type(e).__name__
             }
-            logger.error(log_data)
+            logger.error(json.dumps(log_data))
             return JSONResponse(
                 status_code=status_code,
                 content={
