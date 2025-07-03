@@ -50,6 +50,5 @@ scrape_configs:
           path: path
           host: host
           user_agent: user_agent
-          duration: duration
           status_code: status_code
           error: error
