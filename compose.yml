@@ -13,10 +13,13 @@ services:
 
   promtail:
     image: grafana/promtail:2.9.4
+    container_name: promtail
     volumes:
       - ./promtail-config.yaml:/etc/promtail/promtail.yaml
       - ./logs:/app/logs
     command: -config.file=/etc/promtail/promtail.yaml
+    depends_on:
+      - qrapp-backend
 
   loki:
     image: grafana/loki:2.9.4
