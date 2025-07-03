@@ -45,7 +45,11 @@ scrape_configs:
       # Stage 4: Chuyển vài field thành label để lọc nhanh
       - labels:
           level: level
+          request_id: request_id
           method: method
           path: path
+          host: host
+          user_agent: user_agent
+          duration: duration
           status_code: status_code
-          request_id: request_id
+          error: error
