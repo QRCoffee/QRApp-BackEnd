@@ -10,14 +10,17 @@ class GroupCreate(BaseModel):
     name: str
     description: Optional[str] = Field(default=None, description="Optional description")
 
+
 class GroupUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+
 
 class GroupResponse(BaseResponse):
     name: str
     description: Optional[str] = None
     permissions: List[DetailPermissionResponse] = []
+
 
 class FullGroupResponse(GroupResponse):
     users: Optional[List[BaseModel]] = []
@@ -26,11 +29,9 @@ class FullGroupResponse(GroupResponse):
     async def from_model(cls, model: BaseModel) -> "FullGroupResponse":
         from app.schema.user import UserResponse
         from app.service import userService
+
         data = model.model_dump()
         users = await userService.find_many(
-            conditions={
-                "group.$id": {"$in": [model.id]}
-            },
-            projection_model=UserResponse
+            conditions={"group.$id": {"$in": [model.id]}}, projection_model=UserResponse
         )
-        return cls(**data,users=users)
+        return cls(**data, users=users)

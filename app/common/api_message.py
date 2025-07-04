@@ -14,6 +14,7 @@ class KeyResponse(str, Enum):
     VALIDATION_ERROR = "VALIDATION_ERROR"
     SERVER_ERROR = "SERVER_ERROR"
 
+
 MessageResponse = {
     "vi": {
         KeyResponse.SUCCESS: "Thành công",
@@ -36,8 +37,9 @@ MessageResponse = {
         KeyResponse.SESSION_EXPIRED: "Session expired",
         KeyResponse.PERMISSION_DENIED: "Permission denied",
         KeyResponse.SERVER_ERROR: "An error occurred, please try again later",
-    }
+    },
 }
+
 
 def get_message(key: KeyResponse, lang: str = "vi") -> str:
     return MessageResponse.get(lang, MessageResponse["vi"]).get(key, "")

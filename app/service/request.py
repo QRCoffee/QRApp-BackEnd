@@ -7,6 +7,7 @@ class RequestService(Service[Request, RequestCreate, RequestUpdate]):
     def __init__(self):
         super().__init__(Request)
 
+
 requestService = RequestService()
 
 __all__ = ["requestService"]

@@ -12,12 +12,13 @@ class ServiceUnitCreate(BaseModel):
     qr_code: Optional[str] = None
     area: PydanticObjectId
 
+
 class ServiceUnitUpdate(BaseModel):
     name: Optional[str] = None
     qr_code: Optional[str] = None
+
 
 class ServiceUnitResponse(BaseResponse):
     name: str
     qr_code: Optional[str] = None
     area: AreaResponse
-

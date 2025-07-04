@@ -11,13 +11,16 @@ class BusinessTypeCreate(BaseModel):
     name: str
     description: Optional[str] = None
 
+
 class BusinessTypeUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
 
+
 class BusinessTypeResponse(BaseResponse):
     name: str
     description: Optional[str] = None
+
 
 class BusinessCreate(BaseModel):
     name: str
@@ -25,7 +28,8 @@ class BusinessCreate(BaseModel):
     contact: str
     business_type: Link[BusinessType]
     tax_code: Optional[str] = None
-    owner: Optional[Link[User]] = Field(description="Business Owner") # type: ignore
+    owner: Optional[Link[User]] = Field(description="Business Owner")  # type: ignore
+
 
 class BusinessUpdate(BaseModel):
     name: Optional[str] = None
@@ -33,23 +37,26 @@ class BusinessUpdate(BaseModel):
     contact: Optional[str] = None
     tax_code: Optional[str] = None
 
+
 class FullBusinessResponse(BaseResponse):
-    name: str 
+    name: str
     address: str
     contact: str
     tax_code: Optional[str] = None
     available: bool
     business_type: BusinessType
-    owner: Optional[User] = Field(description="Business Owner") # type: ignore
+    owner: Optional[User] = Field(description="Business Owner")  # type: ignore
 
     @field_validator("owner")
     @classmethod
-    def serializer_owner(cls,v: Optional[User]):
+    def serializer_owner(cls, v: Optional[User]):
         from app.schema.user import UserResponse
+
         return UserResponse.model_validate(v)
 
+
 class BusinessResponse(BaseResponse):
-    name: str 
+    name: str
     address: str
     contact: str
     tax_code: Optional[str] = None

@@ -1,0 +1,21 @@
+from typing import List
+
+from beanie import Link
+from pydantic import BaseModel, Field
+
+from app.models import Area, Branch, Business, ServiceUnit, User
+
+
+class OrderCreate(BaseModel):
+    # General info
+    items: List = Field(default_factory=list,description="Danh sách món")
+    amount: float = Field(default=None,description="Tổng bill")
+    # Business info
+    business: Link[Business] = Field(...)
+    branch: Link[Branch] = Field(...)
+    area: Link[Area] = Field(...)
+    service_unit: Link[ServiceUnit] = Field(...)
+    staff: Link[User] = Field(...)
+
+class OrderUpdate(BaseModel):
+    pass

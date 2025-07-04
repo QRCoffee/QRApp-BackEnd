@@ -95,7 +95,7 @@ async def post_group(data:GroupCreate,request:Request):
 async def delete_group(id:PydanticObjectId,request:Request):
     group = await groupService.find(id)
     if group is None:
-        raise HTTP_404_NOT_FOUND(f"Không tìm thấy")
+        raise HTTP_404_NOT_FOUND("Không tìm thấy")
     if PydanticObjectId(request.state.user_scope) == group.business.to_ref().id:
         if await groupService.delete(id):
             return Response(data="Xóa thành công")
@@ -219,7 +219,7 @@ async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,reque
     path = "/{id}/user/{user_id}",
     name = "Xóa nhân viên trong nhóm",
 )
-async def add_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,request:Request):
+async def delete_to_group(id:PydanticObjectId, user_id:PydanticObjectId | str,request:Request):
     group = await groupService.find(id)
     if group is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy nhóm")

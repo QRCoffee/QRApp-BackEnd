@@ -15,14 +15,16 @@ from app.socket import manager
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):    
+async def lifespan(_: FastAPI):
     # on_startup
     await Mongo.initialize()
     yield
     # on_shutdown
+
+
 app = FastAPI(
-    title = "QRApp Backend",
-    description = """
+    title="QRApp Backend",
+    description="""
 ### 🔹 Tính năng
 
 - **Quản lý doanh nghiệp**  
@@ -57,9 +59,9 @@ app = FastAPI(
 - Swagger UI: `/docs`  
 - ReDoc: `/redoc`
 """,
-    debug = False,
-    lifespan = lifespan,
-    version = settings.APP_VERSION,
+    debug=False,
+    lifespan=lifespan,
+    version=settings.APP_VERSION,
 )
 # Middleware
 app.add_middleware(TraceMiddleware)
@@ -73,6 +75,8 @@ app.add_middleware(
 )
 # Endpoint
 app.include_router(api)
+
+
 # WebSocket
 @app.websocket("/ws")
 async def websocket(websocket: WebSocket):
@@ -82,21 +86,20 @@ async def websocket(websocket: WebSocket):
                 await websocket.receive_text()
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
+
+
 # Handle Exception
 @app.exception_handler(HTTP_ERROR)
 async def exception_handler(_: Request, exc: HTTP_ERROR):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content=exc.detail
-    )
+    return JSONResponse(status_code=exc.status_code, content=exc.detail)
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(_, exc: RequestValidationError):
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
-            "message":KeyResponse.VALIDATION_ERROR,
-            "error":[
-                f"{error['msg']} {error['loc']}" for error in exc.errors()
-            ]
-        }
+            "message": KeyResponse.VALIDATION_ERROR,
+            "error": [f"{error['msg']} {error['loc']}" for error in exc.errors()],
+        },
     )

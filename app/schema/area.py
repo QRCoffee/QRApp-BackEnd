@@ -14,10 +14,12 @@ class AreaCreate(BaseModel):
     image_url: Optional[str] = Field(None)
     branch: PydanticObjectId
 
+
 class AreaUpdate(BaseModel):
     name: Optional[str] = Field(None)
     description: Optional[str] = Field(None)
     image_url: Optional[str] = Field(None)
+
 
 class AreaResponse(BaseResponse):
     name: str
@@ -25,9 +27,10 @@ class AreaResponse(BaseResponse):
     image_url: Optional[str] = Field(None)
     branch: BranchResponse
 
+
 class FullAreaResponse(BaseResponse):
     name: str
     description: Optional[str] = None
-    image_url: Optional[str] = None 
-    branch: BranchResponse 
+    image_url: Optional[str] = None
+    branch: BranchResponse
     business: BusinessResponse

@@ -9,17 +9,16 @@ from app.service import userService
 
 class ConnectionManager:
     def __init__(self):
-        self.connections: Dict[PydanticObjectId,WebSocket] = {}
-        self.groups: Dict[str|PydanticObjectId, Dict] = {}
+        self.connections: Dict[PydanticObjectId, WebSocket] = {}
+        self.groups: Dict[str | PydanticObjectId, Dict] = {}
 
     async def connect(self, websocket: WebSocket) -> bool:
         token = websocket.query_params.get("token")
         try:
             payload: dict = ACCESS_JWT.decode(token)
-            user = await userService.find(payload.get('user_id'))
-            group =  str(user.business.to_ref().id) if user.business else "System"
-            branch =  str(user.branch.to_ref().id) if user.branch else "None"
-            role =  str(user.role)
+            user = await userService.find(payload.get("user_id"))
+            group = str(user.business.to_ref().id) if user.business else "System"
+            branch = str(user.branch.to_ref().id) if user.branch else "None"
             # Wait for connection
             await websocket.accept()
             # Add to list connections
@@ -27,7 +26,7 @@ class ConnectionManager:
             # Add to group
             self.groups.setdefault(group, {})
             self.groups[group].setdefault(branch, {})
-            for permission in payload.get("user_permissions",[]):
+            for permission in payload.get("user_permissions", []):
                 self.groups[group][branch].setdefault(permission, [])
                 self.groups[group][branch][permission].append(websocket)
             return True
@@ -128,5 +127,5 @@ class ConnectionManager:
                     await ws.send_text(message)
                     sent.add(ws)
 
-    
+
 manager = ConnectionManager()

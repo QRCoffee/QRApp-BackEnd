@@ -8,11 +8,16 @@ class CategoryService(Service[Category, CategoryCreate, CategoryUpdate]):
     def __init__(self):
         super().__init__(Category)
 
+
 class SubCategoryService(Service[SubCategory, SubCategoryCreate, SubCategoryUpdate]):
     def __init__(self):
         super().__init__(SubCategory)
 
+
 categoryService = CategoryService()
 subcategoryService = SubCategoryService()
 
-__all__ = ["categoryService","subCategoryService"]
+__all__ = [
+    "categoryService",
+    "subcategoryService",
+]

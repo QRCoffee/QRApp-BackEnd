@@ -11,7 +11,8 @@ from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.category import apiRouter as categoryRouter
 from app.api.router.group import apiRouter as groupRouter
-from app.api.router.product import apiRouter as productRouter
+from app.api.router.product import private_apiRouter as private_productRouter
+from app.api.router.product import public_apiRouter as public_productRouter
 from app.api.router.request import apiRouter as requestRouter
 from app.api.router.service_unit import apiRouter as serviceRouter
 from app.api.router.user import apiRouter as userRouter
@@ -29,23 +30,23 @@ api.include_router(userRouter)
 api.include_router(areaRouter)
 api.include_router(serviceRouter)
 api.include_router(categoryRouter)
-api.include_router(productRouter)
+api.include_router(public_productRouter)
+api.include_router(private_productRouter)
 api.include_router(requestRouter)
+
+
 # broadcast message
 @api.post(
-    path = "/broadcast",
-    tags = ['WebSocket'],
-    name = "Broadcast message",
-    dependencies= [
-        Depends(login_required),
-        Depends(required_role(role=['Admin']))
-    ],
-    response_model=Response[bool]
+    path="/broadcast",
+    tags=["WebSocket"],
+    name="Broadcast message",
+    dependencies=[Depends(login_required), Depends(required_role(role=["Admin"]))],
+    response_model=Response[bool],
 )
 async def broadcast_message(
-    users: Optional[List[PydanticObjectId]] = Query( 
+    users: Optional[List[PydanticObjectId]] = Query(
         default=None,
-        description="🔸 Danh sách `user_id` cần gửi tin nhắn trực tiếp. Nếu có, ưu tiên gửi trước cho các user này."
+        description="🔸 Danh sách `user_id` cần gửi tin nhắn trực tiếp",
     ),
     group: Optional[str] = Query(
         default=None,
@@ -53,19 +54,18 @@ async def broadcast_message(
             "🏢 Tên nhóm chính để gửi tin nhắn:\n"
             "- `System`: Dành cho người quản trị không thuộc doanh nghiệp\n"
             "- `<business_id>`: ID của doanh nghiệp (dành cho nhân viên doanh nghiệp)"
-        )
+        ),
     ),
     branch: Optional[str] = Query(
         default=None,
-        description="🏬 Mã chi nhánh (`branch_id`) thuộc `group` đã chỉ định (doanh nghiệp hoặc System)."
+        description="🏬 Mã chi nhánh (`branch_id`) thuộc `group` đã chỉ định (doanh nghiệp hoặc System).",
     ),
     permission: Optional[str] = Query(
-        default=None,
-        description="👤 Quyền hạn người dùng trong chi nhánh."
+        default=None, description="👤 Quyền hạn người dùng trong chi nhánh."
     ),
     message: str = Query(
         ...,
-        description="🔊 Nội dung tin nhắn sẽ được gửi tới người dùng thông qua WebSocket."
+        description="🔊 Nội dung tin nhắn sẽ được gửi tới người dùng thông qua WebSocket.",
     ),
 ):
     await manager.broadcast(
@@ -73,27 +73,25 @@ async def broadcast_message(
         user_ids=users,
         business=group,
         branch=branch,
-        permission=permission
+        permission=permission,
     )
     return Response(data=True)
+
+
 # Webhook
-@api.post(
-    tags = ['Webhook'],
-    path = "/webhook",
-    status_code=200,
-    name = "Webhook"
-)
+@api.post(tags=["Webhook"], path="/webhook", status_code=200, name="Webhook")
 def receive_webhook():
     return True
+
+
 # Handle Undefined API
 @api.api_route(
-    tags = ["Proxy"],
-    path = "/{path:path}",
-    methods = ["GET", "POST"],
+    tags=["Proxy"],
+    path="/{path:path}",
+    methods=["GET", "POST"],
     include_in_schema=False,
 )
 async def catch_all(path: str, request: Request):
     raise HTTP_404_NOT_FOUND(
-        error="NOT FOUND",
-        message=f"{request.method} {request.url.path} is undefined"
+        error="NOT FOUND", message=f"{request.method} {request.url.path} is undefined"
     )

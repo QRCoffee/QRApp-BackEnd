@@ -8,6 +8,7 @@ class ServiceUnitService(Service[ServiceUnit, ServiceUnitCreate, ServiceUnitUpda
     def __init__(self):
         super().__init__(ServiceUnit)
 
+
 unitService = ServiceUnitService()
 
 __all__ = ["unitService"]

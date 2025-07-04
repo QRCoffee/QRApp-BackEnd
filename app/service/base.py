@@ -17,9 +17,11 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return await self.model.get(id)
 
     # 2. Tìm một document theo điều kiện
-    async def find_one(self, conditions: Dict[str, Any] | None = None,projection_model: None = None) -> Optional[ModelType]:
+    async def find_one(
+        self, conditions: Dict[str, Any] | None = None, projection_model: None = None
+    ) -> Optional[ModelType]:
         conditions = conditions or {}
-        return await self.model.find_one(conditions,projection_model=projection_model)
+        return await self.model.find_one(conditions, projection_model=projection_model)
 
     # 3. Tìm nhiều document theo điều kiện
     async def find_many(
@@ -48,7 +50,9 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return doc
 
     # 5. Ghi nhiều document
-    async def insert_many(self, data: List[Union[dict, CreateSchemaType]]) -> List[ModelType]:
+    async def insert_many(
+        self, data: List[Union[dict, CreateSchemaType]]
+    ) -> List[ModelType]:
         docs = []
         for object in data:
             if isinstance(object, BaseModel):
@@ -57,7 +61,9 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return await self.model.insert_many(docs)
 
     # 6. Cập nhật theo ID
-    async def update(self, id: Any, data: Union[dict, UpdateSchemaType]) -> Optional[ModelType]:
+    async def update(
+        self, id: Any, data: Union[dict, UpdateSchemaType]
+    ) -> Optional[ModelType]:
         db_item = await self.model.get(id)
         if not db_item:
             return None
@@ -69,15 +75,15 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_item
 
     async def update_one(
-        self,
-        id: Any,
-        conditions: Dict[str,Any]
+        self, id: Any, conditions: Dict[str, Any]
     ) -> Optional[ModelType]:
         await self.model.find_one({"_id": id}).update(conditions)
         return await self.model.get(id)
-    
+
     # 7. Cập nhật nhiều document theo điều kiện
-    async def update_many(self, conditions: dict[str, Any], update_data: dict[str, Any]) -> int:
+    async def update_many(
+        self, conditions: dict[str, Any], update_data: dict[str, Any]
+    ) -> int:
         result = await self.model.find(conditions).update({"$set": update_data})
         return result.modified_count
 

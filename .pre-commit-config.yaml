@@ -12,7 +12,11 @@ repos:
         name: ruff
         files: \.py$
         language_version: python3
-        args: [--fix, --exit-non-zero-on-fix, --select=F401, F841, E, F]
+        args:
+          - "--line-length=150"  # ✅ tăng giới hạn dòng ở đây
+          - "--fix"
+          - "--exit-non-zero-on-fix"
+          - "--select=F401,F841,E,F"
 
   - repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.10.1

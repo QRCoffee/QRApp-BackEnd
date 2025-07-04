@@ -7,6 +7,7 @@ class PermissionService(Service[Permission, PermissionCreate, PermissionUpdate])
     def __init__(self):
         super().__init__(Permission)
 
+
 permissionService = PermissionService()
 
 __all__ = ["permissionService"]

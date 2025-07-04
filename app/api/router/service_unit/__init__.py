@@ -12,63 +12,62 @@ from app.schema.service_unit import (ServiceUnitCreate, ServiceUnitResponse,
 from app.service import areaService, unitService
 
 apiRouter = APIRouter(
-    tags = ['Service Unit'],
-    prefix = "/services",
-    dependencies = [
+    tags=["Service Unit"],
+    prefix="/services",
+    dependencies=[
         Depends(login_required),
-        Depends(required_role(role=[
-            "BusinessOwner"
-            ])
-        ),
-    ]
+        Depends(required_role(role=["BusinessOwner"])),
+    ],
 )
 
+
 @apiRouter.get(
-    path = "",
-    name = "Xem đơn vị dịch vụ",
+    path="",
+    name="Xem đơn vị dịch vụ",
     response_model=Response[List[ServiceUnitResponse]],
 )
-async def post_service(
-    request:Request,
-    branch: Optional[PydanticObjectId] = Query(default=None,description="Lọc đơn vị theo chi nhánh"),
-    area: Optional[PydanticObjectId] = Query(default=None,description="Lọc đơn vị theo khu vực"),
+async def get_service(
+    request: Request,
+    branch: Optional[PydanticObjectId] = Query(
+        default=None, description="Lọc đơn vị theo chi nhánh"
+    ),
+    area: Optional[PydanticObjectId] = Query(
+        default=None, description="Lọc đơn vị theo khu vực"
+    ),
 ):
-    areas = await areaService.find_many(conditions={
-        "business.$id": PydanticObjectId(request.state.user_scope)
-    })
-    areas = [area.to_ref().id for area in areas]
-    conditions = {
-        "area._id": {"$in": [area] if area else areas}
-    }
-    services = await unitService.find_many(
-        conditions,
-        fetch_links=True
+    areas = await areaService.find_many(
+        conditions={"business.$id": PydanticObjectId(request.state.user_scope)}
     )
+    areas = [area.to_ref().id for area in areas]
+    conditions = {"area._id": {"$in": [area] if area else areas}}
+    services = await unitService.find_many(conditions, fetch_links=True)
     if branch:
         services = [service for service in services if service.area.branch.id == branch]
     return Response(data=services)
 
+
 @apiRouter.post(
-    path = "",
-    name = "Tạo đơn vị dịch vụ",
+    path="",
+    name="Tạo đơn vị dịch vụ",
     response_model=Response[ServiceUnitResponse],
 )
-async def post_service(data:ServiceUnitCreate,request:Request):
+async def post_service(data: ServiceUnitCreate, request: Request):
     area = await areaService.find(data.area)
     if area is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy khu vực")
     if PydanticObjectId(request.state.user_scope) != area.business.to_ref().id:
         raise HTTP_404_NOT_FOUND("Không tìm thấy khu vực trong doanh nghiệp của bạn")
     data = await unitService.insert(data)
-    await data.fetch_link('area')
+    await data.fetch_link("area")
     return Response(data=data)
 
+
 @apiRouter.put(
-    path = "/{id}",
-    name = "Cập nhật đơn vị dịch vụ",
+    path="/{id}",
+    name="Cập nhật đơn vị dịch vụ",
     response_model=Response[ServiceUnitResponse],
 )
-async def put_service(id:PydanticObjectId,data:ServiceUnitUpdate,request:Request):
+async def put_service(id: PydanticObjectId, data: ServiceUnitUpdate, request: Request):
     service_unit = await unitService.find(id)
     if service_unit is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy")
@@ -76,39 +75,38 @@ async def put_service(id:PydanticObjectId,data:ServiceUnitUpdate,request:Request
     if PydanticObjectId(request.state.user_scope) != area.business.to_ref().id:
         raise HTTP_404_NOT_FOUND("Không tìm thấy dịch vụ trong doanh nghiệp của bạn")
     service = await unitService.update(
-        id = id,
-        data = data,
-    )
-    await service.fetch_link('area')
-    return Response(data=service)
-
-@apiRouter.post(
-    path = "/{id}",
-    name = "Cập nhật QRCode",
-    response_model=Response[ServiceUnitResponse],
-)
-async def post_qrcode(id:PydanticObjectId,qr_code: UploadFile = File(...)):
-    contents = await qr_code.read()
-    object_name = QRCode.upload(
-        object = contents,
-        object_name=f"{id}_{qr_code.filename}",
-        content_type=qr_code.content_type,
-    )
-    service = await unitService.update(
-        id = id,
-        data = {
-            "qr_code": QRCode.get_url(object_name)
-        }
+        id=id,
+        data=data,
     )
     await service.fetch_link("area")
     return Response(data=service)
 
+
+@apiRouter.post(
+    path="/{id}",
+    name="Cập nhật QRCode",
+    response_model=Response[ServiceUnitResponse],
+)
+async def post_qrcode(id: PydanticObjectId, qr_code: UploadFile = File(...)):
+    contents = await qr_code.read()
+    object_name = QRCode.upload(
+        object=contents,
+        object_name=f"{id}_{qr_code.filename}",
+        content_type=qr_code.content_type,
+    )
+    service = await unitService.update(
+        id=id, data={"qr_code": QRCode.get_url(object_name)}
+    )
+    await service.fetch_link("area")
+    return Response(data=service)
+
+
 @apiRouter.delete(
-    path = "/{id}",
-    name = "Xóa đơn vị dịch vụ",
+    path="/{id}",
+    name="Xóa đơn vị dịch vụ",
     response_model=Response,
 )
-async def delete_service(id:PydanticObjectId,request:Request):
+async def delete_service(id: PydanticObjectId, request: Request):
     service_unit = await unitService.find(id)
     if service_unit is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy")

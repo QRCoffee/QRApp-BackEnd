@@ -10,6 +10,7 @@ from app.db import SessionManager
 
 security = HTTPBearer(auto_error=False)
 
+
 def login_required(
     request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
@@ -32,7 +33,7 @@ def login_required(
                 message=get_message(KeyResponse.SESSION_EXPIRED),
             )
         for key, value in payload.items():
-            if key == 'exp':
+            if key == "exp":
                 continue
             setattr(request.state, key, value)
         return True
@@ -42,25 +43,26 @@ def login_required(
             message=get_message(KeyResponse.INVALID_TOKEN),
         )
 
-def required_role(
-    role: List[str] = None
-):
+
+def required_role(role: List[str] = None):
     def role_checker(request: Request):
         user_role = request.state.user_role
         if role is not None and user_role not in role:
             raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))
         return True
+
     return role_checker
 
-def required_permissions(
-    permissions: List[int] = None
-) -> bool:
+
+def required_permissions(permissions: List[int] = None) -> bool:
     def permission_checker(request: Request):
         user_permissions: List[int] = request.state.user_permissions
         if permissions is not None:
             if not all(perm in user_permissions for perm in permissions):
                 raise HTTP_403_FORBIDDEN(get_message(KeyResponse.PERMISSION_DENIED))
         return True
+
     return permission_checker
 
-__all__ = ["login_required","required_role","required_permissions"]
+
+__all__ = ["login_required", "required_role", "required_permissions"]

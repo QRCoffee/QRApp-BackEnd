@@ -15,33 +15,47 @@ class Error(str, Enum):
     PERMISSION_DENIED = "PERMISSION_DENIED"
     SERVER_ERROR = "SERVER_ERROR"
 
+
 class HTTP_ERROR(HTTPException):
-    def __init__(self, status_code, message:str = "Refresh or try again later",error:Any | None = None, headers = None):
+    def __init__(
+        self,
+        status_code,
+        message: str = "Refresh or try again later",
+        error: Any | None = None,
+        headers=None,
+    ):
         detail = {
-            "error":error,
-            "message":message,
+            "error": error,
+            "message": message,
         }
         super().__init__(status_code, detail, headers)
 
+
 class HTTP_400_BAD_REQUEST(HTTP_ERROR):
-    def __init__(self, message = None, error = "BAD_REQUEST", headers=None):
+    def __init__(self, message=None, error="BAD_REQUEST", headers=None):
         super().__init__(status.HTTP_400_BAD_REQUEST, message, error, headers)
+
+
 class HTTP_401_UNAUTHORZIED(HTTP_ERROR):
-    def __init__(self, message = None, error = "UNAUTHORIZED", headers=None):
+    def __init__(self, message=None, error="UNAUTHORIZED", headers=None):
         super().__init__(status.HTTP_401_UNAUTHORIZED, message, error, headers)
 
+
 class HTTP_403_FORBIDDEN(HTTP_ERROR):
-    def __init__(self, message = None, error = "FORBIDDEN", headers=None):
+    def __init__(self, message=None, error="FORBIDDEN", headers=None):
         super().__init__(status.HTTP_403_FORBIDDEN, message, error, headers)
 
+
 class HTTP_404_NOT_FOUND(HTTP_ERROR):
-    def __init__(self, message = None, error = "NOT_FOUND", headers=None):
+    def __init__(self, message=None, error="NOT_FOUND", headers=None):
         super().__init__(status.HTTP_404_NOT_FOUND, message, error, headers)
 
+
 class HTTP_409_CONFLICT(HTTP_ERROR):
-    def __init__(self, message = None, error = "CONFLICT", headers=None):
+    def __init__(self, message=None, error="CONFLICT", headers=None):
         super().__init__(status.HTTP_409_CONFLICT, message, error, headers)
 
+
 class HTTP_429_TOO_MANY_REQUESTS(HTTP_ERROR):
-    def __init__(self, message = None, error = "TOO_MANY_REQUESTS", headers=None):
+    def __init__(self, message=None, error="TOO_MANY_REQUESTS", headers=None):
         super().__init__(status.HTTP_429_TOO_MANY_REQUESTS, message, error, headers)

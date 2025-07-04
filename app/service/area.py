@@ -7,6 +7,7 @@ class AreaService(Service[Area, AreaCreate, AreaUpdate]):
     def __init__(self):
         super().__init__(Area)
 
+
 areaService = AreaService()
 
 __all__ = ["areaService"]

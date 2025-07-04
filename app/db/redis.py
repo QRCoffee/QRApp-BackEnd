@@ -32,33 +32,31 @@ class RedisClient:
         key = self._format_key(key)
         return self.client.exists(key) == 1
 
+
 class SessionClient(RedisClient):
     def __init__(self, url, **kwargs):
         super().__init__(url, "session:", **kwargs)
-    def sign_in(self,user_id,token:str) -> bool:
+
+    def sign_in(self, user_id, token: str) -> bool:
         return self.set(
-            user_id, 
-            token, 
+            user_id,
+            token,
             nx=True,
         )
-    def sign_out(self,user_id):
+
+    def sign_out(self, user_id):
         return self.delete(user_id)
-    
+
+
 class TrackingClient(RedisClient):
     def __init__(self, url, **kwargs):
         super().__init__(url, "request:", **kwargs)
-    def incr(self,key):
+
+    def incr(self, key):
         key = self._format_key(key)
         return self.client.incr(key)
 
-        
-SessionManager = SessionClient(
-    settings.REDIS_URL,
-    decode_responses=True
-)
 
-LimitManager = TrackingClient(
-    settings.REDIS_URL,
-    decode_responses=True
-)
+SessionManager = SessionClient(settings.REDIS_URL, decode_responses=True)
 
+LimitManager = TrackingClient(settings.REDIS_URL, decode_responses=True)

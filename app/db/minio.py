@@ -73,7 +73,7 @@ class MinIO:
             size = data.tell()
             data.seek(0)
         else:
-            raise ValueError("Unsupported object type. Provide bytes or file-like object.")
+            raise ValueError("Error. Provide bytes or file-like object.")
 
         self.client.put_object(
             bucket_name=self.bucket_name,
@@ -97,7 +97,9 @@ class MinIO:
             return False
     
     def objects(self):
-        return [object.object_name for object in self.client.list_objects(self.bucket_name)]
+        return [object.object_name for 
+                object in self.client.list_objects(self.bucket_name)
+        ]
     
     def get_url(self,object_name:str):
         return f"{"https" if self.secure else "http"}://{self.endpoint}/{self.bucket_name}/{object_name}"

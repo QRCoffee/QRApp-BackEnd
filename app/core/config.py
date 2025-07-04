@@ -23,22 +23,22 @@ class Settings(BaseSettings):
     ACCESS_KEY: str
     REFRESH_KEY: str
     # FrontEnd
-    FRONTEND_HOST:HttpUrl = "http://localhost:5173"
+    FRONTEND_HOST: HttpUrl = "http://localhost:5173"
     # Database
     MONGO_URL: str | None = None
-    MONGO_DATABASE:str = "QRApp"
+    MONGO_DATABASE: str = "QRApp"
     MINIO_ENDPOINT: str = "localhost:9000"
     MINIO_ACCESS_KEY: str | None = None
     MINIO_SECRET_KEY: str | None = None
     # Session
     REDIS_URL: str | None = None
     # ADMIN ACOUNT
-    ADMIN_USERNAME:str = "admin"
-    ADMIN_PASSWORD:str = "admin"
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str = "admin"
     # Logging
     LOG_FILE: str = "./logs/app.log"
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "DEBUG"
-    
+
     @model_validator(mode="after")
     def config_logging(self) -> Self:
         logger.remove()
@@ -47,11 +47,13 @@ class Settings(BaseSettings):
             self.LOG_FILE,
             format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
             level=self.LOG_LEVEL,
-            enqueue = True,
+            enqueue=True,
             encoding="utf-8",
             rotation="50 MB",  # Option: Rotate (reset) log file after reaching 50 MB
             retention="7 days",  # Keep rotated log files (including zipped) for 7 days
-            compression="zip"  # Compress old log files into zip format
+            compression="zip",  # Compress old log files into zip format
         )
         return self
+
+
 settings = Settings()

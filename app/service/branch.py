@@ -7,6 +7,7 @@ class BranchService(Service[Branch, BranchCreate, BranchUpdate]):
     def __init__(self):
         super().__init__(Branch)
 
+
 branchService = BranchService()
 
 __all__ = ["branchService"]

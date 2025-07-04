@@ -15,13 +15,13 @@ from .base import Base
 
 
 class User(Base):
-    username: str = Field(nullable=False,unique=True)
+    username: str = Field(nullable=False, unique=True)
     password: str = Field(nullable=False)
-    name: Optional[str] = Field(default=None,nullable=True)
-    phone: Optional[str] = Field(default=None,nullable=True)
-    address:Optional[str] = Field(default=None,nullable=True)
+    name: Optional[str] = Field(default=None, nullable=True)
+    phone: Optional[str] = Field(default=None, nullable=True)
+    address: Optional[str] = Field(default=None, nullable=True)
     image_url: Optional[str] = Field(default=None)
-    role: Literal['Admin','BusinessOwner','Staff'] = Field(default='Staff')
+    role: Literal["Admin", "BusinessOwner", "Staff"] = Field(default="Staff")
     available: bool = Field(True)
     permissions: List[Link[Permission]] = Field(default_factory=list)
     branch: Optional[Link[Branch]] = Field(default=None)
@@ -31,21 +31,24 @@ class User(Base):
     class Settings:
         indexes = [
             IndexModel([("username", 1)], unique=True),
-            IndexModel([("phone", 1)], unique=True)
+            IndexModel([("phone", 1)], unique=True),
         ]
 
     @before_event(Insert)
     def hash_password(self):
-        if self.role not in ['Admin','BusinessOwner','Staff']:
+        if self.role not in ["Admin", "BusinessOwner", "Staff"]:
             raise Exception("Role")
         if not self.password.startswith("$2b$"):
-            self.password = bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            self.password = bcrypt.hashpw(
+                self.password.encode("utf-8"), bcrypt.gensalt()
+            ).decode("utf-8")
 
-    def change_password(self,new_password:str) -> Self:
+    def change_password(self, new_password: str) -> Self:
         if not new_password.startswith("$2b$"):
-            self.password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            self.password = bcrypt.hashpw(
+                new_password.encode("utf-8"), bcrypt.gensalt()
+            ).decode("utf-8")
         return self
-        
 
-    def verify_password(self,password:str) -> bool:
-        return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
+    def verify_password(self, password: str) -> bool:
+        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))

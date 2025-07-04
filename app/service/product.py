@@ -7,6 +7,7 @@ class ProductService(Service[Product, ProductCreate, ProductUpdate]):
     def __init__(self):
         super().__init__(Product)
 
+
 productService = ProductService()
 
 __all__ = ["productService"]

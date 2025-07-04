@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 from app.models.product import Option
 from app.schema import BaseResponse
-from app.schema.business import BusinessResponse
 from app.schema.category import CategoryResponse, SubCategoryResponse
 
 
@@ -16,11 +15,13 @@ class ProductCreate(BaseModel):
     options: Optional[List[Option]] = []
     sub_category: PydanticObjectId
 
+
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     variants: Optional[List[Option]] = []
     options: Optional[List[Option]] = []
+
 
 class ProductResponse(BaseResponse):
     name: str
@@ -28,11 +29,12 @@ class ProductResponse(BaseResponse):
     variants: Optional[List[Option]] = []
     options: Optional[List[Option]] = []
 
+
 class FullProductResponse(BaseResponse):
     name: str
     description: Optional[str]
     variants: Optional[List[Option]] = []
     options: Optional[List[Option]] = []
-    subcategory: SubCategoryResponse 
+    subcategory: SubCategoryResponse
     category: CategoryResponse
-    business: BusinessResponse
+    # business: BusinessResponse
