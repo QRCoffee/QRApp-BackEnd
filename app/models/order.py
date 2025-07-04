@@ -23,3 +23,4 @@ class Order(Base):
     area: "Link[Area]" = Field(...)  # type: ignore  # noqa: F821
     service_unit: "Link[ServiceUnit]" = Field(...)  # type: ignore  # noqa: F821
     staff: "Link[User]" = Field(...)  # type: ignore # noqa: F821
+    request: "Link[Request]" = Field(...) # type: ignore # noqa: F821

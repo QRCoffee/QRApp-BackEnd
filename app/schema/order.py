@@ -3,7 +3,7 @@ from typing import List
 from beanie import Link
 from pydantic import BaseModel, Field
 
-from app.models import Area, Branch, Business, ServiceUnit, User
+from app.models import Area, Branch, Business, Request, ServiceUnit, User
 
 
 class OrderCreate(BaseModel):
@@ -16,6 +16,7 @@ class OrderCreate(BaseModel):
     area: Link[Area] = Field(...)
     service_unit: Link[ServiceUnit] = Field(...)
     staff: Link[User] = Field(...)
+    request: Link[Request] = Field(...)
 
 class OrderUpdate(BaseModel):
     pass

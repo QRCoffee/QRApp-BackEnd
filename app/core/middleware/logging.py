@@ -2,6 +2,7 @@ import json
 import time
 from typing import Any, Dict
 
+import httpx
 from fastapi import Request
 from fastapi.exceptions import ResponseValidationError
 from fastapi.responses import JSONResponse
@@ -42,6 +43,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             status_code = 500
             error = KeyResponse.SERVER_ERROR
             message = get_message(KeyResponse.SERVER_ERROR)
+            if isinstance(e,httpx.ConnectTimeout):
+                message = "Server đang quá tải. Thử lại sau"
             if isinstance(e, ResponseValidationError):
                 status_code = 422
                 error = KeyResponse.VALIDATION_ERROR

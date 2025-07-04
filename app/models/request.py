@@ -48,6 +48,11 @@ class Request(Base):
     __action__: List[str] = ["view", "receive", "delete", "update"]
 
     @after_event([Save])
+    async def set_paid_if_complete(self):
+        if self.status == RequestStatus.COMPLETE and self.type == RequestType.CHECKOUT:
+            pass
+
+    @after_event([Save])
     async def create_order_if_complete(self):
         if self.status == RequestStatus.COMPLETE and self.type == RequestType.ORDER:
             from app.schema.order import OrderCreate
@@ -89,5 +94,6 @@ class Request(Base):
                     area=self.area.to_ref(),
                     service_unit=self.service_unit.to_ref(),
                     staff=self.staff.to_ref(),
+                    request=self.to_ref()
                 )
             )

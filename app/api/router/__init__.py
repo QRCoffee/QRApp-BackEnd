@@ -11,6 +11,7 @@ from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.category import apiRouter as categoryRouter
 from app.api.router.group import apiRouter as groupRouter
+from app.api.router.payment import apiRouter as paymentRouter
 from app.api.router.product import private_apiRouter as private_productRouter
 from app.api.router.product import public_apiRouter as public_productRouter
 from app.api.router.request import apiRouter as requestRouter
@@ -33,6 +34,7 @@ api.include_router(categoryRouter)
 api.include_router(public_productRouter)
 api.include_router(private_productRouter)
 api.include_router(requestRouter)
+api.include_router(paymentRouter)
 
 
 # broadcast message
