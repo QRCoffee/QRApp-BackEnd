@@ -1,13 +1,14 @@
-from typing import Any, List, Optional
+from typing import Any, List, Literal, Optional
 
+import httpx
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.dependency import login_required
 from app.common.api_response import Response
-from app.common.http_exception import HTTP_403_FORBIDDEN
+from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from app.schema.order import OrderStatus, OrderUpdate
-from app.service import orderService, productService
+from app.service import orderService, paymentService, productService
 
 apiRouter = APIRouter(
     prefix = "/orders",
@@ -49,9 +50,47 @@ async def get_orders(
 )
 async def post_orders(id:PydanticObjectId,request: Request):
     order = await orderService.find(id)
+    if order is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy đơn")
     if order.business != PydanticObjectId(request.state.user_scope):
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     if order.branch != PydanticObjectId(request.state.user_branch):
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     order = await orderService.update(id,OrderUpdate(status=OrderStatus.PAID))
     return Response(data=order)
+
+@apiRouter.get(
+    path = "/{id}/qrcode",
+    name = "Tạo QR Code cho đơn",
+    response_model=Response
+)
+async def gen_qr_for_order(
+    id:PydanticObjectId,
+    request: Request,
+    template: Literal["compact2", "compact", "qr_only", "print"] = Query(default="compact", description="Kiểu template QR cần xuất")
+):
+    order = await orderService.find(id)
+    if order is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy đơn")
+    if order.business.to_ref().id != PydanticObjectId(request.state.user_scope):
+        raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+    if order.branch.to_ref().id != PydanticObjectId(request.state.user_branch):
+        if request.state.user_role != 'BusinessOwner':
+            raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+    payment = await paymentService.find_one(conditions={
+        "business.$id": order.business.to_ref().id
+    })
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            url = "https://api.vietqr.io/v2/generate",
+            json = {
+                "accountNo": payment.accountNo,
+                "accountName": payment.accountName,
+                "acqId": payment.acqId,
+                "amount": order.amount,
+                "addInfo": f"Thanh toán đơn hàng {order.id}",
+                "format": "text",
+                "template": template
+            }
+        )
+        return Response(data=response.json())

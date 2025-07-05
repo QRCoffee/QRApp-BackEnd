@@ -1,15 +1,10 @@
 from typing import Optional
-
-from beanie import Link
 from pydantic import Field
-
-from app.models import Business
-
-from .base import Base
+from pydantic import BaseModel
+from app.schema import BaseResponse
 
 
-class Payment(Base):
-    business: "Link[Business]" = Field(...,description="Chủ sở hữu") # type: ignore  # noqa: F821
+class PaymentCreate(BaseModel):
     accountNo: str = Field(
         ...,
         min_length=6, 
@@ -23,8 +18,15 @@ class Payment(Base):
         description="Tên tài khoản ngân hàng",
     )
     acqId: int = Field(
-        ...,
+        alias="bin",
         ge=100000,
         le=999999,
         description="Mã định danh ngân hàng"
     )
+class PaymentUpdate(BaseModel):
+    pass
+
+class PaymentResponse(BaseResponse):
+    accountNo: str
+    accountName: Optional[str] = None
+    acqId: int
