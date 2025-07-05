@@ -35,7 +35,7 @@ async def get_requests(
 ):
     conditions={
         "business.$id":PydanticObjectId(request.state.user_scope),
-        "branch.$id":PydanticObjectId(request.state.user_branch),
+        "branch.$id":PydanticObjectId(request.state.user_branch), 
     }
     if status:
         conditions['status'] = status

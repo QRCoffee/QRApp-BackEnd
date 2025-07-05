@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional
+from typing import List, Literal, Optional
 
 import httpx
 from beanie import PydanticObjectId
@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from app.api.dependency import login_required
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
-from app.schema.order import OrderStatus, OrderUpdate
+from app.schema.order import OrderResponse, OrderStatus, OrderUpdate
 from app.service import orderService, paymentService, productService
 
 apiRouter = APIRouter(
@@ -20,7 +20,7 @@ apiRouter = APIRouter(
 
 @apiRouter.get(
     path = "",
-    response_model=Response[List[Any]]
+    response_model=Response[List[OrderResponse]]
 )
 async def get_orders(
     request: Request,
@@ -28,19 +28,20 @@ async def get_orders(
     service_unit: Optional[PydanticObjectId] = Query(default=None)
 ,):
     conditions={
-        "business.$id": PydanticObjectId(request.state.user_scope),
-        "branch.$id": PydanticObjectId(request.state.user_branch),
+        "business._id": PydanticObjectId(request.state.user_scope),
     }
+    if request.state.user_branch:
+        conditions["branch._id"] = PydanticObjectId(request.state.user_branch)
     if area:
-        conditions["area.$id"] = area
+        conditions["area._id"] = area
     if service_unit:
-        conditions["service_unit.$id"] = service_unit
-    orders = await orderService.find_many(conditions)
+        conditions["service_unit._id"] = service_unit
+    
+    orders = await orderService.find_many(conditions,fetch_links=True)
     for order in orders:
         for item in order.items:
             product = await productService.find(item.get('product').id)
             item['product'] = product
-        pass
     return Response(data=orders)
 
 @apiRouter.post(

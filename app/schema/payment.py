@@ -1,6 +1,7 @@
 from typing import Optional
-from pydantic import Field
-from pydantic import BaseModel
+
+from pydantic import BaseModel, Field
+
 from app.schema import BaseResponse
 
 
