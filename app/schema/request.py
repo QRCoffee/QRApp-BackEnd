@@ -17,7 +17,7 @@ class RequestCreate(BaseModel):
 
 
 class RequestUpdate(BaseModel):
-    status: Optional[RequestStatus] = RequestStatus.PENDING
+    status: Optional[RequestStatus] = RequestStatus.COMPLETE
     staff: Optional[Link[User]] = None
 
 

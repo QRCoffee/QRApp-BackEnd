@@ -15,14 +15,11 @@ class RequestType(str, Enum):
 class RequestStatus(str, Enum):
     CANCELLED = "Cancelled"
     WAITING = "Waiting"
-    PENDING = "Pending"
     COMPLETE = "Complete"
 
     def next(self):
         flow = {
-            RequestStatus.WAITING: RequestStatus.PENDING,
-            RequestStatus.PENDING: RequestStatus.COMPLETE,
-            RequestStatus.COMPLETE: RequestStatus.COMPLETE,
+            RequestStatus.WAITING: RequestStatus.COMPLETE,
         }
         return flow.get(self, None)
 
