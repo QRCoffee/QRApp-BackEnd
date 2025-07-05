@@ -25,3 +25,4 @@ class ResquestResponse(BaseResponse):
     type: RequestType
     reason: Optional[str] = None
     status: RequestStatus
+    data: List = []
