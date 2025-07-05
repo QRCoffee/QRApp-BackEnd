@@ -1,7 +1,7 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.dependency import login_required
 from app.common.api_response import Response
@@ -21,12 +21,20 @@ apiRouter = APIRouter(
     path = "",
     response_model=Response[List[Any]]
 )
-async def get_orders(request: Request):
-    # Get orders
-    orders = await orderService.find_many(conditions={
+async def get_orders(
+    request: Request,
+    area: Optional[PydanticObjectId] = Query(default=None),
+    service_unit: Optional[PydanticObjectId] = Query(default=None)
+,):
+    conditions={
         "business.$id": PydanticObjectId(request.state.user_scope),
         "branch.$id": PydanticObjectId(request.state.user_branch),
-    })
+    }
+    if area:
+        conditions["area.$id"] = area
+    if service_unit:
+        conditions["service_unit.$id"] = service_unit
+    orders = await orderService.find_many(conditions)
     for order in orders:
         for item in order.items:
             product = await productService.find(item.get('product').id)
