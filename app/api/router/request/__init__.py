@@ -31,17 +31,19 @@ apiRouter = APIRouter(
 @limiter(max_request=10)
 async def get_requests(
     request:Request,
-    status: Optional[RequestStatus] = Query(default=None)
+    status: Optional[RequestStatus] = Query(default=None,description="Lọc theo trạng thái")
 ):
     conditions={
-        "business.$id":PydanticObjectId(request.state.user_scope),
-        "branch.$id":PydanticObjectId(request.state.user_branch), 
+        "business._id":PydanticObjectId(request.state.user_scope)
     }
+    if request.state.user_branch:
+        conditions["branch._id"] = PydanticObjectId(request.state.user_branch)
     if status:
-        conditions['status'] = status
+        conditions['status'] = status.value
     requests = await requestService.find_many(
         conditions=conditions,
         projection_model=ResquestResponse,
+        fetch_links=True
     )
     return Response(data=requests)
 
