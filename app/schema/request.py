@@ -2,11 +2,12 @@ from typing import List, Optional
 
 from beanie import Link, PydanticObjectId
 from pydantic import BaseModel, Field
-from app.schema.area import AreaResponse
-from app.schema.service_unit import ServiceUnitResponse
+
 from app.models.request import RequestStatus, RequestType
 from app.models.user import User
 from app.schema import BaseResponse
+from app.schema.area import AreaResponse
+from app.schema.service_unit import ServiceUnitResponse
 
 
 class RequestCreate(BaseModel):

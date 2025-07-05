@@ -44,6 +44,26 @@ async def get_orders(
             item['product'] = product
     return Response(data=orders)
 
+@apiRouter.get(
+    path = "/{id}",
+    response_model=Response[OrderResponse]
+)
+async def get_order(
+    id: PydanticObjectId,
+    request: Request,
+):
+    conditions={
+        "business._id": PydanticObjectId(request.state.user_scope),
+        "_id":id,
+    }
+    order = await orderService.find_one(conditions,fetch_links=True)
+    if order is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy đơn hàng")
+    for item in order.items:
+        product = await productService.find(item.get('product').id)
+        item['product'] = product
+    return Response(data=order)
+
 @apiRouter.post(
     path = "/checkout/{id}",
     name = "Checkout order",

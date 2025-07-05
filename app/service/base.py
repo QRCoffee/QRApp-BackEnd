@@ -18,10 +18,17 @@ class Service(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     # 2. Tìm một document theo điều kiện
     async def find_one(
-        self, conditions: Dict[str, Any] | None = None, projection_model: None = None
+        self, 
+        conditions: Dict[str, Any] | None = None, 
+        projection_model: None = None,
+        fetch_links:bool = False,
     ) -> Optional[ModelType]:
         conditions = conditions or {}
-        return await self.model.find_one(conditions, projection_model=projection_model)
+        return await self.model.find_one(
+            conditions, 
+            projection_model=projection_model,
+            fetch_links=fetch_links
+        )
 
     # 3. Tìm nhiều document theo điều kiện
     async def find_many(
