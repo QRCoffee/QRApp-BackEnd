@@ -28,6 +28,7 @@ class OrderUpdate(BaseModel):
 
 class OrderResponse(BaseResponse):
     items: List[Any]
+    status: OrderStatus
     branch: BranchResponse
     area: AreaResponse
     service_unit: ServiceUnitResponse

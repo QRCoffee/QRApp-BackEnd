@@ -31,6 +31,7 @@ class RequestStatus(str, Enum):
 class Request(Base):
     type: RequestType = Field(..., description="Loại yêu cầu (Order / Checkout)")
     reason: Optional[str] = Field(default=None, description="Lý do yêu cầu")
+    guest_name: Optional[str] = Field(default=None,description="Tên khách hàng")
     status: RequestStatus = Field(
         default=RequestStatus.WAITING, description="Trạng thái xử lý"
     )
