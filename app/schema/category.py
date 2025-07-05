@@ -25,16 +25,15 @@ class SubCategoryUpdate(BaseModel):
     description: Optional[str] = None
 
 
-class SubCategoryResponse(BaseResponse):
-    name: str
-    description: Optional[str] = None
-
 
 class CategoryResponse(BaseResponse):
     name: str
     description: Optional[str] = None
 
-
+class SubCategoryResponse(BaseResponse):
+    name: str
+    description: Optional[str] = None
+    category: CategoryResponse
 class FullCategoryResponse(BaseResponse):
 
     name: str

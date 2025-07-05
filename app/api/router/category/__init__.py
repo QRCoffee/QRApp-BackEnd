@@ -71,8 +71,9 @@ async def get_category(
         )
     subcategories = await subcategoryService.find_many(
         conditions={
-            "category.$id": {"$in": [cat.id for cat in categories]},
-        }
+            "category._id": {"$in": [cat.id for cat in categories]},
+        },
+        fetch_links=True
     )
     return Response(data=subcategories)
 
