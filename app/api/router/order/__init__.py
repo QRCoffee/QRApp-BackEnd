@@ -1,9 +1,14 @@
-from fastapi import APIRouter,Depends,Request
+from typing import Any, List
+
 from beanie import PydanticObjectId
-from typing import List,Any
+from fastapi import APIRouter, Depends, Request
+
 from app.api.dependency import login_required
-from app.service import orderService,productService
 from app.common.api_response import Response
+from app.common.http_exception import HTTP_403_FORBIDDEN
+from app.schema.order import OrderStatus, OrderUpdate
+from app.service import orderService, productService
+
 apiRouter = APIRouter(
     prefix = "/orders",
     tags = ["Order"],
@@ -28,3 +33,17 @@ async def get_orders(request: Request):
             item['product'] = product
         pass
     return Response(data=orders)
+
+@apiRouter.post(
+    path = "/checkout/{id}",
+    name = "Checkout order",
+    response_model=Response
+)
+async def post_orders(id:PydanticObjectId,request: Request):
+    order = await orderService.find(id)
+    if order.business != PydanticObjectId(request.state.user_scope):
+        raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+    if order.branch != PydanticObjectId(request.state.user_branch):
+        raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
+    order = await orderService.update(id,OrderUpdate(status=OrderStatus.PAID))
+    return Response(data=order)

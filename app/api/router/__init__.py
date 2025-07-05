@@ -11,13 +11,13 @@ from app.api.router.business import apiRouter as businessRouter
 from app.api.router.business_type import apiRouter as businesstypeRouter
 from app.api.router.category import apiRouter as categoryRouter
 from app.api.router.group import apiRouter as groupRouter
+from app.api.router.order import apiRouter as orderRouter
 from app.api.router.payment import apiRouter as paymentRouter
 from app.api.router.product import private_apiRouter as private_productRouter
 from app.api.router.product import public_apiRouter as public_productRouter
 from app.api.router.request import apiRouter as requestRouter
 from app.api.router.service_unit import apiRouter as serviceRouter
 from app.api.router.user import apiRouter as userRouter
-from app.api.router.order import apiRouter as orderRouter
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND
 from app.socket import manager

@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Optional
 
 from beanie import Link
 from pydantic import BaseModel, Field
 
 from app.models import Area, Branch, Business, Request, ServiceUnit, User
+from app.models.order import OrderStatus
 
 
 class OrderCreate(BaseModel):
@@ -19,4 +20,4 @@ class OrderCreate(BaseModel):
     request: Link[Request] = Field(...)
 
 class OrderUpdate(BaseModel):
-    pass
+    status: Optional[OrderStatus] = Field(default=None)
