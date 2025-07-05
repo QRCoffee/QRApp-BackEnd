@@ -9,7 +9,7 @@ from app.models.base import Base
 
 class RequestType(str, Enum):
     ORDER = "Order"
-    CHECKOUT = "Checkout"
+    PAYMENT = "Payment"
 
 
 class RequestStatus(str, Enum):
@@ -49,7 +49,7 @@ class Request(Base):
 
     @after_event([Save])
     async def set_paid_if_complete(self):
-        if self.status == RequestStatus.COMPLETE and self.type == RequestType.CHECKOUT:
+        if self.status == RequestStatus.COMPLETE and self.type == RequestType.PAYMENT:
             pass
 
     @after_event([Save])
@@ -85,6 +85,9 @@ class Request(Base):
                 amount = amount + (variant_price + option_price) * product.get(
                     "quantity", 1
                 )
+            for p in self.data:
+                p['product'] = product_map.get(p.get("_id")).to_ref()
+                del p['_id']
             await orderService.insert(
                 OrderCreate(
                     items=self.data,
