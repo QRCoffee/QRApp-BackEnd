@@ -81,6 +81,8 @@ async def gen_qr_for_order(
     payment = await paymentService.find_one(conditions={
         "business.$id": order.business.to_ref().id
     })
+    if payment is None:
+        raise HTTP_404_NOT_FOUND("Yêu cầu thêm tài khoản ngân hàng")
     async with httpx.AsyncClient() as client:
         response = await client.post(
             url = "https://api.vietqr.io/v2/generate",
