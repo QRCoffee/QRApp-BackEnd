@@ -73,7 +73,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Endpoint
+# API Endpoint
 app.include_router(api)
 # WebSocket
 @app.websocket("/ws")
