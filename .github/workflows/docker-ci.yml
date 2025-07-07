@@ -11,7 +11,7 @@ on:
       - "app/**"
 
 jobs:
-  build and push:
+  build_push:
     runs-on: ubuntu-latest
 
     steps:
