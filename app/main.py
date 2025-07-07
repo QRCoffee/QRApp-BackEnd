@@ -75,7 +75,6 @@ app.add_middleware(
 )
 # Endpoint
 app.include_router(api)
-
 # WebSocket
 @app.websocket("/ws")
 async def websocket(websocket: WebSocket):
