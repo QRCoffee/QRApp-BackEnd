@@ -1,6 +1,9 @@
 name: Deployment
 
 on:
+  workflow_dispatch:
+    push:
+      branches: [main]
   workflow_run:
     workflows: ["Docker CI"] 
     branches: ["main"]
