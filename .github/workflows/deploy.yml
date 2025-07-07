@@ -20,9 +20,6 @@ jobs:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
-          cd ~/Document/QRApp/backend
-          mkdir -p logs
-          git fetch origin
-          git checkout main
-          git pull origin main
-          docker compose up -d
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST << 'EOF'
+            whoiam
+          EOF
