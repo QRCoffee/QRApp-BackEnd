@@ -1,7 +1,6 @@
 from typing import List, Optional
-
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile,Form
 
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
@@ -51,14 +50,30 @@ async def get_service(
     name="Tạo đơn vị dịch vụ",
     response_model=Response[ServiceUnitResponse],
 )
-async def post_service(data: ServiceUnitCreate, request: Request):
-    area = await areaService.find(data.area)
+async def post_service(
+    request: Request,
+    name: str = Form(),
+    area: PydanticObjectId = Form(),
+    qr_code: Optional[UploadFile] = File(None),
+):
+    area = await areaService.find(area)
     if area is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy khu vực")
     if PydanticObjectId(request.state.user_scope) != area.business.to_ref().id:
         raise HTTP_404_NOT_FOUND("Không tìm thấy khu vực trong doanh nghiệp của bạn")
-    data = await unitService.insert(data)
-    await data.fetch_link("area")
+    contents = await qr_code.read()
+    object_name = QRCode.upload(
+        object=contents,
+        object_name=f"{request.state.user_id}_{qr_code.filename}",
+        content_type=qr_code.content_type,
+    )
+    data = await unitService.insert({
+        "name": name,
+        "area": area,
+        "qr_code": QRCode.get_url(object_name)
+    })
+    await data.fetch_link('area')
+    await data.area.fetch_link("branch")
     return Response(data=data)
 
 
