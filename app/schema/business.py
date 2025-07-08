@@ -2,7 +2,7 @@ from typing import Optional
 
 from beanie import Link
 from pydantic import BaseModel, Field, field_validator
-
+from datetime import datetime
 from app.models import BusinessType, User
 from app.schema import BaseResponse
 
@@ -46,7 +46,7 @@ class FullBusinessResponse(BaseResponse):
     available: bool
     business_type: BusinessType
     owner: Optional[User] = Field(description="Business Owner")  # type: ignore
-
+    expired_at: datetime
     @field_validator("owner")
     @classmethod
     def serializer_owner(cls, v: Optional[User]):
@@ -62,3 +62,4 @@ class BusinessResponse(BaseResponse):
     tax_code: Optional[str] = None
     available: bool
     business_type: BusinessType
+    expired_at: datetime
