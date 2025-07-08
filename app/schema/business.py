@@ -1,8 +1,9 @@
+from datetime import datetime
 from typing import Optional
 
 from beanie import Link
 from pydantic import BaseModel, Field, field_validator
-from datetime import datetime
+
 from app.models import BusinessType, User
 from app.schema import BaseResponse
 
