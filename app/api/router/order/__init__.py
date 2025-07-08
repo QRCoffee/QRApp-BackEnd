@@ -67,17 +67,21 @@ async def get_order(
 @apiRouter.post(
     path = "/checkout/{id}",
     name = "Checkout order",
-    response_model=Response
+    response_model=Response[OrderResponse]
 )
 async def post_orders(id:PydanticObjectId,request: Request):
     order = await orderService.find(id)
     if order is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy đơn")
-    if order.business != PydanticObjectId(request.state.user_scope):
+    if order.business.to_ref().id != PydanticObjectId(request.state.user_scope):
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
-    if order.branch != PydanticObjectId(request.state.user_branch):
+    if request.state.user_role != 'BusinessOwner' and order.branch.to_ref().id != PydanticObjectId(request.state.user_branch):
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     order = await orderService.update(id,OrderUpdate(status=OrderStatus.PAID))
+    for item in order.items:
+        product = await productService.find(item.get('product').id)
+        item['product'] = product
+    await order.fetch_all_links()
     return Response(data=order)
 
 @apiRouter.get(
