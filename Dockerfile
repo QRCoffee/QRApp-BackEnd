@@ -1,55 +1,61 @@
 # ─────────────── BUILD STAGE ───────────────
-FROM python:3.12-alpine AS builder
+FROM python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Cài các thư viện hệ thống cần thiết
-RUN apk add --no-cache build-base curl libffi-dev openssl-dev
+# Install system libraries
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    libffi-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Cài `uv`
+# Install `uv`
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
 
-# Tạo thư mục app
+# Create app directory
 WORKDIR /app
 
-# Sao chép file phụ thuộc trước (tận dụng cache tốt hơn)
+# Copy dependency files
 COPY pyproject.toml poetry.lock* ./
 
-# Nếu chưa có uv.lock thì tạo mới (có thể thay đổi tùy môi trường)
+# Create lock file if it doesn't exist
 RUN uv lock
 
-# Tạo môi trường ảo và cài dependencies
+# Create virtual environment and install dependencies
 RUN uv venv && \
     uv pip install --upgrade pip && \
+    uv pip install playwright && \  
     uv sync --frozen --no-cache && \
     find .venv -name '*.pyc' -delete && \
     find .venv -name '__pycache__' -type d -exec rm -rf {} +
 
-# Sao chép mã nguồn
+# Copy application code
 COPY app ./app
 
 # ─────────────── RUNTIME STAGE ───────────────
-FROM python:3.12-alpine
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
-# Tạo user không phải root
-RUN adduser -D appuser
+# Create non-root user
+RUN adduser --disabled-password appuser
 
 WORKDIR /app
 
-# Chỉ copy những gì cần thiết từ builder
+# Copy necessary files from builder
 COPY --from=builder /app/.venv ./.venv
 COPY --from=builder /app/app ./app
 
-# Đặt quyền
+# Set permissions
 RUN chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
 
-# Chạy FastAPI với Uvicorn
+# Run FastAPI with Uvicorn
 CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host=0.0.0.0", "--port=8000", "--workers=2"]
