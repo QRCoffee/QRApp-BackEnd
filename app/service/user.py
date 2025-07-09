@@ -22,6 +22,13 @@ class UserService(Service[User, UserCreate, UserUpdate]):
                 for permission in permissions
                 if not permission.code.endswith((".businesstype", ".business"))
             ]
+        if data['Role'] == "Staff":
+            permissions = await permissionService.find_many({})
+            permissions = [
+                permission
+                for permission in permissions
+                if permission.code.startswith("view") and permission.code.endswith(("area","branch","order","category","subcategory","serviceunit"))
+            ]
         data["permissions"] = permissions
         return await super().insert(data)
 
