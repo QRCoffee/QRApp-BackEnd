@@ -1,25 +1,22 @@
-name: Deployment
+name: Deploy to Production
 
 on:
-  workflow_dispatch:
-    push:
-      branches: [main]
-  workflow_run:
-    workflows: ["Docker CI"] 
-    branches: ["main"]
-    types: [completed]
+  push:
+    branches:
+      - production
+  pull_request:
+    branches:
+      - production
 
 jobs:
-  deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Deploy via SSH
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-        run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST << 'EOF'
-            whoiam
-          EOF
+      - name: Execute remote SSH commands using password
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 103.7.43.118
+          username: nhathuyd4hp
+          password: Nh@thuyd4hp
+          script: whoami
