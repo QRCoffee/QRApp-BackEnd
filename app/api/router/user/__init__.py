@@ -156,11 +156,14 @@ async def delete_permission(
     response_model=Response[UserResponse],
 )
 async def put_user(id: PydanticObjectId, data: UserUpdate, request: Request):
-    user = await userService.find_one({"_id": id, "role": "Staff"})
-    if user is None or user.business.to_ref().id != PydanticObjectId(
-        request.state.user_scope
-    ):
-        raise HTTP_404_NOT_FOUND("Không tìm thấy người dùng trong doanh nghiệp của bạn")
+    if request.state.user_role != "Admin":
+        user = await userService.find_one({"_id": id, "role": "Staff"})
+        if user is None or user.business.to_ref().id != PydanticObjectId(request.state.user_scope):
+            raise HTTP_404_NOT_FOUND("Không tìm thấy người dùng trong doanh nghiệp của bạn")
+    else:
+        user = await userService.find_one({"_id": id})
+        if user is None:
+            raise HTTP_404_NOT_FOUND("Không tìm thấy người dùng trong doanh nghiệp của bạn")
     if user := await userService.find_one({"phone": data.phone}):
         if user.id != id:
             raise HTTP_409_CONFLICT("Số điện thoại đã được đăng kí")

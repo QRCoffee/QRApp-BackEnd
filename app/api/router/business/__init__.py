@@ -81,7 +81,7 @@ async def put_business(id: PydanticObjectId, data: BusinessUpdate):
     if business is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy")
     if await businessService.find_one({"contact": data.contact}):
-        raise HTTP_409_CONFLICT("Contact được doanh nghiệp khác sử dụng")
+        raise HTTP_409_CONFLICT("Liên hệ được doanh nghiệp khác sử dụng")
     business = await businessService.update(id, data)
     await business.fetch_all_links()
     return Response(data=business)
