@@ -16,7 +16,7 @@ jobs:
       - name: Execute remote SSH commands using password
         uses: appleboy/ssh-action@master
         with:
-          host: 103.7.43.118
-          username: root
-          password: "@Admin123kcml"
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
           script: whoami
