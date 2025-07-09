@@ -18,5 +18,5 @@ jobs:
         with:
           host: 103.7.43.118
           username: root
-          password: @Admin123kcml
+          password: "@Admin123kcml"
           script: whoami
