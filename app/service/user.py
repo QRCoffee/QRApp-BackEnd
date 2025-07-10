@@ -27,7 +27,10 @@ class UserService(Service[User, UserCreate, UserUpdate]):
             permissions = [
                 permission
                 for permission in permissions
-                if permission.code.startswith("view") and permission.code.endswith(("area","branch","order","category","subcategory","serviceunit"))
+                if 
+                    permission.code.startswith("view") and 
+                    permission.code.endswith(("area","branch","order","category","subcategory","serviceunit","product")
+                )
             ]
         data["permissions"] = permissions
         return await super().insert(data)

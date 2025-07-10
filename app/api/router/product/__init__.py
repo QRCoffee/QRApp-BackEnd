@@ -3,7 +3,8 @@ from typing import List, Optional
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
 
-from app.api.dependency import login_required
+from app.api.dependency import (login_required, required_permissions,
+                                required_role)
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
@@ -39,6 +40,10 @@ private_apiRouter = APIRouter(
     prefix="/products",
     dependencies=[
         Depends(login_required),
+        Depends(required_role(role=["BusinessOwner","Staff"])),
+        Depends(required_permissions(permissions=[
+            "view.product"
+        ]))
     ],
 )
 

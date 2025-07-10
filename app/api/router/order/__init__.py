@@ -4,7 +4,7 @@ import httpx
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query, Request
 
-from app.api.dependency import login_required,required_role
+from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from app.core.config import settings

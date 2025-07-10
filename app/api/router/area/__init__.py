@@ -15,7 +15,7 @@ apiRouter = APIRouter(
     prefix="/areas",
     dependencies=[
         Depends(login_required),
-        Depends(required_role(role=["BusinessOwner"])),
+        Depends(required_role(role=["BusinessOwner","Staff"])),
     ],
 )
 
