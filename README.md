@@ -91,7 +91,6 @@ Truy cập Swagger UI tại:
 
 ## 📋 Task List
 
-- [ ] CRUD Plan
 - [ ] Thêm API Post ảnh cho Product
 - [ ] Active Permission Middleware
 - [ ] Update Sub/Category
