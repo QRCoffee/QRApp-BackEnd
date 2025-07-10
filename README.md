@@ -91,6 +91,5 @@ Truy cập Swagger UI tại:
 
 ## 📋 Task List
 
-- [ ] Thêm API Post ảnh cho Product
 - [ ] Active Permission Middleware
 - [ ] Update Sub/Category

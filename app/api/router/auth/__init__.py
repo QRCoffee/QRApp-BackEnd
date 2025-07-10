@@ -150,12 +150,6 @@ async def upload_avatar(
     request: Request,
     avatar: UploadFile = File(...),
 ):
-    # if avatar.content_type not in [
-    #     "image/png",
-    #     "image/jpeg",
-    #     "image/webp"
-    # ]:
-    #     raise HTTP_400_BAD_REQUEST(message="Chỉ chấp nhận WEBP|JPG|JPEG|PNG")
     contents = await avatar.read()
     if len(contents) > 2 * 1024 * 1024:  # 2MB:
         raise HTTP_400_BAD_REQUEST(message="Ảnh vượt quá 2MB")

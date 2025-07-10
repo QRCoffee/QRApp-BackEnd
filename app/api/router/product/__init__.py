@@ -1,12 +1,13 @@
 from typing import List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
 
 from app.api.dependency import login_required
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
+from app.db import QRCode
 from app.schema.product import (FullProductResponse, ProductCreate,
                                 ProductResponse, ProductUpdate)
 from app.service import productService, subcategoryService
@@ -85,6 +86,33 @@ async def post_product(data: ProductCreate, request: Request):
     product = await productService.insert(data)
     return Response(data=product)
 
+
+@private_apiRouter.post(
+    path="/image/{id}",
+    name="Thêm ảnh cho sản phẩm",
+    status_code=200,
+    response_model=Response[ProductResponse],
+)
+async def post_image_product(
+    request:Request,
+    id: PydanticObjectId, 
+    image: UploadFile = File(...),
+):
+    product = await productService.find(id)
+    if product is None or product.business.to_ref().id != PydanticObjectId(
+        request.state.user_scope
+    ):
+        raise HTTP_404_NOT_FOUND("Không tìm thấy sản phẩm")
+    contents = await image.read()
+    object_name = QRCode.upload(
+        object=contents,
+        object_name=f"product_{id}_{image.filename}",
+        content_type=image.content_type,
+    )
+    product = await productService.update(id, {
+        "img_url":QRCode.get_url(object_name)
+    })
+    return Response(data=product)
 
 @private_apiRouter.put(
     path="/{id}",

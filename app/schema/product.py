@@ -28,6 +28,7 @@ class ProductResponse(BaseResponse):
     description: Optional[str]
     variants: Optional[List[Option]] = []
     options: Optional[List[Option]] = []
+    img_url: Optional[str] = None
 
 
 class FullProductResponse(BaseResponse):
