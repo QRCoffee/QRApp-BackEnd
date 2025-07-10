@@ -8,8 +8,9 @@ from app.models.base import Base
 
 
 class RequestType(str, Enum):
-    ORDER = "Order"
-    PAYMENT = "Payment"
+    ORDER = "Order" # Dat mon
+    REQUEST = "Request" # CALL STAFF
+    PAYMENT = "Payment" # Thanh toan
 
 
 class RequestStatus(str, Enum):

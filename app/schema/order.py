@@ -8,6 +8,7 @@ from app.models.order import OrderStatus
 from app.schema import BaseResponse
 from app.schema.area import AreaResponse
 from app.schema.branch import BranchResponse
+from app.schema.request import MinimumResquestResponse
 from app.schema.service_unit import ServiceUnitResponse
 
 
@@ -32,3 +33,4 @@ class OrderResponse(BaseResponse):
     branch: BranchResponse
     area: AreaResponse
     service_unit: ServiceUnitResponse
+    request: MinimumResquestResponse
