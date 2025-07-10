@@ -8,6 +8,7 @@ from app.api.dependency import login_required
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND)
+from app.core.config import settings
 from app.core.decorator import limiter
 from app.models.request import RequestType
 from app.schema.request import (RequestCreate, RequestStatus, RequestUpdate,
@@ -31,7 +32,9 @@ apiRouter = APIRouter(
 @limiter(max_request=10)
 async def get_requests(
     request:Request,
-    status: Optional[RequestStatus] = Query(default=None,description="Lọc theo trạng thái")
+    status: Optional[RequestStatus] = Query(default=None,description="Lọc theo trạng thái"),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
 ):
     conditions={
         "business._id":PydanticObjectId(request.state.user_scope)
@@ -43,7 +46,9 @@ async def get_requests(
     requests = await requestService.find_many(
         conditions=conditions,
         projection_model=ResquestResponse,
-        fetch_links=True
+        fetch_links=True,
+        skip=(page - 1) * limit, 
+        limit=limit
     )
     return Response(data=requests)
 
