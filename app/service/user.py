@@ -22,7 +22,7 @@ class UserService(Service[User, UserCreate, UserUpdate]):
                 for permission in permissions
                 if not permission.code.endswith((".businesstype", ".business"))
             ]
-        if data['Role'] == "Staff":
+        if data['role'] == "Staff":
             permissions = await permissionService.find_many({})
             permissions = [
                 permission
