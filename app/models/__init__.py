@@ -6,6 +6,7 @@ from .group import Group
 from .order import Order
 from .payment import Payment
 from .permission import Permission
+from .plan import Plan
 from .product import Product
 from .request import Request
 from .service_unit import ServiceUnit
@@ -31,4 +32,5 @@ __all__ = [
     "Request",
     "Order",
     "Payment",
+    "Plan",
 ]

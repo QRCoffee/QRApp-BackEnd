@@ -1,0 +1,66 @@
+from typing import List
+
+from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends
+
+from app.api.dependency import login_required, required_role
+from app.common.api_response import Response
+from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from app.schema.plan import PlanCreate, PlanResponse
+from app.service import planService
+
+apiRouter = APIRouter(
+    tags = ["Plan"],
+    prefix="/plan",
+    dependencies=[
+        Depends(login_required),
+        Depends(required_role(role=["Admin"])),
+    ],
+)
+@apiRouter.get(
+    path = "",
+    response_model = Response[List[PlanResponse]],
+    name = "Danh sách gói gia hạn"
+)
+async def get_plans():
+    plans = await planService.find_many()
+    return Response(data=plans)
+
+@apiRouter.post(
+    path = "",
+    response_model = Response[PlanResponse],
+    name = "Thêm gói gia hạn"
+)
+async def post_plan(data:PlanCreate):
+    if await planService.find_one({
+        "$or": [
+            {"name": data.name},
+            {"period": data.period}
+        ]}
+    ):
+        raise HTTP_409_CONFLICT("Gói đã tồn tại")
+    plan = await planService.insert(data)
+    return Response(data=plan)
+
+@apiRouter.put(
+    path = "/{id}",
+    response_model = Response[PlanResponse],
+    name = "Chỉnh sửa gói gia hạn"
+)
+async def put_plan():
+    plans = await planService.find_many()
+    return Response(data=plans)
+
+@apiRouter.delete(
+    path = "/{id}",
+    response_model = Response[bool],
+    name = "Xóa gói gia hạn"
+)
+async def delete_plan(id:PydanticObjectId):
+    plan = await planService.find(id)
+    if plan is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy")
+    if await planService.delete(id):
+        return Response(data=True)
+    return Response(data=False)
+    

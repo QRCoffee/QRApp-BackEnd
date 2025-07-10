@@ -7,7 +7,7 @@ from pymongo.errors import BulkWriteError
 
 from app.core.config import settings
 from app.models import (Area, Branch, Business, BusinessType, Category, Group,
-                        Order, Payment, Permission, Product, Request,
+                        Order, Payment, Permission, Plan, Product, Request,
                         ServiceUnit, SubCategory, User)
 from app.schema.user import Administrator
 from app.service import permissionService, userService
@@ -81,5 +81,6 @@ Mongo = MongoDB(
         Request,
         Order,
         Payment,
+        Plan,
     ],
 )
