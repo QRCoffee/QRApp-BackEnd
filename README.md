@@ -87,13 +87,11 @@ docker run -p 8000:8000 --env-file .env nhathuyd4hp/qrapp-backend:latest
 ## 📑 Tài liệu API
 
 Truy cập Swagger UI tại:  
-👉 [http://localhost:8000/docs](http://localhost:8000/docs)
+👉 [http://103.7.43.118:8000/docs](http://103.7.43.118:8000/docs)
 
 ## 📋 Task List
 
-- [ ] Paging cho GET /request
 - [ ] CRUD Plan
 - [ ] Thêm API Post ảnh cho Product
-- [ ] Response guest_name trong API Request
 - [ ] Active Permission Middleware
 - [ ] Update Sub/Category
