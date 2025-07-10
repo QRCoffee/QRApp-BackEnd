@@ -91,8 +91,7 @@ Truy cập Swagger UI tại:
 
 ## 📋 Task List
 
-- [ ] Paging cho GET /request 
-- [ ] Lọc status,paging cho GET /orders
+- [ ] Paging cho GET /request
 - [ ] CRUD Plan
 - [ ] Thêm API Post ảnh cho Product
 - [ ] Response guest_name trong API Request

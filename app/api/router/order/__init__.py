@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from app.api.dependency import login_required
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from app.core.config import settings
 from app.schema.order import OrderResponse, OrderStatus, OrderUpdate
 from app.service import orderService, paymentService, productService
 
@@ -25,8 +26,11 @@ apiRouter = APIRouter(
 async def get_orders(
     request: Request,
     area: Optional[PydanticObjectId] = Query(default=None),
-    service_unit: Optional[PydanticObjectId] = Query(default=None)
-,):
+    service_unit: Optional[PydanticObjectId] = Query(default=None),
+    status: Optional[OrderStatus] = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
+):
     conditions={
         "business._id": PydanticObjectId(request.state.user_scope),
     }
@@ -36,8 +40,14 @@ async def get_orders(
         conditions["area._id"] = area
     if service_unit:
         conditions["service_unit._id"] = service_unit
-    
-    orders = await orderService.find_many(conditions,fetch_links=True)
+    if status:
+        conditions["status"] = status    
+    orders = await orderService.find_many(
+        conditions,
+        fetch_links=True,
+        skip=(page - 1) * limit, 
+        limit=limit
+    )
     for order in orders:
         for item in order.items:
             product = await productService.find(item.get('product').id)
