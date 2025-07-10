@@ -33,6 +33,7 @@ apiRouter = APIRouter(
 async def get_requests(
     request:Request,
     status: Optional[RequestStatus] = Query(default=None,description="Lọc theo trạng thái"),
+    type: Optional[RequestType] = Query(default=None,description="Lọc theo type"),
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
 ):
@@ -43,6 +44,8 @@ async def get_requests(
         conditions["branch._id"] = PydanticObjectId(request.state.user_branch)
     if status:
         conditions['status'] = status.value
+    if type:
+        conditions['type'] = type
     requests = await requestService.find_many(
         conditions=conditions,
         projection_model=ResquestResponse,
