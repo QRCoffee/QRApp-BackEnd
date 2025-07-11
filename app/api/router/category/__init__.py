@@ -3,13 +3,14 @@ from typing import List, Optional
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, Query, Request
 
-from app.api.dependency import login_required,required_role,required_permissions
+from app.api.dependency import (login_required, required_permissions,
+                                required_role)
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from app.schema.category import (CategoryCreate, CategoryResponse,
                                  CategoryUpdate, FullCategoryResponse,
                                  SubCategoryCreate, SubCategoryResponse)
-from app.service import businessService, categoryService, subcategoryService,productService
+from app.service import businessService, categoryService, subcategoryService
 
 apiRouter = APIRouter(
     tags=["Category"],
@@ -189,7 +190,4 @@ async def delete_subcategory(
     category = sub_category.category
     if category.business.id != PydanticObjectId(request.state.user_scope):
         raise HTTP_404_NOT_FOUND("Không tìm thấy phân loại")
-    products = await productService.find_many(conditions={
-        "subcategory.$id": id
-    })
     return Response(data="Xóa thành công")

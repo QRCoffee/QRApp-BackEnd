@@ -8,13 +8,14 @@ from app.api.dependency import (login_required, required_permissions,
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
-from app.schema.plan import PlanResponse
 from app.core.config import settings
 from app.db import QRCode
 from app.schema.category import CategoryResponse, SubCategoryResponse
+from app.schema.plan import PlanResponse
 from app.schema.product import (FullProductResponse, ProductCreate,
                                 ProductResponse, ProductUpdate)
-from app.service import categoryService, productService, subcategoryService,planService
+from app.service import (categoryService, planService, productService,
+                         subcategoryService)
 
 public_apiRouter = APIRouter(
     tags=["Resource Public"]
