@@ -1,50 +1,48 @@
-# Python
+# Python artifacts
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# Virtual environments
 .env
 .venv/
 venv/
 env/
 ENV/
 
-# Development
-.git
+# Git & Dev tools
+.git/
 .gitignore
-.github/
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# Project specific
-tests/
-docs/
-README.md
-Makefile
-docker-compose*.yml
-Dockerfile*
+.github/
 
 # Logs and databases
+logs/
 *.log
 *.sqlite
 *.db
 
-# Unit test / coverage reports
+# Test / Coverage / CI
+tests/
 htmlcov/
 .tox/
 .coverage
 .coverage.*
 .cache
+.pytest_cache/
 coverage.xml
 *.cover
-.pytest_cache/
-
-# mypy
 .mypy_cache/
 
-# Local development specific
+# Environment
 .env.local
 .env.development
+
+# Cache tools
+.ruff_cache/
+
+# Optional (chỉ dùng nếu KHÔNG cần trong Docker image)
+# docs/
