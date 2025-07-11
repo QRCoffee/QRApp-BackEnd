@@ -66,6 +66,3 @@ trigger:
     - main
   event:
     - push
-    - promote
-  target:
-    - production
