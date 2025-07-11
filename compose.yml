@@ -12,6 +12,13 @@ services:
       TZ: Asia/Hong_Kong  # ✅ không có dấu ngoặc kép, không cần = 
     env_file:
         - .env
+    networks:
+        - QRNetwork
+
+networks:
+  QRNetwork:
+    external: true
+
 
   # promtail:
   #   image: grafana/promtail:2.9.4
