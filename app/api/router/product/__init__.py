@@ -8,17 +8,27 @@ from app.api.dependency import (login_required, required_permissions,
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
+from app.schema.plan import PlanResponse
 from app.core.config import settings
 from app.db import QRCode
 from app.schema.category import CategoryResponse, SubCategoryResponse
 from app.schema.product import (FullProductResponse, ProductCreate,
                                 ProductResponse, ProductUpdate)
-from app.service import categoryService, productService, subcategoryService
+from app.service import categoryService, productService, subcategoryService,planService
 
 public_apiRouter = APIRouter(
-    tags=["Menu (Public)"]
+    tags=["Resource Public"]
 )
 
+
+@public_apiRouter.get(
+    path = "/plans",
+    response_model = Response[List[PlanResponse]],
+    name = "Danh sách gói gia hạn"
+)
+async def get_plans():
+    plans = await planService.find_many()
+    return Response(data=plans)
 
 @public_apiRouter.get(
     path="/products/{business}",

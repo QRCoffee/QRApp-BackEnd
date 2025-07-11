@@ -17,14 +17,6 @@ apiRouter = APIRouter(
         Depends(required_role(role=["Admin"])),
     ],
 )
-@apiRouter.get(
-    path = "",
-    response_model = Response[List[PlanResponse]],
-    name = "Danh sách gói gia hạn"
-)
-async def get_plans():
-    plans = await planService.find_many()
-    return Response(data=plans)
 
 @apiRouter.post(
     path = "",
