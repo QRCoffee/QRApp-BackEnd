@@ -67,6 +67,5 @@ trigger:
   event:
     - push
     - promote
-    - custom
   target:
     - production
