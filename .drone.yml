@@ -14,6 +14,12 @@ trigger:
 steps:
   - name: Build & Push Docker Image
     image: plugins/docker
+    when:
+      paths:
+        include:
+          - app/**
+          - Dockerfile
+          - .drone.yml
     settings:
       username: 
         from_secret: DOCKERHUB_USERNAME # pragma: allowlist secret
