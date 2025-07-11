@@ -8,16 +8,20 @@ from app.api.dependency import (login_required, required_permissions,
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_404_NOT_FOUND, HTTP_409_CONFLICT)
+from app.core.config import settings
 from app.db import QRCode
+from app.schema.category import CategoryResponse, SubCategoryResponse
 from app.schema.product import (FullProductResponse, ProductCreate,
                                 ProductResponse, ProductUpdate)
-from app.service import productService, subcategoryService
+from app.service import categoryService, productService, subcategoryService
 
-public_apiRouter = APIRouter(prefix="/products", tags=["Product (Public)"])
+public_apiRouter = APIRouter(
+    tags=["Menu (Public)"]
+)
 
 
 @public_apiRouter.get(
-    path="/{business}",
+    path="/products/{business}",
     name="Xem danh sách sản phẩm (công khai)",
     response_model=Response[List[FullProductResponse]],
 )
@@ -25,15 +29,66 @@ async def get_products(
     business: PydanticObjectId,
     category: Optional[PydanticObjectId] = Query(default=None),
     sub_category: Optional[PydanticObjectId] = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
 ):
     conditions = {"business._id": business}
     if category:
         conditions["category._id"] = category
     if sub_category:
         conditions["subcategory._id"] = sub_category
-    products = await productService.find_many(conditions, fetch_links=True)
+    products = await productService.find_many(
+        conditions, 
+        skip=(page - 1) * limit, 
+        limit=limit,
+        fetch_links=True
+    )
     return Response(data=products)
 
+@public_apiRouter.get(
+    path="/category/{business}",
+    name="Xem phân loại sản phẩm (công khai)",
+    response_model=Response[List[CategoryResponse]],
+)
+async def get_categories(
+    business: PydanticObjectId,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
+):
+    conditions = {
+        "business.$id": business
+    }
+    categories = await categoryService.find_many(
+        conditions=conditions,
+        skip=(page - 1) * limit, 
+        limit=limit,
+        projection_model=CategoryResponse,
+    )
+    return Response(data=categories)
+
+@public_apiRouter.get(
+    path="/sub-category/{business}",
+    name="Xem phân loại chi tiết sản phẩm (công khai)",
+    response_model=Response[List[SubCategoryResponse]],
+)
+async def get_subcategories(
+    business: PydanticObjectId,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
+):
+    categories = await categoryService.find_many({
+        "business.$id": business
+    })
+    conditions = {
+        "category._id": {"$in": [category.id for category in categories]}
+    }
+    sub_categories = await subcategoryService.find_many(
+        conditions=conditions,
+        skip=(page - 1) * limit, 
+        limit=limit,
+        fetch_links=True
+    )
+    return Response(data=sub_categories)
 
 private_apiRouter = APIRouter(
     tags=["Product"],
