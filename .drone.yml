@@ -1,6 +1,15 @@
+############################################
+# 🧱 PIPELINE 1: Build & Push Docker Image
+############################################
 kind: pipeline
 type: docker
-name: CI/CD Backend
+name: CI Backend
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
 
 steps:
   - name: Build & Push Docker Image
@@ -17,11 +26,28 @@ steps:
         - BUILDKIT_INLINE_CACHE=1
       tags:
         - latest
+
+---
+
+########################################
+# 🚀 PIPELINE 2: Deployment via SSH
+########################################
+kind: pipeline
+type: docker
+name: CD Backend
+
+trigger:
+  event:
+    - promote
+  target:
+    - production
+
+steps:
   - name: Deployment
     image: ghcr.io/appleboy/drone-ssh
     settings:
       host: 
-        from_secret: SSH_HOST  # pragma: allowlist secret
+        from_secret: SSH_HOST # pragma: allowlist secret
       username: root
       password:
         from_secret: SSH_PASSWORD # pragma: allowlist secret
@@ -32,8 +58,8 @@ steps:
         - mkdir -p Backend
         - cd ~/Document/QRApp/Backend
         - git clone https://github.com/QRBusiness/QRApp-BackEnd.git . || true
-        - git restore .
-        - git pull origin main
+        - git restore . || true
+        - git pull origin main || true
         - |
           cat <<EOF > .env
           ACCESS_KEY=${ACCESS_KEY}
@@ -45,24 +71,18 @@ steps:
           MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
           EOF
         - docker compose up -d
-        - rm -f .env
-      environment:
-        ACCESS_KEY:
-          from_secret: ACCESS_KEY # pragma: allowlist secret
-        REFRESH_KEY:
-          from_secret: REFRESH_KEY # pragma: allowlist secret
-        MONGO_URL:
-          from_secret: MONGO_URL # pragma: allowlist secret
-        REDIS_URL:
-          from_secret: REDIS_URL # pragma: allowlist secret
-        MINIO_ENDPOINT:
-          from_secret: MINIO_ENDPOINT # pragma: allowlist secret
-        MINIO_ACCESS_KEY:
-          from_secret: MINIO_ACCESS_KEY # pragma: allowlist secret
-        MINIO_SECRET_KEY:
-          from_secret: MINIO_SECRET_KEY # pragma: allowlist secret
-trigger:
-  branch:
-    - main
-  event:
-    - push
+    environment:
+      ACCESS_KEY:
+        from_secret: ACCESS_KEY # pragma: allowlist secret
+      REFRESH_KEY:
+        from_secret: REFRESH_KEY # pragma: allowlist secret
+      MONGO_URL:
+        from_secret: MONGO_URL # pragma: allowlist secret
+      REDIS_URL:
+        from_secret: REDIS_URL # pragma: allowlist secret
+      MINIO_ENDPOINT:
+        from_secret: MINIO_ENDPOINT # pragma: allowlist secret
+      MINIO_ACCESS_KEY:
+        from_secret: MINIO_ACCESS_KEY # pragma: allowlist secret
+      MINIO_SECRET_KEY:
+        from_secret: MINIO_SECRET_KEY # pragma: allowlist secret
