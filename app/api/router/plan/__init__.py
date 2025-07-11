@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
-from app.schema.plan import PlanCreate, PlanResponse
+from app.schema.plan import PlanCreate, PlanResponse,PlanUpdate
 from app.service import planService
 
 apiRouter = APIRouter(
@@ -47,9 +47,24 @@ async def post_plan(data:PlanCreate):
     response_model = Response[PlanResponse],
     name = "Chỉnh sửa gói gia hạn"
 )
-async def put_plan():
-    plans = await planService.find_many()
-    return Response(data=plans)
+async def put_plan(id:PydanticObjectId,data:PlanUpdate):
+    plan = await planService.find(id)
+    if plan is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy gói")
+    if await planService.find_one({
+        "$and": [
+            {"_id": {"$ne": id}},  # loại trừ chính nó
+            {
+                "$or": [
+                    {"name": data.name},
+                    {"period": data.period}
+                ]
+            }
+        ]
+    }):
+        raise HTTP_409_CONFLICT("Gói đã tồn tại")
+    plan = await planService.update(id,data)
+    return Response(data=plan)
 
 @apiRouter.delete(
     path = "/{id}",

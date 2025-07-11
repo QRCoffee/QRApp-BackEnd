@@ -13,6 +13,7 @@ class PlanCreate(BaseModel):
 class PlanUpdate(BaseModel):
     name: Optional[str] = None
     period: Optional[int] = None
+    price: Optional[float] = None
     
 class PlanResponse(BaseResponse):
     name: str = Field(...)
