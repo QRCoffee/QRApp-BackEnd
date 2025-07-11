@@ -1,25 +1,20 @@
-name: Deployment
+name: Kiểm tra kết nối SSH đến Server
 
 on:
-  workflow_dispatch:
-    push:
-      branches: [main]
-  workflow_run:
-    workflows: ["Docker CI"] 
-    branches: ["main"]
-    types: [completed]
+  workflow_dispatch: # Cho phép chạy thủ công từ tab Actions
 
 jobs:
-  deploy:
+  test-ssh:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Deploy via SSH
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-        run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_HOST << 'EOF'
-            whoiam
-          EOF
+    - name: Thiết lập SSH
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H <server-ip> >> ~/.ssh/known_hosts
+    - name: Kiểm tra kết nối SSH
+      run: |
+        ssh -i ~/.ssh/id_rsa -o "StrictHostKeyChecking=no" root@103.7.43.118 "echo 'Kết nối thành công!'"
