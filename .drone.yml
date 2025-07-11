@@ -19,7 +19,6 @@ steps:
         include:
           - app/**
           - Dockerfile
-          - .drone.yml
     settings:
       username: 
         from_secret: DOCKERHUB_USERNAME # pragma: allowlist secret
@@ -68,15 +67,15 @@ steps:
         - git pull origin main || true
         - |
           cat <<EOF > .env
-          ACCESS_KEY=${ACCESS_KEY}
-          REFRESH_KEY=${REFRESH_KEY}
-          MONGO_URL=${MONGO_URL}
-          REDIS_URL=${REDIS_URL}
-          MINIO_ENDPOINT=${MINIO_ENDPOINT}
-          MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-          MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+          ACCESS_KEY=$ACCESS_KEY
+          REFRESH_KEY=$REFRESH_KEY
+          MONGO_URL=$MONGO_URL
+          REDIS_URL=$REDIS_URL
+          MINIO_ENDPOINT=$MINIO_ENDPOINT
+          MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY
+          MINIO_SECRET_KEY=$MINIO_SECRET_KEY
           EOF
-        - docker compose up -d
+        - docker compose up -d --remove-orphans
     environment:
       ACCESS_KEY:
         from_secret: ACCESS_KEY # pragma: allowlist secret
