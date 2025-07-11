@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, Request
 
 from app.api.dependency import login_required
 from app.common.api_response import Response
-from app.common.http_exception import (HTTP_400_BAD_REQUEST,HTTP_401_UNAUTHORZIED,
+from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND)
 from app.core.config import settings
 from app.core.decorator import limiter

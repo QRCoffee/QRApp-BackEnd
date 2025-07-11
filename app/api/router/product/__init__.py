@@ -1,8 +1,10 @@
+import uuid
 from typing import List, Optional
+
 import httpx
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
-import uuid
+
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
 from app.common.api_response import Response
@@ -14,8 +16,8 @@ from app.schema.category import CategoryResponse, SubCategoryResponse
 from app.schema.plan import PlanResponse
 from app.schema.product import (FullProductResponse, ProductCreate,
                                 ProductResponse, ProductUpdate)
-from app.service import (categoryService, planService, productService,
-                         subcategoryService,paymentService)
+from app.service import (categoryService, paymentService, planService,
+                         productService, subcategoryService)
 
 public_apiRouter = APIRouter(
     tags=["Resource Public"]
