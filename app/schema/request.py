@@ -11,11 +11,11 @@ from app.schema.service_unit import ServiceUnitResponse
 
 
 class RequestCreate(BaseModel):
-    type: RequestType = Field(..., description="Loại yêu cầu (Order / Checkout)")
+    type: RequestType = Field(..., description="Loại yêu cầu")
     reason: Optional[str] = Field(default=None, description="Lý do yêu cầu")
-    service_unit: PydanticObjectId
+    service_unit: Optional[PydanticObjectId] = None
     guest_name: Optional[str] = Field(default=None)
-    area: PydanticObjectId
+    area: Optional[PydanticObjectId] = None
     data: List = []
 
 
