@@ -13,6 +13,10 @@ steps:
       repo: nhathuyd4hp/qrapp-backend-droneci
       tags:
         - latest
+    when:
+      paths:
+        include:
+          - app/**
 trigger:
   branch:
     - main
