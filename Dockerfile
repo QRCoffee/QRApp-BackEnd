@@ -43,7 +43,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app
 
 # Create non-root user
-RUN adduser --disabled-password appuser
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --uid 1001 \
+    appuser
 
 WORKDIR /app
 
