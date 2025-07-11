@@ -1,0 +1,40 @@
+kind: pipeline
+type: docker
+name: build-and-push
+
+steps:
+  - name: build-docker-image
+    image: docker:20.10
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - echo "Bắt đầu build Docker image..."
+      - docker build -t myapp:$DRONE_COMMIT_SHA .
+      - echo "Build image thành công!"
+
+  - name: push-to-registry
+    image: docker:20.10
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - echo "Đăng nhập vào Docker Hub..."
+      - echo "dckr_pat_HgNbPWj1SqMIH6Z-ex7IVYKjT-E" | docker login -u nhathuyd4hp --password-stdin
+      - echo "Push image lên registry..."
+      - docker tag myapp:$DRONE_COMMIT_SHA nhathuyd4hp/myapp:$DRONE_COMMIT_SHA
+      - docker tag myapp:$DRONE_COMMIT_SHA nhathuyd4hp/myapp:latest
+      - docker push nhathuyd4hp/myapp:$DRONE_COMMIT_SHA
+      - docker push nhathuyd4hp/myapp:latest
+      - echo "Push image thành công!"
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
