@@ -12,13 +12,38 @@ jobs:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATEY_KEY }}
       run: |
         mkdir -p ~/.ssh
+        echo "Đang tạo tệp khóa riêng..."
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        if [ -f ~/.ssh/id_rsa ]; then
+          echo "Tệp khóa riêng đã được tạo thành công."
+        else
+          echo "Lỗi: Không thể tạo tệp khóa riêng. Kiểm tra nội dung SSH_PRIVATE_KEY."
+          exit 1
+        fi
         chmod 600 ~/.ssh/id_rsa
+        if [ $? -eq 0 ]; then
+          echo "Đã thiết lập quyền cho khóa riêng thành công."
+        else
+          echo "Lỗi: Không thể thiết lập quyền cho khóa riêng."
+          exit 1
+        fi
+    - name: Thêm host vào known_hosts
+      run: |
+        echo "Đang chạy ssh-keyscan..."
         ssh-keyscan -H 103.7.43.118 >> ~/.ssh/known_hosts
+        if [ $? -eq 0 ]; then
+          echo "Đã thêm host vào known_hosts thành công."
+        else
+          echo "Lỗi: ssh-keyscan thất bại. Kiểm tra xem server 103.7.43.118 có chạy SSH không."
+          exit 1
+        fi
     - name: Kiểm tra kết nối SSH
       run: |
+        echo "Đang thử kết nối SSH..."
         ssh -i ~/.ssh/id_rsa -o "StrictHostKeyChecking=no" root@103.7.43.118 "echo 'Kết nối thành công!'"
-
-
-
-        
+        if [ $? -eq 0 ]; then
+          echo "Kết nối SSH thành công!"
+        else
+          echo "Lỗi: Kết nối SSH thất bại. Kiểm tra user, IP, và khóa SSH."
+          exit 1
+        fi
