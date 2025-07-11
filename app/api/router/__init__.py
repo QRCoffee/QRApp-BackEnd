@@ -89,6 +89,11 @@ async def broadcast_message(
 def receive_webhook():
     return True
 
+# Health check
+@api.get(tags=["Health check"], path="/health-check", status_code=200, name="Health Check")
+def health_check():
+    return True
+
 
 # Handle Undefined API
 @api.api_route(
