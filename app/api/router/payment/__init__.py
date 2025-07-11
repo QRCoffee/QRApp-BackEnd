@@ -40,6 +40,6 @@ async def get_banks(request:Request):
 async def post_banks(data:PaymentCreate,request:Request):
     user = await userService.find(request.state.user_id)
     data_dict = data.model_dump(by_alias=False) 
-    data_dict['business'] = user.business.to_ref()
+    data_dict['business'] = user.business.to_ref() if user.business else None
     payment = await paymentService.insert(data_dict)
     return Response(data=payment)

@@ -9,7 +9,7 @@ from .base import Base
 
 
 class Payment(Base):
-    business: "Link[Business]" = Field(...,description="Chủ sở hữu") # type: ignore  # noqa: F821
+    business: Optional["Link[Business]"] = Field(default=None,description="Chủ sở hữu") # type: ignore  # noqa: F821
     accountNo: str = Field(
         ...,
         min_length=6, 

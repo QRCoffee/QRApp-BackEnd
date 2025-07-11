@@ -1,13 +1,13 @@
 from typing import List
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,Request
 
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from app.schema.plan import PlanCreate, PlanResponse, PlanUpdate
-from app.service import planService
+from app.service import planService,paymentService
 
 apiRouter = APIRouter(
     tags = ["Plan"],
@@ -23,7 +23,10 @@ apiRouter = APIRouter(
     response_model = Response[PlanResponse],
     name = "Thêm gói gia hạn"
 )
-async def post_plan(data:PlanCreate):
+async def post_plan(data:PlanCreate,request:Request):
+    payment = await paymentService.find_one(conditions={
+        "business.$id": order.business.to_ref().id
+    })
     if await planService.find_one({
         "$or": [
             {"name": data.name},
