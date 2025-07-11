@@ -1,8 +1,8 @@
 from typing import List, Optional
-
+import httpx
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
-
+import uuid
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
 from app.common.api_response import Response
@@ -15,7 +15,7 @@ from app.schema.plan import PlanResponse
 from app.schema.product import (FullProductResponse, ProductCreate,
                                 ProductResponse, ProductUpdate)
 from app.service import (categoryService, planService, productService,
-                         subcategoryService)
+                         subcategoryService,paymentService)
 
 public_apiRouter = APIRouter(
     tags=["Resource Public"]
@@ -28,8 +28,31 @@ public_apiRouter = APIRouter(
     name = "Danh sách gói gia hạn"
 )
 async def get_plans():
+    payment = await paymentService.find_one(
+        {"business.$id": None}
+    )
+    if payment is None:
+        raise HTTP_400_BAD_REQUEST("Hiện tại thanh toán không khả dụng")
     plans = await planService.find_many()
-    return Response(data=plans)
+    async with httpx.AsyncClient() as client:
+        data = []
+        for plan in plans:
+            response = await client.post(
+                url = "https://api.vietqr.io/v2/generate",
+                json = {
+                    "accountNo": payment.accountNo,
+                    "accountName": payment.accountName,
+                    "acqId": payment.acqId,
+                    "amount": plan.price,
+                    "addInfo": f"Thanh toán đơn hàng {uuid.uuid4()}",
+                    "format": "text",
+                    "template": "template"
+                }
+            )
+            plan = plan.model_dump()
+            plan['qr_code'] = response.json().get("data").get("qrDataURL")
+            data.append(plan)
+        return Response(data=data)
 
 @public_apiRouter.get(
     path="/products/{business}",

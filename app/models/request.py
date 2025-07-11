@@ -11,6 +11,7 @@ class RequestType(str, Enum):
     ORDER = "Order" # Dat mon
     REQUEST = "Request" # CALL STAFF
     PAYMENT = "Payment" # Thanh toan
+    EXTEND = "Extend" # Gia han
 
 
 class RequestStatus(str, Enum):

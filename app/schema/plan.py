@@ -19,3 +19,4 @@ class PlanResponse(BaseResponse):
     name: str = Field(...)
     period: int = Field(...)
     price: float = Field(...)
+    qr_code: str = Field(...)
