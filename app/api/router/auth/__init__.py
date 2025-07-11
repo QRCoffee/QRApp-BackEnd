@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, File, Request, UploadFile
 
 from app.api.dependency import login_required, required_role
@@ -37,6 +39,10 @@ async def sign_in(data: Auth, request: Request):
         )
     if not user.available:
         raise HTTP_403_FORBIDDEN("Tài khoản hiện bị khóa")
+    if user.role in ['BusinessOwner','Staff']:
+        business = await businessService.find(user.business.to_ref().id)
+        if business.expired_at < datetime.now():
+            raise HTTP_403_FORBIDDEN("Tài khoản doanh nghiệp đã hết hạn")
     # ---- #
     user_id = str(user.id)
     user_role = str(user.role)
