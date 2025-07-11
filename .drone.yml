@@ -19,6 +19,8 @@ steps:
         include:
           - app/**
           - Dockerfile
+          - compose.yml
+          - .drone.yml
     settings:
       username: 
         from_secret: DOCKERHUB_USERNAME # pragma: allowlist secret
