@@ -1,9 +1,9 @@
 kind: pipeline
 type: docker
-name: Docker-CI
+name: CI/CD Backend
 
 steps:
-  - name: Docker-CI
+  - name: Build & Push Docker Image
     image: plugins/docker
     settings:
       username: 
@@ -24,8 +24,13 @@ steps:
       port: 22
       command_timeout: 30s
       script:
-        - echo "Hello World"
-        - whoami
+        - cd ~/Document/QRApp
+        - mkdir -p Backend
+        - cd ~/Document/QRApp/Backend
+        - git clone https://github.com/QRBusiness/QRApp-BackEnd.git . || true
+        - git restore .
+        - git pull origin main
+        - docker compose up -d
 trigger:
   branch:
     - main
