@@ -6,10 +6,10 @@ services:
     hostname: api.qrapp
     ports:
       - 8000:8000
-    volumes:
-      - ./logs:/app/logs
+    # volumes:
+    #   - ./logs:/app/logs
     environment:
-      TZ: Asia/Hong_Kong  # ✅ không có dấu ngoặc kép, không cần = 
+      TZ: Asia/Hong_Kong
     env_file:
         - .env
     networks:
