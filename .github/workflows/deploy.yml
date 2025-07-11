@@ -1,7 +1,7 @@
 name: Kiểm tra kết nối SSH đến Server
 
 on:
-  workflow_dispatch: # Cho phép chạy thủ công từ tab Actions
+  workflow_dispatch:
 
 jobs:
   test-ssh:
@@ -14,7 +14,11 @@ jobs:
         mkdir -p ~/.ssh
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H <server-ip> >> ~/.ssh/known_hosts
+        ssh-keyscan -H 103.7.43.118 >> ~/.ssh/known_hosts
     - name: Kiểm tra kết nối SSH
       run: |
         ssh -i ~/.ssh/id_rsa -o "StrictHostKeyChecking=no" root@103.7.43.118 "echo 'Kết nối thành công!'"
+
+
+
+        
