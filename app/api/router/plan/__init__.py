@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends,Request
 
 from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
-from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
+from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT,HTTP_400_BAD_REQUEST
 from app.schema.plan import PlanCreate, PlanResponse, PlanUpdate
 from app.service import planService,paymentService
 
@@ -23,10 +23,12 @@ apiRouter = APIRouter(
     response_model = Response[PlanResponse],
     name = "Thêm gói gia hạn"
 )
-async def post_plan(data:PlanCreate,request:Request):
+async def post_plan(data:PlanCreate):
     payment = await paymentService.find_one(conditions={
-        "business.$id": order.business.to_ref().id
+        "business.$id": None
     })
+    if payment is None:
+        raise HTTP_400_BAD_REQUEST("Không tìm thấy thông tin thanh toán")
     if await planService.find_one({
         "$or": [
             {"name": data.name},
