@@ -55,7 +55,8 @@ steps:
     settings:
       host: 
         from_secret: SSH_HOST # pragma: allowlist secret
-      username: root
+      username: 
+        from_secret: SSH_USERNAME # pragma: allowlist secret
       password:
         from_secret: SSH_PASSWORD # pragma: allowlist secret
       port: 22
@@ -67,19 +68,5 @@ steps:
         - git clone https://github.com/QRBusiness/QRApp-BackEnd.git . || true
         - git restore . || true
         - git pull origin main || true
+        - chown -R 1001:1001 ./logs
         - docker compose up -d --remove-orphans
-    environment:
-      ACCESS_KEY:
-        from_secret: ACCESS_KEY # pragma: allowlist secret
-      REFRESH_KEY:
-        from_secret: REFRESH_KEY # pragma: allowlist secret
-      MONGO_URL:
-        from_secret: MONGO_URL # pragma: allowlist secret
-      REDIS_URL:
-        from_secret: REDIS_URL # pragma: allowlist secret
-      MINIO_ENDPOINT:
-        from_secret: MINIO_ENDPOINT # pragma: allowlist secret
-      MINIO_ACCESS_KEY:
-        from_secret: MINIO_ACCESS_KEY # pragma: allowlist secret
-      MINIO_SECRET_KEY:
-        from_secret: MINIO_SECRET_KEY # pragma: allowlist secret
