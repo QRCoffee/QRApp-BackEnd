@@ -1,19 +1,21 @@
 kind: pipeline
 type: docker
-name: build-and-push
+name: Docker-CI
 
 steps:
-  - name: docker-build-push
+  - name: Docker-CI
     image: plugins/docker
     settings:
-      username: nhathuyd4hp # pragma: allowlist secret
-      password: dckr_pat_HgNbPWj1SqMIH6Z-ex7IVYKjT-E # pragma: allowlist secret
-      repo: nhathuyd4hp/myapp
+      username: 
+        from_secret: DOCKERHUB_USERNAME # pragma: allowlist secret
+      password: 
+        from_secret: DOCKERHUB_TOKEN # pragma: allowlist secret
+      repo: nhathuyd4hp/qrapp-backend-droneci
       tags:
-        - $DRONE_COMMIT_SHA
         - latest
 trigger:
   branch:
     - main
   event:
     - push
+    - custom
