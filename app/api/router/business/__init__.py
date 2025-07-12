@@ -105,8 +105,6 @@ async def post_business(data: BusinessRegister):
         {"username": data.username},
     ):
         raise HTTP_409_CONFLICT("Tên đăng nhập đã được đăng kí")
-    if await userService.find_one({"phone": data.owner_contact}):
-        raise HTTP_409_CONFLICT("Số điện thoại người khác đã được sử dụng")
     if data.business_tax_code:
         if await businessService.find_one({"tax_code": data.business_tax_code}):
             raise HTTP_409_CONFLICT("Mã số thuế đã được sử dụng")

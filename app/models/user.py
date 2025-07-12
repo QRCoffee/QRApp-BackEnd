@@ -31,7 +31,6 @@ class User(Base):
     class Settings:
         indexes = [
             IndexModel([("username", 1)], unique=True),
-            IndexModel([("phone", 1)], unique=True),
         ]
 
     @before_event(Insert)
