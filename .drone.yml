@@ -69,4 +69,5 @@ steps:
         - git restore . || true
         - git pull origin main || true
         - chown -R 1001:1001 ./logs
-        - docker compose up -d --remove-orphans
+        - docker network create QRNetwork || true
+        - docker compose up -d
