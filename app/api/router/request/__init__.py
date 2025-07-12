@@ -14,7 +14,7 @@ from app.db import QRCode
 from app.models.request import RequestType
 from app.schema.order import ExtenOrderCreate
 from app.schema.request import (RequestCreate, RequestStatus, RequestUpdate,
-                                ResquestResponse)
+                                ResquestResponse,MinimumResquestResponse)
 from app.service import (areaService, businessService, extendOrderService,
                          planService, productService, requestService,
                          unitService, userService)
@@ -31,7 +31,7 @@ apiRouter = APIRouter(
         Depends(login_required),
         Depends(required_role(role=["BusinessOwner"]))
     ],
-    response_model=Response
+    response_model=Response[str]
 )
 async def request_extend(
     request:Request,
@@ -53,7 +53,7 @@ async def request_extend(
         plan=plan,
         image=QRCode.get_url(object_name)
     ))
-    return Response(data=order)
+    return Response(data="Yêu cầu đã được xử lí")
 
 @apiRouter.get(
     path = "",
@@ -91,7 +91,7 @@ async def get_requests(
 
 @apiRouter.post(
     path = "",
-    response_model = Response[str]
+    response_model = Response[MinimumResquestResponse]
 )
 @limiter(max_request=10)
 async def request(data:RequestCreate,request:Request):
@@ -131,7 +131,7 @@ async def request(data:RequestCreate,request:Request):
         branch=area.branch.to_dict().get("id"),
         permission="receive.request",
     )
-    return Response(data="Yêu cầu đang được xử lí")
+    return Response(data=req)
 
 @apiRouter.post(
     path = "/process/{id}",
