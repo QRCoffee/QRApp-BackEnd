@@ -7,6 +7,10 @@ from pydantic import Field
 from .base import Base
 
 
+class PaymentMethod(str,Enum):
+    CASH = "Cash"
+    BANK = "Bank"
+
 class OrderStatus(str, Enum):
     UNPAID = "Unpaid"
     PAID = "Paid"
@@ -24,6 +28,8 @@ class Order(Base):
     service_unit: "Link[ServiceUnit]" = Field(...)  # type: ignore  # noqa: F821
     staff: "Link[User]" = Field(...)  # type: ignore # noqa: F821
     request: "Link[Request]" = Field(...) # type: ignore # noqa: F821
+    # Payment Method
+    payment_method: PaymentMethod = Field(default=PaymentMethod.CASH)
 
 class ExtendOrder(Base):
     business: "Link[Business]" = Field(description="Doanh nghiệp muốn gia hạn")  # type: ignore  # noqa: F821 

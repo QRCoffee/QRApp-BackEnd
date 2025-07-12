@@ -4,7 +4,7 @@ from beanie import Link, PydanticObjectId
 from pydantic import BaseModel, Field
 
 from app.models import Area, Branch, Business, Request, ServiceUnit, User
-from app.models.order import OrderStatus
+from app.models.order import OrderStatus, PaymentMethod
 from app.schema import BaseResponse
 from app.schema.area import AreaResponse
 from app.schema.branch import BranchResponse
@@ -23,9 +23,12 @@ class OrderCreate(BaseModel):
     service_unit: Link[ServiceUnit] = Field(...)
     staff: Link[User] = Field(...)
     request: Link[Request] = Field(...)
+    # Payment method:
+    payment_method: PaymentMethod = Field(default=PaymentMethod.CASH)
 
 class OrderUpdate(BaseModel):
     status: Optional[OrderStatus] = Field(default=None)
+    payment_method: PaymentMethod = Field(default=PaymentMethod.CASH)
 
 class OrderResponse(BaseResponse):
     items: List[Any]
@@ -34,6 +37,7 @@ class OrderResponse(BaseResponse):
     area: AreaResponse
     service_unit: ServiceUnitResponse
     request: MinimumResquestResponse
+    payment_method: PaymentMethod
 
 class ExtenOrderCreate(BaseModel):
     business: PydanticObjectId = Field(...,description="ID doanh nghiệp")

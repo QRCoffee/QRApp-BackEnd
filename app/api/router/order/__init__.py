@@ -8,7 +8,8 @@ from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from app.core.config import settings
-from app.schema.order import OrderResponse, OrderStatus, OrderUpdate
+from app.schema.order import (OrderResponse, OrderStatus, OrderUpdate,
+                              PaymentMethod)
 from app.service import orderService, paymentService, productService
 
 apiRouter = APIRouter(
@@ -80,7 +81,11 @@ async def get_order(
     name = "Checkout order",
     response_model=Response[OrderResponse]
 )
-async def post_orders(id:PydanticObjectId,request: Request):
+async def post_orders(
+    id:PydanticObjectId,
+    request: Request,
+    method: PaymentMethod = Query(default=PaymentMethod.CASH,description="Phương thức thanh toán")
+):
     order = await orderService.find(id)
     if order is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy đơn")
@@ -88,7 +93,13 @@ async def post_orders(id:PydanticObjectId,request: Request):
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     if request.state.user_role != 'BusinessOwner' and order.branch.to_ref().id != PydanticObjectId(request.state.user_branch):
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
-    order = await orderService.update(id,OrderUpdate(status=OrderStatus.PAID))
+    order = await orderService.update(
+        id = id,
+        data = OrderUpdate(
+            status=OrderStatus.PAID,
+            payment_method=method,
+        )
+    )
     for item in order.items:
         product = await productService.find(item.get('product').id)
         item['product'] = product
