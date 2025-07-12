@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from beanie import Link
+from beanie import Link, PydanticObjectId
 from pydantic import BaseModel, Field
 
 from app.models import Area, Branch, Business, Request, ServiceUnit, User
@@ -34,3 +34,17 @@ class OrderResponse(BaseResponse):
     area: AreaResponse
     service_unit: ServiceUnitResponse
     request: MinimumResquestResponse
+
+class ExtenOrderCreate(BaseModel):
+    business: PydanticObjectId = Field(...,description="ID doanh nghiệp")
+    plan: PydanticObjectId = Field(...,description="ID gói")
+    image: str = Field(...,description="URL hình ảnh")
+
+class ExtenOrderUpdate(BaseModel):
+    status: Optional[OrderStatus] = None
+
+class ExtendOrderResponse(BaseResponse):
+    business: PydanticObjectId
+    plan: PydanticObjectId
+    image: str
+    status: str

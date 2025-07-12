@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from beanie import Link
+from beanie import Link, PydanticObjectId
 from pydantic import BaseModel, Field, field_validator
 
 from app.models import BusinessType, User
@@ -37,6 +37,10 @@ class BusinessUpdate(BaseModel):
     address: Optional[str] = None
     contact: Optional[str] = None
     tax_code: Optional[str] = None
+
+class ExtendBusiness(BaseModel):
+    id: PydanticObjectId
+    days: int
 
 
 class FullBusinessResponse(BaseResponse):

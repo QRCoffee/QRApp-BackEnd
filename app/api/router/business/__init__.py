@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Form, Query
+from fastapi import APIRouter, Depends, Query
 
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
@@ -12,7 +12,8 @@ from app.common.http_exception import (HTTP_400_BAD_REQUEST,
 from app.core.config import settings
 from app.schema.branch import BranchCreate
 from app.schema.business import (BusinessCreate, BusinessResponse,
-                                 BusinessUpdate, FullBusinessResponse)
+                                 BusinessUpdate, ExtendBusiness,
+                                 FullBusinessResponse)
 from app.schema.user import BusinessOwner, BusinessRegister, FullUserResponse
 from app.service import (branchService, businessService, businessTypeService,
                          userService)
@@ -151,22 +152,21 @@ async def post_business(data: BusinessRegister):
     return Response(data=user)
 
 @apiRouter.post(
-    path="/extend/{id}",
+    path="/extend",
     name="Gia hạn doanh nghiệp",
     dependencies=[Depends(required_permissions(permissions=["update.business"]))],
     response_model=Response[BusinessResponse],
 )
 async def extend_business(
-    id: PydanticObjectId,
-    days: int = Form(default=1,description="Số ngày gia hạn")
+    data: ExtendBusiness,
 ):
-    business = await businessService.find(id)
+    business = await businessService.find(data.id)
     if business is None:
         raise HTTP_404_NOT_FOUND("Không tìm thấy doanh nghiệp")
     business = await businessService.update(
-        id = id,
+        id = data.id,
         data = {
-            "expired_at": datetime.now() + timedelta(days=days),
+            "expired_at": datetime.now() + timedelta(days=data.days),
         }
     )
     await business.fetch_link("business_type")

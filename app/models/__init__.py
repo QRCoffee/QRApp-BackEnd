@@ -3,7 +3,7 @@ from .branch import Branch
 from .business import Business, BusinessType
 from .category import Category, SubCategory
 from .group import Group
-from .order import Order
+from .order import ExtendOrder, Order
 from .payment import Payment
 from .permission import Permission
 from .plan import Plan
@@ -17,6 +17,8 @@ User.model_rebuild()
 Request.model_rebuild()
 Order.model_rebuild()
 Payment.model_rebuild()
+ExtendOrder.model_rebuild()
+
 __all__ = [
     "User",
     "BusinessType",
@@ -31,6 +33,7 @@ __all__ = [
     "Product",
     "Request",
     "Order",
+    "ExtendOrder",
     "Payment",
     "Plan",
 ]

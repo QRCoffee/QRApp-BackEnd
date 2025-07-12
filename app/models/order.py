@@ -4,6 +4,8 @@ from typing import List
 from beanie import Link
 from pydantic import Field
 
+from app.models import Plan
+
 from .base import Base
 
 
@@ -24,3 +26,10 @@ class Order(Base):
     service_unit: "Link[ServiceUnit]" = Field(...)  # type: ignore  # noqa: F821
     staff: "Link[User]" = Field(...)  # type: ignore # noqa: F821
     request: "Link[Request]" = Field(...) # type: ignore # noqa: F821
+
+class ExtendOrder(Base):
+    business: "Link[Business]" = Field(description="Doanh nghiệp muốn gia hạn")  # type: ignore  # noqa: F821 
+    plan: "Link[Plan]" = Field(description="Gói gia hạn") # type: ignore  # noqa: F821 
+    image: str = Field(description="Ảnh xác minh thanh toán")
+    status: OrderStatus = Field(default=OrderStatus.UNPAID)
+
