@@ -61,46 +61,43 @@ async def get_requests(
 )
 @limiter(max_request=10)
 async def request(data:RequestCreate,request:Request):
-    if data.type != RequestType.EXTEND:
-        service_unit = await unitService.find_one(conditions={
-            "_id":data.service_unit,
-            "area.$id":data.area
-        }) 
-        if service_unit is None:
-            raise HTTP_400_BAD_REQUEST("Yêu cầu không phù hợp")
-        area = await areaService.find(service_unit.area.to_ref().id)
-        data = data.model_dump()
-        data['branch'] = area.branch.to_ref()
-        data['business'] = area.business.to_ref()
-        if data.get("type") == RequestType.ORDER:
-            # -- Check valid order
-            product_ids = [PydanticObjectId(e.get("_id")) for e in data.get("data")]
-            products = await productService.find_many(conditions={
-                "_id": {"$in": product_ids}
-            })
-            if len(products) != len(data.get("data")):
+    service_unit = await unitService.find_one(conditions={
+        "_id":data.service_unit,
+        "area.$id":data.area
+    }) 
+    if service_unit is None:
+        raise HTTP_400_BAD_REQUEST("Yêu cầu không phù hợp")
+    area = await areaService.find(service_unit.area.to_ref().id)
+    data = data.model_dump()
+    data['branch'] = area.branch.to_ref()
+    data['business'] = area.business.to_ref()
+    if data.get("type") == RequestType.ORDER:
+        # -- Check valid order
+        product_ids = [PydanticObjectId(e.get("_id")) for e in data.get("data")]
+        products = await productService.find_many(conditions={
+            "_id": {"$in": product_ids}
+        })
+        if len(products) != len(data.get("data")):
+            raise HTTP_400_BAD_REQUEST("Kiểm tra thông tin đơn hàng")
+        product_map = {str(product.id): product for product in products}
+        for p in data.get("data"):
+            db_product = product_map.get(p.get("_id"))
+            if p.get("variant") not in [option.type for option in db_product.variants]:
                 raise HTTP_400_BAD_REQUEST("Kiểm tra thông tin đơn hàng")
-            product_map = {str(product.id): product for product in products}
-            for p in data.get("data"):
-                db_product = product_map.get(p.get("_id"))
-                if p.get("variant") not in [option.type for option in db_product.variants]:
-                    raise HTTP_400_BAD_REQUEST("Kiểm tra thông tin đơn hàng")
-                if any(opt not in [option.type for option in db_product.options] for opt in p.get("options", [])):
-                    raise HTTP_400_BAD_REQUEST("Kiểm tra thông tin đơn hàng")
-        req = await requestService.insert(data)
-        await manager.broadcast(
-            message=json.dumps({
-                "message":f"{data.get("type")} {data.get("reason")}",
-                "request": str(req.id),
-                "data":data.get("data"),
-            }),
-            business=area.business.to_dict().get("id"),
-            branch=area.branch.to_dict().get("id"),
-            permission="receive.request",
-        )
-        return Response(data="Yêu cầu đang được xử lí")
-    else:
-        return Response(data="Yêu cầu đang được xử lí")
+            if any(opt not in [option.type for option in db_product.options] for opt in p.get("options", [])):
+                raise HTTP_400_BAD_REQUEST("Kiểm tra thông tin đơn hàng")
+    req = await requestService.insert(data)
+    await manager.broadcast(
+        message=json.dumps({
+            "message":f"{data.get("type")} {data.get("reason")}",
+            "request": str(req.id),
+            "data":data.get("data"),
+        }),
+        business=area.business.to_dict().get("id"),
+        branch=area.branch.to_dict().get("id"),
+        permission="receive.request",
+    )
+    return Response(data="Yêu cầu đang được xử lí")
 
 @apiRouter.post(
     path = "/process/{id}",
