@@ -2,7 +2,7 @@ import os
 from typing import Literal
 
 from loguru import logger
-from pydantic import HttpUrl, model_validator
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
 
@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     ACCESS_KEY: str
     REFRESH_KEY: str
     # FrontEnd
-    FRONTEND_HOST: HttpUrl = "http://localhost:5173"
+    FRONTEND_HOST: str = "http://localhost:5173"
     # Database
     MONGO_URL: str | None = None
     MONGO_DATABASE: str = "QRApp"
