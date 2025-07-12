@@ -38,4 +38,5 @@ class FullProductResponse(BaseResponse):
     options: Optional[List[Option]] = []
     subcategory: SubCategoryResponse
     category: CategoryResponse
+    img_url: Optional[str] = None
     # business: BusinessResponse

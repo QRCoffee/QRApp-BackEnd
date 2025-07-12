@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends, File, Request, UploadFile
 
 from app.api.dependency import login_required, required_role
@@ -141,6 +142,37 @@ async def me(request: Request):
     user = await userService.find(request.state.user_id)
     await user.fetch_all_links()
     return Response(data=user)
+
+@apiRouter.post(
+    path="/upload-logo",
+    name="Cập nhật logo doanh nghiệp",
+    status_code=200,
+    dependencies=[
+        Depends(login_required),
+        Depends(required_role(role=['BusinessOwner']))
+    ],
+    response_model=Response[bool]
+)
+async def upload_logo(
+    request: Request,
+    logo: UploadFile = File(...),
+):
+    contents = await logo.read()
+    if len(contents) > 2 * 1024 * 1024:  # 2MB:
+        raise HTTP_400_BAD_REQUEST(message="Ảnh vượt quá 2MB")
+    object_name = QRCode.upload(
+        object=contents,
+        object_name=f"{request.state.user_id}_{logo.filename}",
+        content_type=logo.content_type,
+    )
+    if not await businessService.update(
+        id = PydanticObjectId(request.state.user_scope),
+        data = {
+            "logo":QRCode.get_url(object_name)
+        }
+    ):
+        raise HTTP_400_BAD_REQUEST("Tải ảnh thất bại")
+    return Response(data=True)
 
 
 @apiRouter.post(

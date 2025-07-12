@@ -37,6 +37,7 @@ class Business(Base):
         default_factory=lambda: datetime.now() + timedelta(minutes=1),
         description="Thời điểm hết hạn (mặc định là hiện tại + 15 phút)",
     )
+    logo: Optional[str] = Field(default=None,description="Logo doanh nghiệp")
 
     class Settings:
         indexes = [IndexModel([("name", 1)], unique=True)]

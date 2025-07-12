@@ -29,7 +29,7 @@ apiRouter = APIRouter(
     path = "/extend",
     dependencies=[
         Depends(login_required),
-        Depends(required_role(role="BusinessOwner"))
+        Depends(required_role(role=["BusinessOwner"]))
     ],
     response_model=Response
 )
@@ -58,7 +58,8 @@ async def request_extend(
 @apiRouter.get(
     path = "",
     dependencies=[
-        Depends(login_required)
+        Depends(login_required),
+        Depends(required_role(role=["BusinessOwner","Staff"]))
     ],
     response_model=Response[List[ResquestResponse]]
 )
@@ -146,7 +147,7 @@ async def process_request(id:PydanticObjectId,req:Request):
     if req.state.user_scope != request.business.to_dict().get("id") or request.branch.to_dict().get("id") != req.state.user_branch:
         raise HTTP_403_FORBIDDEN("Bạn không đủ quyền thực hiện hành động này")
     user = await userService.find(req.state.user_id)
-    if request.status == RequestStatus.COMPLETE or (request.status != RequestStatus.WAITING and request.staff.to_dict().get("id") != str(user.id)):
+    if request.status == RequestStatus.COMPLETED or (request.status != RequestStatus.WAITING and request.staff.to_dict().get("id") != str(user.id)):
         await manager.broadcast(message="Yêu cầu đã được xử lí", user_ids=[PydanticObjectId(req.state.user_id)])
         return Response(data=False)
     await requestService.update(id,RequestUpdate(

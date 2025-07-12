@@ -23,7 +23,8 @@ apiRouter = APIRouter(
 
 @apiRouter.get(
     path = "",
-    response_model=Response[List[OrderResponse]]
+    response_model=Response[List[OrderResponse]],
+    name = "Danh sách đơn"
 )
 async def get_orders(
     request: Request,

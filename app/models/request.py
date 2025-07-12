@@ -17,11 +17,11 @@ class RequestType(str, Enum):
 class RequestStatus(str, Enum):
     CANCELLED = "Cancelled"
     WAITING = "Waiting"
-    COMPLETE = "Complete"
+    COMPLETED = "Completed"
 
     def next(self):
         flow = {
-            RequestStatus.WAITING: RequestStatus.COMPLETE,
+            RequestStatus.WAITING: RequestStatus.COMPLETED,
         }
         return flow.get(self, None)
 
@@ -49,12 +49,12 @@ class Request(Base):
 
     @after_event([Save])
     async def set_paid_if_complete(self):
-        if self.status == RequestStatus.COMPLETE and self.type == RequestType.PAYMENT:
+        if self.status == RequestStatus.COMPLETED and self.type == RequestType.PAYMENT:
             pass
 
     @after_event([Save])
     async def create_order_if_complete(self):
-        if self.status == RequestStatus.COMPLETE:
+        if self.status == RequestStatus.COMPLETED:
             if self.type == RequestType.ORDER:
                 from app.schema.order import OrderCreate
                 from app.service import orderService, productService

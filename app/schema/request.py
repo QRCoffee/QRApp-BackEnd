@@ -20,7 +20,7 @@ class RequestCreate(BaseModel):
 
 
 class RequestUpdate(BaseModel):
-    status: Optional[RequestStatus] = RequestStatus.COMPLETE
+    status: Optional[RequestStatus] = RequestStatus.COMPLETED
     staff: Optional[Link[User]] = None
 
 class MinimumResquestResponse(BaseResponse):

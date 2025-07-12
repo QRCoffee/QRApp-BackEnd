@@ -49,6 +49,7 @@ class FullBusinessResponse(BaseResponse):
     contact: str
     tax_code: Optional[str] = None
     available: bool
+    logo: Optional[str] = None
     business_type: BusinessType
     owner: Optional[User] = Field(description="Business Owner")  # type: ignore
     expired_at: datetime
@@ -64,6 +65,7 @@ class BusinessResponse(BaseResponse):
     name: str
     address: str
     contact: str
+    logo: Optional[str] = None
     tax_code: Optional[str] = None
     available: bool
     business_type: BusinessType
