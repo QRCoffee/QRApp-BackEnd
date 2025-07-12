@@ -13,8 +13,8 @@ from app.core.decorator import limiter
 from app.db import QRCode
 from app.models.request import RequestType
 from app.schema.order import ExtenOrderCreate
-from app.schema.request import (RequestCreate, RequestStatus, RequestUpdate,
-                                ResquestResponse,MinimumResquestResponse)
+from app.schema.request import (MinimumResquestResponse, RequestCreate,
+                                RequestStatus, RequestUpdate, ResquestResponse)
 from app.service import (areaService, businessService, extendOrderService,
                          planService, productService, requestService,
                          unitService, userService)
@@ -24,6 +24,18 @@ apiRouter = APIRouter(
     tags = ['Request'],
     prefix = "/request"
 )
+
+@apiRouter.get(
+    path = "/extend",
+    dependencies=[
+        Depends(login_required),
+        Depends(required_role(role=["Admin"]))
+    ],
+    response_model=Response
+)
+async def get_extends():
+    orders = await extendOrderService.find_many(conditions={})
+    return Response(data=orders)
 
 @apiRouter.post(
     path = "/extend",
@@ -48,7 +60,7 @@ async def request_extend(
         object_name=f"/transaction/{request.state.user_id}_{image.filename}",
         content_type=image.content_type,
     )
-    order = await extendOrderService.insert(ExtenOrderCreate(
+    await extendOrderService.insert(ExtenOrderCreate(
         business = business,
         plan=plan,
         image=QRCode.get_url(object_name)
