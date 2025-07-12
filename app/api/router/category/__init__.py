@@ -9,7 +9,8 @@ from app.common.api_response import Response
 from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from app.schema.category import (CategoryCreate, CategoryResponse,
                                  CategoryUpdate, FullCategoryResponse,
-                                 SubCategoryCreate, SubCategoryResponse)
+                                 SubCategoryCreate, SubCategoryResponse,
+                                 SubCategoryUpdate)
 from app.service import (businessService, categoryService, productService,
                          subcategoryService)
 
@@ -89,6 +90,25 @@ async def get_category(
     )
     return Response(data=subcategories)
 
+@apiRouter.put(
+    path="/subcategory/{id}",
+    name="Chỉnh sửa chi tiết phân loại",
+    status_code=200,
+    response_model=Response[SubCategoryResponse],
+    dependencies=[
+        Depends(required_permissions(permissions=["update.subcategory"]))
+    ]
+)
+async def put_sub_category(id:PydanticObjectId,data:SubCategoryUpdate,request: Request):
+    sub_category = await subcategoryService.find(id)
+    if sub_category is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy phân loại")
+    await sub_category.fetch_link("category")
+    if sub_category.category.business.id != PydanticObjectId(request.state.user_scope):
+        raise HTTP_404_NOT_FOUND("Không tìm thấy phân loại")
+    subcat = await subcategoryService.update(id,data)
+    await subcat.fetch_link("category")
+    return Response(data=subcat)
 
 @apiRouter.get(
     path="/{id}",
