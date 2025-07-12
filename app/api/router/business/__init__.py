@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Form, Query
 
 from app.api.dependency import (login_required, required_permissions,
                                 required_role)
@@ -149,6 +150,27 @@ async def post_business(data: BusinessRegister):
     await user.fetch_all_links()
     return Response(data=user)
 
+@apiRouter.post(
+    path="/extend/{id}",
+    name="Gia hạn doanh nghiệp",
+    dependencies=[Depends(required_permissions(permissions=["update.business"]))],
+    response_model=Response[BusinessResponse],
+)
+async def extend_business(
+    id: PydanticObjectId,
+    days: int = Form(default=1,description="Số ngày gia hạn")
+):
+    business = await businessService.find(id)
+    if business is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy doanh nghiệp")
+    business = await businessService.update(
+        id = id,
+        data = {
+            "expired_at": datetime.now() + timedelta(days=days),
+        }
+    )
+    await business.fetch_link("business_type")
+    return Response(data=business)
 
 @apiRouter.put(
     path="/active/{id}",
