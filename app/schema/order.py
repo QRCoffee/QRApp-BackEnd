@@ -1,13 +1,14 @@
 from typing import Any, List, Optional
 
-from beanie import Link, PydanticObjectId
+from beanie import Link
 from pydantic import BaseModel, Field
 
-from app.models import Area, Branch, Business, Request, ServiceUnit, User
+from app.models import Area, Branch, Business, Plan, Request, ServiceUnit, User
 from app.models.order import OrderStatus, PaymentMethod
 from app.schema import BaseResponse
 from app.schema.area import AreaResponse
 from app.schema.branch import BranchResponse
+from app.schema.business import BusinessResponse
 from app.schema.request import MinimumResquestResponse
 from app.schema.service_unit import ServiceUnitResponse
 
@@ -40,15 +41,14 @@ class OrderResponse(BaseResponse):
     payment_method: PaymentMethod
 
 class ExtenOrderCreate(BaseModel):
-    business: PydanticObjectId = Field(...,description="ID doanh nghiệp")
-    plan: PydanticObjectId = Field(...,description="ID gói")
-    image: str = Field(...,description="URL hình ảnh")
+    business: Business
+    plan: Plan
+    image: str
 
 class ExtenOrderUpdate(BaseModel):
     status: Optional[OrderStatus] = None
 
-class ExtendOrderResponse(BaseResponse):
-    business: PydanticObjectId
-    plan: PydanticObjectId
-    image: str
-    status: str
+class ExtenOrderResponse(BaseModel):
+    business: BusinessResponse
+    plan: Plan
+    status: Optional[OrderStatus] = None

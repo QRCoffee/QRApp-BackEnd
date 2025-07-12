@@ -2,18 +2,21 @@ import json
 from typing import List, Optional
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile
 
-from app.api.dependency import login_required
+from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import (HTTP_400_BAD_REQUEST,
                                        HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND)
 from app.core.config import settings
 from app.core.decorator import limiter
+from app.db import QRCode
 from app.models.request import RequestType
+from app.schema.order import ExtenOrderCreate
 from app.schema.request import (RequestCreate, RequestStatus, RequestUpdate,
                                 ResquestResponse)
-from app.service import (areaService, productService, requestService,
+from app.service import (areaService, businessService, extendOrderService,
+                         planService, productService, requestService,
                          unitService, userService)
 from app.socket import manager
 
@@ -21,6 +24,36 @@ apiRouter = APIRouter(
     tags = ['Request'],
     prefix = "/request"
 )
+
+@apiRouter.post(
+    path = "/extend",
+    dependencies=[
+        Depends(login_required),
+        Depends(required_role(role="BusinessOwner"))
+    ],
+    response_model=Response
+)
+async def request_extend(
+    request:Request,
+    plan: PydanticObjectId = Form(...,description="Gói đăng kí"),
+    image: UploadFile = File(..., description="Ảnh minh chứng gia hạn"),
+):
+    plan = await planService.find(plan)
+    if plan is None:
+        raise HTTP_404_NOT_FOUND("Không tìm thấy gói đăng kí")
+    business = await businessService.find(request.state.user_scope)
+    contents = await image.read()
+    object_name = QRCode.upload(
+        object=contents,
+        object_name=f"/transaction/{request.state.user_id}_{image.filename}",
+        content_type=image.content_type,
+    )
+    order = await extendOrderService.insert(ExtenOrderCreate(
+        business = business,
+        plan=plan,
+        image=QRCode.get_url(object_name)
+    ))
+    return Response(data=order)
 
 @apiRouter.get(
     path = "",

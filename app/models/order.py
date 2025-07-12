@@ -40,6 +40,7 @@ class Order(Base):
 class ExtendOrder(Base):
     business: "Link[Business]" = Field(description="Doanh nghiệp muốn gia hạn")  # type: ignore  # noqa: F821 
     plan: "Link[Plan]" = Field(description="Gói gia hạn") # type: ignore  # noqa: F821 
-    image: str = Field(description="Ảnh xác minh thanh toán")
+    image: str = Field(...,description="Ảnh xác minh thanh toán")
+    payment_method: PaymentMethod = Field(default=PaymentMethod.BANK)
     status: OrderStatus = Field(default=OrderStatus.UNPAID)
 
