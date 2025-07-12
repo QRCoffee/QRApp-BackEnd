@@ -166,7 +166,7 @@ async def extend_business(
     business = await businessService.update(
         id = data.id,
         data = {
-            "expired_at": datetime.now() + timedelta(days=data.days),
+            "expired_at": max(business.expired_at,datetime.now()) + timedelta(days=data.days),
         }
     )
     await business.fetch_link("business_type")

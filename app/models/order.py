@@ -4,8 +4,6 @@ from typing import List
 from beanie import Link
 from pydantic import Field
 
-from app.models import Plan
-
 from .base import Base
 
 
