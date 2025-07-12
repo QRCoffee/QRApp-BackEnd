@@ -33,24 +33,7 @@ steps:
         - BUILDKIT_INLINE_CACHE=1
       tags:
         - latest
-
----
-
-########################################
-# 🚀 PIPELINE 2: Deployment via SSH
-########################################
-kind: pipeline
-type: docker
-name: CD Backend
-
-trigger:
-  event:
-    - promote
-  target:
-    - production
-
-steps:
-  - name: Deployment
+  - name: Deploy to VPS
     image: ghcr.io/appleboy/drone-ssh
     settings:
       host: 
