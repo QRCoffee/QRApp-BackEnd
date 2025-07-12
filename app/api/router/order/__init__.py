@@ -30,6 +30,7 @@ async def get_orders(
     area: Optional[PydanticObjectId] = Query(default=None),
     service_unit: Optional[PydanticObjectId] = Query(default=None),
     status: Optional[OrderStatus] = Query(default=None),
+    method: Optional[PaymentMethod] = Query(default=None),
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=settings.PAGE_SIZE, ge=1, le=50),
 ):
@@ -43,7 +44,9 @@ async def get_orders(
     if service_unit:
         conditions["service_unit._id"] = service_unit
     if status:
-        conditions["status"] = status    
+        conditions["status"] = status
+    if method:
+        conditions["payment_method"] = method
     orders = await orderService.find_many(
         conditions,
         fetch_links=True,
