@@ -6,6 +6,7 @@ from app.api.dependency import login_required, required_role
 from app.common.api_response import Response
 from app.common.http_exception import HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT
 from app.core.decorator import limiter
+from app.schema.order import PaymentMethod
 from app.schema.payment import PaymentCreate, PaymentResponse
 from app.service import paymentService, userService
 
@@ -33,6 +34,19 @@ async def get_banks(request:Request):
         data = response.json().get("data")
         return Response(data=data)
     
+@apiRouter.get(
+    path = "/methods",
+    name = "Xem phương thức thanh toán",
+    response_model=Response
+)
+async def get_method():
+    return Response(data=[
+        {
+            "name": method.name,
+            "description":method.description()
+        } for method in PaymentMethod
+    ])
+
 @apiRouter.get(
     path = "/my-bank",
     name = "Xem thông tin thanh toán",

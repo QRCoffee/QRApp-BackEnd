@@ -11,6 +11,12 @@ class PaymentMethod(str,Enum):
     CASH = "Cash"
     BANK = "Bank"
 
+    def description(self) -> str:
+        return {
+            PaymentMethod.CASH: "Tiền mặt",
+            PaymentMethod.BANK: "Chuyển khoản"
+        }[self]
+
 class OrderStatus(str, Enum):
     UNPAID = "Unpaid"
     PAID = "Paid"
