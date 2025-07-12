@@ -10,7 +10,8 @@ from app.common.http_exception import HTTP_404_NOT_FOUND, HTTP_409_CONFLICT
 from app.schema.category import (CategoryCreate, CategoryResponse,
                                  CategoryUpdate, FullCategoryResponse,
                                  SubCategoryCreate, SubCategoryResponse)
-from app.service import businessService, categoryService, subcategoryService
+from app.service import (businessService, categoryService, productService,
+                         subcategoryService)
 
 apiRouter = APIRouter(
     tags=["Category"],
@@ -190,4 +191,11 @@ async def delete_subcategory(
     category = sub_category.category
     if category.business.id != PydanticObjectId(request.state.user_scope):
         raise HTTP_404_NOT_FOUND("Không tìm thấy phân loại")
+    products = await productService.find_many(conditions={
+        "subcategory.$id":id
+    })
+    if not await subcategoryService.delete(id):
+        return Response(data="Xóa thất bại")
+    for product in products:
+        await productService.delete(product.id)
     return Response(data="Xóa thành công")
