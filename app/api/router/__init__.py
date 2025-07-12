@@ -85,14 +85,26 @@ async def broadcast_message(
 
 
 # Webhook
-@api.post(tags=["Webhook"], path="/webhook", status_code=200, name="Webhook")
+@api.post(
+    tags=["Webhook"], 
+    path="/webhook", 
+    status_code=200, 
+    name="Webhook",
+    response_model=Response
+)
 def receive_webhook():
-    return True
+    return Response(data=True)
 
 # Health check
-@api.get(tags=["Health check"], path="/health-check", status_code=200, name="Health Check")
+@api.get(
+    tags=["Health check"], 
+    path="/health-check", 
+    status_code=200, 
+    name="Health Check",
+    response_model=Response
+)
 def health_check():
-    return True
+    return Response(data=True)
 
 
 # Handle Undefined API
