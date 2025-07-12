@@ -21,6 +21,7 @@ apiRouter = APIRouter(
 @apiRouter.post(
     path = "",
     response_model = Response[PlanResponse],
+    response_model_exclude={"data":"qr_code"},
     name = "Thêm gói gia hạn"
 )
 async def post_plan(data:PlanCreate):
